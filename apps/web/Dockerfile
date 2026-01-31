@@ -4,11 +4,11 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package files (giống API để npm ci hoạt động)
-COPY package.json package-lock.json ./
+COPY package.json yarn.lock ./
 COPY apps/api/package.json ./apps/api/package.json
 COPY apps/web/package.json ./apps/web/package.json
 
-RUN npm ci
+RUN yarn install --frozen-lockfile
 
 # Copy source code
 COPY apps/web ./apps/web
@@ -20,7 +20,7 @@ WORKDIR /app/apps/web
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
-RUN npm run build
+RUN yarn build
 
 # --- Stage 2: Runner (Nginx) ---
 FROM nginx:alpine AS runner
