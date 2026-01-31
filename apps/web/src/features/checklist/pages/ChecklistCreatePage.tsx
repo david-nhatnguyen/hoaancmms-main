@@ -60,7 +60,7 @@ export default function ChecklistCreatePage() {
     setFormData(prev => ({ ...prev, items: prev.items?.filter(i => i.id !== itemId) }));
   };
 
-  const updateItem = (itemId: string, field: keyof ChecklistItem, value: any) => {
+  const updateItem = (itemId: string, field: keyof ChecklistItem, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
       items: prev.items?.map(i => i.id === itemId ? { ...i, [field]: value } : i)
@@ -142,7 +142,7 @@ export default function ChecklistCreatePage() {
                   setFormData({ 
                     ...formData, 
                     machineType: v,
-                    equipmentGroupId: group as any
+                    equipmentGroupId: group as "injection" | "mold-manufacturing"
                   });
                 }}
               >
@@ -160,7 +160,7 @@ export default function ChecklistCreatePage() {
               <Label>Chu kỳ</Label>
               <Select 
                 value={formData.cycle} 
-                onValueChange={(v: any) => setFormData({ ...formData, cycle: v })}
+                onValueChange={(v: ChecklistTemplate['cycle']) => setFormData({ ...formData, cycle: v })}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -175,8 +175,8 @@ export default function ChecklistCreatePage() {
             <div className="space-y-2">
               <Label>Trạng thái</Label>
               <Select 
-                value={formData.status} 
-                onValueChange={(v: any) => setFormData({ ...formData, status: v })}
+                value={formData.status}
+                onValueChange={(v: ChecklistTemplate['status']) => setFormData({ ...formData, status: v })}
               >
                 <SelectTrigger>
                   <SelectValue />

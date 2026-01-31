@@ -14,7 +14,7 @@ import type { Step2Data } from './PMPlanStep2';
 import type { PMPlanEquipmentItem } from './PMPlanStep3';
 import type { Step1Data } from './PMPlanStep1';
 
-export interface Step4Data extends Step1Data {}
+export type Step4Data = Step1Data
 
 interface PMPlanStep4Props {
   step1Data: Step1Data;
@@ -32,9 +32,10 @@ export function PMPlanStep4({ step1Data, step2Data, items }: PMPlanStep4Props) {
 
   const getPlanTypeLabel = () => {
     switch (step1Data.planType) {
-      case 'monthly':
+      case 'monthly': {
         const monthLabel = MONTHS.find(m => m.value === step1Data.month)?.label || '';
         return `${monthLabel}/${step1Data.year}`;
+      }
       case 'daily':
         return `${step1Data.dateFrom} → ${step1Data.dateTo}`;
       case 'hours':

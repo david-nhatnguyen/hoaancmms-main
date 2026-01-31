@@ -119,7 +119,7 @@ export default function EquipmentCreatePage() {
                 <Label>Nhóm thiết bị</Label>
                 <Select 
                   value={formData.groupId} 
-                  onValueChange={(v: any) => setFormData({ ...formData, groupId: v, machineType: '' })}
+                  onValueChange={(v: "injection" | "mold-manufacturing") => setFormData({ ...formData, groupId: v, machineType: '' })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Chọn nhóm" />

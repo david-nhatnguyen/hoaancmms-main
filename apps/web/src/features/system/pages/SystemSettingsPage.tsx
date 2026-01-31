@@ -71,7 +71,7 @@ export default function SystemSettingsPage() {
   const updateSetting = <K extends keyof SystemSettings>(
     section: K,
     key: keyof SystemSettings[K],
-    value: any
+    value: string | boolean
   ) => {
     if (!settings) return;
     setSettings(prev => prev ? ({

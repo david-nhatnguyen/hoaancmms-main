@@ -107,8 +107,8 @@ export default function CorrectiveMaintenanceCreatePage() {
           <div className="space-y-2">
             <Label>Mức độ ưu tiên</Label>
             <Select 
-              value={formData.severity} 
-              onValueChange={(v: any) => setFormData({ ...formData, severity: v })}
+              value={formData.severity}
+              onValueChange={(v: CorrectiveMaintenance['severity']) => setFormData({ ...formData, severity: v })}
             >
               <SelectTrigger>
                 <SelectValue />

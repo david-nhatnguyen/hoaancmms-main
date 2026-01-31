@@ -59,14 +59,15 @@ export default function PMPlanCreatePage() {
         return true; // Optional step
       case 3:
         return items.length > 0;
-      case 4:
+      case 4: {
         const missingChecklist = items.filter(i => !i.checklistId).length;
         const missingDate = items.filter(i => !i.plannedDate).length;
         return items.length > 0 && missingChecklist === 0 && missingDate === 0;
+      }
       default:
         return false;
     }
-  }, [currentStep, step1Data, step2Data, items]);
+  }, [currentStep, step1Data, items]);
 
   const handleNext = () => {
     if (currentStep < 4 && canProceed) {
