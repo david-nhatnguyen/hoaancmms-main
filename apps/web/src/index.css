@@ -1,0 +1,174 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    /* Dark Industrial Theme - Inspired by CMMS Reference */
+    --background: 220 20% 14%;
+    --foreground: 210 20% 95%;
+
+    --card: 220 20% 18%;
+    --card-foreground: 210 20% 95%;
+
+    --popover: 220 20% 16%;
+    --popover-foreground: 210 20% 95%;
+
+    /* Teal/Cyan Primary - Professional accent */
+    --primary: 168 76% 42%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Slightly lighter card for secondary */
+    --secondary: 220 18% 22%;
+    --secondary-foreground: 210 20% 90%;
+
+    --muted: 220 15% 25%;
+    --muted-foreground: 215 15% 55%;
+
+    /* Teal accent */
+    --accent: 168 76% 42%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 25%;
+    --input: 220 15% 25%;
+    --ring: 168 76% 42%;
+
+    --radius: 0.75rem;
+
+    /* Status Colors - Vibrant on dark */
+    --status-active: 152 69% 45%;
+    --status-active-foreground: 0 0% 100%;
+    --status-maintenance: 38 92% 50%;
+    --status-maintenance-foreground: 0 0% 10%;
+    --status-inactive: 220 15% 45%;
+    --status-inactive-foreground: 0 0% 100%;
+    --status-critical: 0 84% 60%;
+    --status-critical-foreground: 0 0% 100%;
+
+    /* Priority Colors */
+    --priority-high: 0 84% 60%;
+    --priority-medium: 38 92% 50%;
+    --priority-low: 152 69% 45%;
+
+    /* Sidebar - Darkest layer */
+    --sidebar-background: 222 25% 10%;
+    --sidebar-foreground: 215 15% 65%;
+    --sidebar-primary: 168 76% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 20% 16%;
+    --sidebar-accent-foreground: 210 20% 95%;
+    --sidebar-border: 222 20% 16%;
+    --sidebar-ring: 168 76% 45%;
+
+    /* Table */
+    --table-header: 220 18% 20%;
+    --table-row-hover: 220 18% 22%;
+    --table-border: 220 15% 22%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  /* Header styles */
+  .app-header {
+    @apply h-14 bg-card border-b border-border flex items-center justify-between px-6;
+  }
+
+  .search-input {
+    @apply bg-secondary/50 border-none text-foreground placeholder:text-muted-foreground rounded-lg;
+  }
+
+  /* Table styles - cleaner look */
+  .table-header-cell {
+    @apply bg-table-header text-muted-foreground font-medium text-xs uppercase tracking-wider py-3;
+  }
+
+  .table-row-interactive {
+    @apply hover:bg-table-row-hover transition-colors cursor-pointer border-b border-border/50;
+  }
+
+  /* Status badges - rounded pill style */
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+
+  .status-active {
+    @apply bg-status-active/20 text-[hsl(var(--status-active))];
+  }
+
+  .status-maintenance {
+    @apply bg-status-maintenance/20 text-[hsl(var(--status-maintenance))];
+  }
+
+  .status-inactive {
+    @apply bg-status-inactive/20 text-[hsl(var(--status-inactive))];
+  }
+
+  /* Priority indicators */
+  .priority-high {
+    @apply text-[hsl(var(--priority-high))];
+  }
+
+  .priority-medium {
+    @apply text-[hsl(var(--priority-medium))];
+  }
+
+  .priority-low {
+    @apply text-[hsl(var(--priority-low))];
+  }
+
+  /* Filter panel - dark theme */
+  .filter-panel {
+    @apply bg-card border-r border-border p-4 space-y-5;
+  }
+
+  /* Page header - clean spacing */
+  .page-header {
+    @apply flex items-center justify-between pb-5 mb-5;
+  }
+
+  .page-title {
+    @apply text-xl font-semibold text-foreground;
+  }
+
+  .page-subtitle {
+    @apply text-xs uppercase tracking-wider text-muted-foreground mb-1;
+  }
+
+  /* Cards - modern dark style */
+  .stat-card {
+    @apply bg-card rounded-xl p-5 border border-border/50;
+  }
+
+  .stat-card-icon {
+    @apply h-10 w-10 rounded-lg flex items-center justify-center;
+  }
+
+  /* Action buttons */
+  .action-btn {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors;
+  }
+
+  .action-btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+
+  .action-btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border;
+  }
+}

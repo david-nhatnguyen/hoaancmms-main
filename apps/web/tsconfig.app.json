@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "types": ["vitest/globals"],
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitAny": false,
+    "noFallthroughCasesInSwitch": false,
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src", "apps/web/src/pages/NotFound.tsx", "apps/web/src/features/dashboard/pages/DashboardPage.tsx", "apps/web/src/components/layout/MainLayout.tsx", "apps/web/src/services/corrective-maintenance.service.ts", "apps/web/src/features/corrective-maintenance/pages/CorrectiveMaintenanceCreatePage.tsx", "apps/web/src/features/corrective-maintenance/pages/CorrectiveMaintenanceDetailPage.tsx", "apps/web/src/features/corrective-maintenance/pages/CorrectiveMaintenanceListPage.tsx", "apps/web/src/features/checklist/pages/ChecklistCreatePage.tsx", "apps/web/src/features/checklist/pages/ChecklistDetailPage.tsx", "apps/web/src/features/checklist/pages/ChecklistListPage.tsx", "apps/web/src/services/checklist.service.ts"]
+}
