@@ -19,6 +19,10 @@ COPY apps/api ./apps/api
 WORKDIR /app/apps/api
 RUN npm run build
 
+# Tối ưu hóa: Xóa bỏ devDependencies để giảm dung lượng image
+WORKDIR /app
+RUN npm prune --production
+
 # --- Stage 2: Runner ---
 FROM node:20-alpine AS runner
 
@@ -27,7 +31,7 @@ ENV NODE_ENV=production
 
 # Copy build artifacts từ builder
 COPY --from=builder /app/apps/api/dist ./dist
-COPY --from=builder /app/apps/api/package.json ./
+COPY --from=builder /app/apps/api/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
 
 EXPOSE 3000
