@@ -34,3 +34,9 @@ GEMINI.md
 
 # Turbo
 .turbo
+
+# TypeScript
+*.tsbuildinfo
+
+# ESLint
+.eslintcache
