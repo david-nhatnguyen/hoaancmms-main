@@ -90,7 +90,9 @@ jobs:
           file: apps/web/Dockerfile
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:dev
+          # Truyền biến môi trường vào quá trình build (Build-time variables)
           build-args: |
+            NODE_ENV=production
             VITE_API_URL=${{ secrets.VITE_API_URL }}
           # Tối ưu hóa: Sử dụng GitHub Actions Cache cho Docker Layers
           cache-from: type=gha
