@@ -50,7 +50,7 @@ jobs:
   docker-build:
     name: Build & Push Docker
     needs: quality-check # Chỉ chạy khi Quality Check pass
-    if: github.event_name == 'push' # Không push image khi chạy Pull Request
+    if: false # Tạm thời disable để tập trung fix lỗi test. Logic cũ: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: read
