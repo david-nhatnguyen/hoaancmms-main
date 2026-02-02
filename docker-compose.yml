@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  # Database chính
+  postgres:
+    image: postgres:15-alpine
+    container_name: cmms_postgres
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: hoaancmms
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cmms_network
+
+  # Redis cho Queue (Chuẩn bị cho Heavy Tasks)
+  redis:
+    image: redis:7-alpine
+    container_name: cmms_redis
+    ports:
+      - '6379:6379'
+    networks:
+      - cmms_network
+
+networks:
+  cmms_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
