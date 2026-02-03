@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { PrismaModule } from './database/prisma.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { HealthModule } from './modules/health/health.module';
+import { QueueModule } from './modules/queue/queue.module';
 
 @Module({
   imports: [
@@ -20,14 +22,22 @@ import { AuthModule } from './modules/auth/auth.module';
         DATABASE_URL: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRATION: Joi.string().default('1d'),
-        // Sau này sẽ thêm REDIS_URL, MINIO_URL...
+        CORS_ORIGIN: Joi.string().default('http://localhost:5173'),
+
+        // Redis Configuration (for BullMQ)
+        REDIS_HOST: Joi.string().default('localhost'),
+        REDIS_PORT: Joi.number().default(6379),
       }),
     }),
     PrismaModule,
+    QueueModule, // BullMQ for async processing
     UsersModule,
     AuthModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
+
+
