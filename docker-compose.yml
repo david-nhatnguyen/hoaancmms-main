@@ -1,33 +1,36 @@
 version: '3.8'
 
 services:
-  # Database chính
   postgres:
     image: postgres:15-alpine
-    container_name: cmms_postgres
-    ports:
-      - '5432:5432'
+    container_name: cmms-postgres
     environment:
-      POSTGRES_USER: postgres
+      POSTGRES_DB: cmms
+      POSTGRES_USER: admin
       POSTGRES_PASSWORD: password123
-      POSTGRES_DB: hoaancmms
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - cmms_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d cmms"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Redis cho Queue (Chuẩn bị cho Heavy Tasks)
   redis:
     image: redis:7-alpine
-    container_name: cmms_redis
+    container_name: cmms-redis
     ports:
-      - '6379:6379'
-    networks:
-      - cmms_network
-
-networks:
-  cmms_network:
-    driver: bridge
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
+  redis_data:

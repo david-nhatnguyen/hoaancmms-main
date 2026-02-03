@@ -1,73 +1,169 @@
-# Welcome to your Lovable project
+# 🏭 CMMS - Computerized Maintenance Management System
 
-## Project info
+A comprehensive maintenance management system for manufacturing facilities, built with modern web technologies.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Quick Start
 
-## How can I edit this code?
+### Option 1: Automated Setup (Recommended)
 
-There are several ways of editing your application.
+```bash
+# Clone and navigate to project
+cd hoaancmms-main
 
-**Use Lovable**
+# Run setup script (handles everything)
+./setup.sh
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+# Start development
+yarn dev
 ```
 
-**Edit a file directly in GitHub**
+### Option 2: Manual Setup
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+# 1. Install dependencies
+yarn
 
-**Use GitHub Codespaces**
+# 2. Setup environment files
+cp apps/api/.env.example apps/api/.env
+echo "VITE_API_URL=http://localhost:3000" > apps/web/.env
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# 3. Start Docker services (PostgreSQL + Redis)
+docker-compose up -d
 
-## What technologies are used for this project?
+# 4. Run database migrations
+cd apps/api
+npx prisma migrate dev
+npx prisma generate
+cd ../..
 
-This project is built with:
+# 5. Start development
+yarn dev
+```
 
-- Vite
+## 📦 What's Inside
+
+This monorepo uses [Turborepo](https://turbo.build/) and contains:
+
+### Apps
+
+- **`apps/api`** - NestJS backend (REST API)
+  - PostgreSQL database with Prisma ORM
+  - Redis for queue processing (BullMQ)
+  - JWT authentication
+  - File upload handling
+
+- **`apps/web`** - React frontend (Vite)
+  - shadcn/ui components
+  - TanStack Query for data fetching
+  - React Router for navigation
+  - Tailwind CSS for styling
+
+### Tech Stack
+
+**Backend:**
+- NestJS
+- Prisma ORM
+- PostgreSQL
+- Redis + BullMQ
 - TypeScript
-- React
+
+**Frontend:**
+- React 18
+- TypeScript
+- Vite
 - shadcn-ui
 - Tailwind CSS
+- TanStack Query
 
-## How can I deploy this project?
+## 🛠️ Development
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+### Available Commands
 
-## Can I connect a custom domain to my Lovable project?
+From **root directory**:
 
-Yes, you can!
+```bash
+yarn dev      # Start all apps in dev mode (API + Web)
+yarn build    # Build all apps
+yarn lint     # Lint all apps
+yarn test     # Run tests for all apps
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Development URLs
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- **Frontend:** http://localhost:5173
+- **Backend API:** http://localhost:3000
+- **Database:** postgresql://admin:password123@localhost:5432/cmms
+
+### Hot Reload
+
+Both applications support hot reload:
+- API: NestJS watch mode (auto-restart on changes)
+- Web: Vite HMR (instant updates)
+
+## 📚 Documentation
+
+- [Quick Start Guide](./QUICKSTART.md) - Detailed setup instructions
+- [Implementation Plan](./.agent/implementation_plan.md) - Technical architecture
+- [Task Breakdown](./.agent/task.md) - Development roadmap
+- [Project Index](./.agent/PROJECT_INDEX.md) - Codebase guide
+
+## 🏗️ Project Structure
+
+```
+hoaancmms-main/
+├── apps/
+│   ├── api/                 # NestJS Backend
+│   │   ├── src/
+│   │   │   ├── modules/     # Feature modules
+│   │   │   ├── database/    # Prisma client
+│   │   │   └── main.ts
+│   │   └── prisma/
+│   │       └── schema.prisma
+│   │
+│   └── web/                 # React Frontend
+│       ├── src/
+│       │   ├── components/  # UI components
+│       │   ├── pages/       # Route pages
+│       │   ├── services/    # API clients
+│       │   └── features/    # Feature modules
+│       └── package.json
+│
+├── docker-compose.yml       # PostgreSQL + Redis
+├── turbo.json              # Turborepo config
+├── setup.sh                # Automated setup script
+└── package.json            # Root workspace
+```
+
+## 🔧 Troubleshooting
+
+### Port already in use
+
+```bash
+# Kill process on port 3000 (API)
+lsof -ti:3000 | xargs kill -9
+
+# Kill process on port 5173 (Web)
+lsof -ti:5173 | xargs kill -9
+```
+
+### Database connection issues
+
+```bash
+# Check if PostgreSQL is running
+docker ps | grep postgres
+
+# Restart Docker services
+docker-compose restart
+```
+
+### Prisma issues
+
+```bash
+cd apps/api
+npx prisma generate
+npx prisma migrate reset
+```
+
+## 📝 License
+
+Private - All rights reserved
