@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Pencil, ChevronRight, MapPin, Settings2, Building2, Eye } from 'lucide-react';
+import { Plus, Pencil, ChevronRight, MapPin, Settings2, Building2, Eye, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -15,15 +15,37 @@ import { StatusBadge } from '@/components/shared/StatusBadge';
 import { MobilePageHeader } from '@/components/shared/MobilePageHeader';
 import { MobileStatsGrid } from '@/components/shared/MobileStatsGrid';
 import { ResponsiveTable, Column } from '@/components/shared/ResponsiveTable';
-import { factories as initialFactories, Factory } from '@/data/mockData';
-import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+
+// ✅ NEW: Import API hooks instead of mock data
+import { 
+  useFactories, 
+  useCreateFactory, 
+  useUpdateFactory,
+  useFactoryStats 
+} from '@/features/factories/hooks';
+import type { Factory, FactoryQueryParams } from '@/api/types/factory.types';
 
 export default function FactoryList() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [factories, setFactories] = useState<Factory[]>(initialFactories);
+  
+  // ✅ NEW: Query parameters state
+  const [params, setParams] = useState<FactoryQueryParams>({
+    page: 1,
+    limit: 10,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+  });
+
+  // ✅ NEW: Use React Query hooks
+  const { data, isLoading, error } = useFactories(params);
+  const { data: statsData } = useFactoryStats();
+  const createFactory = useCreateFactory();
+  const updateFactory = useUpdateFactory();
+
+  // Dialog state
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingFactory, setEditingFactory] = useState<Factory | null>(null);
   const [formData, setFormData] = useState({
@@ -38,7 +60,7 @@ export default function FactoryList() {
       setFormData({
         code: factory.code,
         name: factory.name,
-        location: factory.location
+        location: factory.location || ''
       });
     } else {
       setEditingFactory(null);
@@ -47,61 +69,63 @@ export default function FactoryList() {
     setIsDialogOpen(true);
   };
 
+  // ✅ NEW: Handle save with API calls
   const handleSave = () => {
     if (!formData.code || !formData.name) {
-      toast.error('Vui lòng điền đầy đủ thông tin bắt buộc');
       return;
     }
 
     if (editingFactory) {
-      setFactories(prev => prev.map(f => 
-        f.id === editingFactory.id 
-          ? { ...f, ...formData }
-          : f
-      ));
-      toast.success('Cập nhật nhà máy thành công');
+      // Update existing factory
+      updateFactory.mutate({
+        id: editingFactory.id,
+        data: {
+          code: formData.code,
+          name: formData.name,
+          location: formData.location || undefined,
+        }
+      }, {
+        onSuccess: () => {
+          setIsDialogOpen(false);
+        }
+      });
     } else {
-      const newFactory: Factory = {
-        id: `f${Date.now()}`,
+      // Create new factory
+      createFactory.mutate({
         code: formData.code,
         name: formData.name,
-        location: formData.location,
-        equipmentCount: 0,
-        status: 'active'
-      };
-      setFactories(prev => [...prev, newFactory]);
-      toast.success('Thêm nhà máy thành công');
+        location: formData.location || undefined,
+        status: 'ACTIVE',
+      }, {
+        onSuccess: () => {
+          setIsDialogOpen(false);
+        }
+      });
     }
-    setIsDialogOpen(false);
   };
 
   const viewEquipments = (factoryId: string) => {
     navigate(`/equipments?factory=${factoryId}`);
   };
 
-  // Summary stats
-  const totalFactories = factories.length;
-  const activeFactories = factories.filter(f => f.status === 'active').length;
-  const totalEquipment = factories.reduce((sum, f) => sum + f.equipmentCount, 0);
-
-  // Stats data
-  const statsData = [
+  // ✅ NEW: Stats from API
+  const stats = [
     {
       label: 'Tổng số Nhà máy',
-      value: totalFactories,
+      value: statsData?.data.totalFactories || 0,
       icon: <Building2 className="h-5 w-5 text-primary" />,
       iconBgClass: 'bg-primary/20'
     },
     {
       label: 'Đang hoạt động',
-      value: activeFactories,
+      value: statsData?.data.activeFactories || 0,
       icon: <Building2 className="h-5 w-5 text-status-active" />,
       iconBgClass: 'bg-status-active/20',
       valueClass: 'text-[hsl(var(--status-active))]'
     },
     {
       label: 'Tổng số Thiết bị',
-      value: totalEquipment,
+      value: statsData?.data.totalEquipment || 0,
       icon: <Settings2 className="h-5 w-5 text-accent" />,
       iconBgClass: 'bg-accent/20'
     }
@@ -128,10 +152,10 @@ export default function FactoryList() {
       render: (f) => (
         <div className="flex items-center gap-1.5 text-muted-foreground">
           <MapPin className="h-4 w-4" />
-          {f.location}
+          {f.location || '-'}
         </div>
       ),
-      mobileRender: (f) => f.location
+      mobileRender: (f) => f.location || '-'
     },
     {
       key: 'equipmentCount',
@@ -149,55 +173,49 @@ export default function FactoryList() {
       key: 'status',
       header: 'Trạng thái',
       align: 'center',
-      render: (f) => <StatusBadge status={f.status} />
+      render: (f) => <StatusBadge status={f.status} />,
+      mobileRender: (f) => <StatusBadge status={f.status} />
     },
     {
       key: 'actions',
       header: 'Thao tác',
       align: 'right',
       render: (f) => (
-        <div className="flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
-          <Button 
-            variant="ghost" 
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            variant="ghost"
             size="sm"
             onClick={() => viewEquipments(f.id)}
-            className="text-muted-foreground hover:text-primary"
+            className="h-8 px-2"
           >
-            Xem thiết bị
-            <ChevronRight className="h-4 w-4 ml-1" />
+            <Eye className="h-4 w-4" />
+            <span className="ml-1.5 hidden sm:inline">Xem TB</span>
           </Button>
-          <Button 
-            variant="ghost" 
-            size="icon"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => handleOpenDialog(f)}
-            className="text-muted-foreground hover:text-foreground"
+            className="h-8 px-2"
           >
             <Pencil className="h-4 w-4" />
+            <span className="ml-1.5 hidden sm:inline">Sửa</span>
           </Button>
         </div>
       ),
       mobileRender: (f) => (
         <div className="flex gap-2">
-          <Button 
+          <Button
+            variant="ghost"
             size="sm"
-            variant="outline"
-            onClick={(e) => {
-              e.stopPropagation();
-              viewEquipments(f.id);
-            }}
-            className="flex-1"
+            onClick={() => viewEquipments(f.id)}
           >
             <Eye className="h-4 w-4 mr-1" />
-            Thiết bị
+            Xem TB
           </Button>
-          <Button 
+          <Button
+            variant="ghost"
             size="sm"
-            variant="outline"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleOpenDialog(f);
-            }}
-            className="flex-1"
+            onClick={() => handleOpenDialog(f)}
           >
             <Pencil className="h-4 w-4 mr-1" />
             Sửa
@@ -207,84 +225,140 @@ export default function FactoryList() {
     }
   ];
 
+  // ✅ NEW: Handle loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="text-center space-y-3">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="text-sm text-muted-foreground">Đang tải dữ liệu...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ NEW: Handle error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="text-center space-y-3">
+          <p className="text-sm text-destructive">Có lỗi xảy ra khi tải dữ liệu</p>
+          <Button onClick={() => window.location.reload()}>Thử lại</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={cn("animate-fade-in", isMobile ? "p-4" : "p-6")}>
-      {/* Page Header */}
-      <MobilePageHeader
-        subtitle="QUẢN LÝ TÀI SẢN"
-        title="Danh sách Nhà máy"
-        actions={
-          <Button 
-            onClick={() => handleOpenDialog()} 
-            className="action-btn-primary"
-            size={isMobile ? "sm" : "default"}
-          >
-            <Plus className="h-4 w-4" />
-            {!isMobile && "Thêm nhà máy"}
+    <div className="flex flex-col h-full">
+      {/* Mobile Header */}
+      {isMobile && (
+        <MobilePageHeader
+          title="Nhà máy"
+          actions={
+            <Button size="sm" onClick={() => handleOpenDialog()}>
+              <Plus className="h-4 w-4 mr-1.5" />
+              Thêm
+            </Button>
+          }
+        />
+      )}
+
+      {/* Desktop Header */}
+      {!isMobile && (
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Quản lý Nhà máy</h1>
+            <p className="text-muted-foreground mt-1">
+              Danh sách tất cả các nhà máy trong hệ thống
+            </p>
+          </div>
+          <Button onClick={() => handleOpenDialog()}>
+            <Plus className="h-4 w-4 mr-2" />
+            Thêm Nhà máy
           </Button>
-        }
-      />
+        </div>
+      )}
 
-      {/* Stats Cards */}
-      <MobileStatsGrid stats={statsData} columns={{ mobile: 3, tablet: 3, desktop: 3 }} />
+      {/* Stats Grid */}
+      <MobileStatsGrid stats={stats} className="mb-6" />
 
-      {/* Table/Cards */}
-      <ResponsiveTable
-        data={factories}
+      {/* Table */}
+      <ResponsiveTable<Factory>
         columns={columns}
-        keyExtractor={(f) => f.id}
-        onRowClick={(f) => viewEquipments(f.id)}
-        emptyMessage="Không có nhà máy nào"
+        data={data?.data || []}
+        keyExtractor={(factory) => factory.id}
+        onRowClick={(factory) => isMobile && handleOpenDialog(factory)}
+        emptyMessage="Chưa có nhà máy nào"
+        showPagination={false}
       />
 
-      {/* Add/Edit Factory Dialog */}
+      {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className={cn(
-          "bg-card border-border",
-          isMobile ? "w-[calc(100%-2rem)] max-w-[425px]" : "sm:max-w-[425px]"
+          isMobile && "w-[95vw] max-w-[95vw] rounded-lg"
         )}>
           <DialogHeader>
-            <DialogTitle className="text-foreground">
-              {editingFactory ? 'Sửa thông tin Nhà máy' : 'Thêm Nhà máy mới'}
+            <DialogTitle>
+              {editingFactory ? 'Chỉnh sửa Nhà máy' : 'Thêm Nhà máy mới'}
             </DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="code" className="text-foreground">Mã nhà máy *</Label>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="code">
+                Mã nhà máy <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="code"
+                placeholder="Ví dụ: F01"
                 value={formData.code}
-                onChange={(e) => setFormData(prev => ({ ...prev, code: e.target.value }))}
-                placeholder="VD: F01"
-                className="bg-secondary border-border"
+                onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                disabled={!!editingFactory}
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="name" className="text-foreground">Tên nhà máy *</Label>
+
+            <div className="space-y-2">
+              <Label htmlFor="name">
+                Tên nhà máy <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="name"
+                placeholder="Nhập tên nhà máy"
                 value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="VD: Nhà máy A"
-                className="bg-secondary border-border"
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="location" className="text-foreground">Địa điểm</Label>
+
+            <div className="space-y-2">
+              <Label htmlFor="location">Địa điểm</Label>
               <Input
                 id="location"
+                placeholder="Nhập địa điểm"
                 value={formData.location}
-                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                placeholder="VD: Bình Dương"
-                className="bg-secondary border-border"
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               />
             </div>
           </div>
-          <DialogFooter className={isMobile ? "flex-col gap-2" : ""}>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)} className={cn("border-border", isMobile && "w-full")}>
+
+          <DialogFooter className={cn(
+            isMobile && "flex-col gap-2"
+          )}>
+            <Button
+              variant="outline"
+              onClick={() => setIsDialogOpen(false)}
+              className={cn(isMobile && "w-full")}
+            >
               Hủy
             </Button>
-            <Button onClick={handleSave} className={cn("action-btn-primary", isMobile && "w-full")}>
+            <Button
+              onClick={handleSave}
+              disabled={createFactory.isPending || updateFactory.isPending}
+              className={cn(isMobile && "w-full")}
+            >
+              {(createFactory.isPending || updateFactory.isPending) && (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              )}
               {editingFactory ? 'Cập nhật' : 'Thêm mới'}
             </Button>
           </DialogFooter>

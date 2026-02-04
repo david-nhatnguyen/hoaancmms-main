@@ -1,5 +1,5 @@
 import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient, UserRole } from '../generated/prisma/client'
+import { PrismaClient, UserRole, FactoryStatus } from '../generated/prisma/client'
 import * as bcrypt from 'bcrypt';
 
 const adapter = new PrismaPg({
@@ -13,12 +13,13 @@ async function main() {
 
   // 1. Create Default Factory
   const factory = await prisma.factory.upsert({
-    where: { id: 'default-factory-01' }, // ID cố định để tránh tạo trùng
+    where: { code: 'F01' }, // Use code as unique identifier
     update: {},
     create: {
-      id: 'default-factory-01',
+      code: 'F01',
       name: 'Nhà máy Hòa An (Hà Nội)',
-      address: 'Khu Công Nghiệp Thăng Long, Hà Nội',
+      location: 'Khu Công Nghiệp Thăng Long, Hà Nội',
+      status: FactoryStatus.ACTIVE,
     },
   });
   console.log(`🏭 Factory created: ${factory.name}`);

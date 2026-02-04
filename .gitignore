@@ -29,6 +29,7 @@ yarn-error.log*
 # IDEs
 .idea
 .vscode
+.agent
 
 GEMINI.md
 
@@ -44,3 +45,6 @@ apps/web/dev-dist
 
 # Prisma
 apps/api/prisma/generated
+
+# Documents
+/docs

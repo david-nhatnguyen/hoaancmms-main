@@ -8,6 +8,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './modules/health/health.module';
 import { QueueModule } from './modules/queue/queue.module';
+import { FactoriesModule } from './modules/factories/factories.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { QueueModule } from './modules/queue/queue.module';
     UsersModule,
     AuthModule,
     HealthModule,
+    FactoriesModule, // Factory CRUD API
   ],
   controllers: [AppController],
   providers: [AppService],

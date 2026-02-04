@@ -17,7 +17,11 @@ async function bootstrap() {
 
   // 1. Security & Optimization
   app.enableCors({
-    origin: configService.get('CORS_ORIGIN') || 'http://localhost:5173',
+    origin: [
+      'http://localhost:5173',  // Vite default
+      'http://localhost:3001',  // Current frontend
+      configService.get('CORS_ORIGIN') || 'http://localhost:5173'
+    ],
     credentials: true,
   });
   app.use(helmet());
