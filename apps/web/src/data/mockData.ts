@@ -6,7 +6,7 @@ export interface Factory {
   name: string;
   location: string;
   equipmentCount: number;
-  status: 'active' | 'inactive';
+  status: 'ACTIVE' | 'INACTIVE';
 }
 
 export interface Equipment {
@@ -23,9 +23,17 @@ export interface Equipment {
   yearInService: number;
   department: string;
   priority: 'high' | 'medium' | 'low';
-  status: 'active' | 'maintenance' | 'inactive';
+  status: 'ACTIVE' | 'MAINTENANCE' | 'INACTIVE';
   notes?: string;
 }
+
+
+
+export const STATUS_LABELS = {
+  ACTIVE: 'Hoạt động',
+  MAINTENANCE: 'Bảo trì',
+  INACTIVE: 'Ngừng hoạt động'
+};
 
 export const EQUIPMENT_GROUPS = {
   injection: {
@@ -45,11 +53,7 @@ export const MACHINE_TYPES: Record<string, string[]> = {
   'mold-manufacturing': ['CNC Machining Center', 'CMM (Coordinate Measuring Machine)', 'Milling Machine', 'Grinding Machine', 'Lathe Machine', 'EDM Machine', 'Wire EDM']
 };
 
-export const STATUS_LABELS = {
-  active: 'Hoạt động',
-  maintenance: 'Bảo trì',
-  inactive: 'Ngừng hoạt động'
-};
+
 
 export const PRIORITY_LABELS = {
   high: 'Cao',
@@ -64,7 +68,7 @@ export const factories: Factory[] = [
     name: 'Nhà máy A',
     location: 'Bình Dương',
     equipmentCount: 12,
-    status: 'active'
+    status: 'ACTIVE'
   },
   {
     id: 'f02',
@@ -72,7 +76,7 @@ export const factories: Factory[] = [
     name: 'Nhà máy B',
     location: 'Đồng Nai',
     equipmentCount: 8,
-    status: 'active'
+    status: 'ACTIVE'
   },
   {
     id: 'f03',
@@ -80,7 +84,7 @@ export const factories: Factory[] = [
     name: 'Nhà máy C',
     location: 'Long An',
     equipmentCount: 5,
-    status: 'inactive'
+    status: 'INACTIVE'
   }
 ];
 
@@ -99,7 +103,7 @@ export const equipments: Equipment[] = [
     yearInService: 2021,
     department: 'Xưởng ép nhựa 1',
     priority: 'high',
-    status: 'active',
+    status: 'ACTIVE',
     notes: 'Máy chính cho sản phẩm lớn'
   },
   {
@@ -116,7 +120,7 @@ export const equipments: Equipment[] = [
     yearInService: 2020,
     department: 'Xưởng ép nhựa 1',
     priority: 'medium',
-    status: 'maintenance'
+    status: 'MAINTENANCE'
   },
   {
     id: 'imm-03',
@@ -132,7 +136,7 @@ export const equipments: Equipment[] = [
     yearInService: 2022,
     department: 'Xưởng ép nhựa 2',
     priority: 'high',
-    status: 'active'
+    status: 'ACTIVE'
   },
   {
     id: 'cnc-01',
@@ -148,7 +152,7 @@ export const equipments: Equipment[] = [
     yearInService: 2019,
     department: 'Xưởng khuôn',
     priority: 'high',
-    status: 'active',
+    status: 'ACTIVE',
     notes: 'Độ chính xác cao, ưu tiên cho chi tiết phức tạp'
   },
   {
@@ -165,7 +169,7 @@ export const equipments: Equipment[] = [
     yearInService: 2020,
     department: 'Phòng QC',
     priority: 'high',
-    status: 'active'
+    status: 'ACTIVE'
   },
   {
     id: 'mill-01',
@@ -181,7 +185,7 @@ export const equipments: Equipment[] = [
     yearInService: 2018,
     department: 'Xưởng cơ khí',
     priority: 'low',
-    status: 'active'
+    status: 'ACTIVE'
   },
   {
     id: 'grind-01',
@@ -197,7 +201,7 @@ export const equipments: Equipment[] = [
     yearInService: 2019,
     department: 'Xưởng khuôn',
     priority: 'medium',
-    status: 'active'
+    status: 'ACTIVE'
   },
   {
     id: 'edm-01',
@@ -213,6 +217,6 @@ export const equipments: Equipment[] = [
     yearInService: 2021,
     department: 'Xưởng khuôn',
     priority: 'high',
-    status: 'inactive'
+    status: 'INACTIVE'
   }
 ];

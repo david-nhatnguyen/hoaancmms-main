@@ -1,6 +1,12 @@
 import type { PaginationParams } from './common.types';
 
 /**
+ * Factory Status Enum
+ * Matches backend FactoryStatus enum
+ */
+export type FactoryStatus = 'ACTIVE' | 'INACTIVE';
+
+/**
  * Factory Entity
  * Matches backend Factory model
  */
@@ -10,7 +16,7 @@ export interface Factory {
     name: string;
     location: string | null;
     equipmentCount: number;
-    status: 'active' | 'inactive';
+    status: FactoryStatus;
     createdAt: string;
     updatedAt: string;
 }

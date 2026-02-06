@@ -1,265 +1,346 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Pencil, ChevronRight, MapPin, Settings2, Building2, Eye, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { StatusBadge } from '@/components/shared/StatusBadge';
-import { MobilePageHeader } from '@/components/shared/MobilePageHeader';
-import { MobileStatsGrid } from '@/components/shared/MobileStatsGrid';
-import { ResponsiveTable, Column } from '@/components/shared/ResponsiveTable';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
+import { Plus, Loader2, Building2, Pencil, Trash2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import PullToRefresh from 'react-simple-pull-to-refresh';
+import { Drawer } from 'vaul';
 
-// ✅ NEW: Import API hooks instead of mock data
-import { 
-  useFactories, 
-  useCreateFactory, 
+// UI Components
+import { Button } from '@/components/ui/button';
+import { MobileButton } from '@/components/ui/mobile-button';
+import { FAB } from '@/components/ui/fab';
+import { MobilePageHeader } from '@/components/shared/MobilePageHeader';
+import { ResponsiveTable } from '@/components/shared/ResponsiveTable';
+import { TableSkeleton } from '@/components/shared/TableSkeleton';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { SearchBar } from '@/components/shared/SearchBar';
+import { PageContainer } from '@/components/shared/PageContainer';
+import { useIsMobile } from '@/hooks/use-mobile';
+
+// Feature Components & Hooks
+import {
+  useFactoryForm,
+  useFactoryColumns,
+  useFactoryTableStats,
+  useFactories,
+  useCreateFactory,
   useUpdateFactory,
-  useFactoryStats 
 } from '@/features/factories/hooks';
+
+import {
+  FactoryFormDialog,
+  FactoryStatsCards,
+} from '@/features/factories/components';
+import { FactoryFormFields } from '@/features/factories/components/FactoryFormDialog/FactoryFormFields';
+
 import type { Factory, FactoryQueryParams } from '@/api/types/factory.types';
 
+/**
+ * Factory List Page (Web-First Responsive Design)
+ * 
+ * Features:
+ * - Pull-to-refresh (mobile-friendly)
+ * - Touch-optimized buttons (44x44px)
+ * - Skeleton loading
+ * - Enhanced empty state
+ * - Search/Filter with sticky header
+ * - Visible action buttons (web-standard)
+ * - FAB for primary action
+ * - Bottom sheet for mobile forms
+ */
 export default function FactoryList() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  
-  // ✅ NEW: Query parameters state
-  const [params, setParams] = useState<FactoryQueryParams>({
+  const queryClient = useQueryClient();
+
+  // ============================================================================
+  // STATE & HOOKS
+  // ============================================================================
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Query parameters
+  const [params] = useState<FactoryQueryParams>({
     page: 1,
     limit: 10,
     sortBy: 'createdAt',
     sortOrder: 'desc',
   });
 
-  // ✅ NEW: Use React Query hooks
-  const { data, isLoading, error } = useFactories(params);
-  const { data: statsData } = useFactoryStats();
+  // Custom hooks for form management
+  const form = useFactoryForm();
+
+  // Custom hook for table columns
+  const { columns } = useFactoryColumns({
+    onEdit: form.openDialog,
+    onViewEquipments: (id) => navigate(`/equipments?factory=${id}`),
+  });
+
+  // Custom hook for stats
+  const { stats, isLoading: statsLoading } = useFactoryTableStats();
+
+  // API hooks
+  const { data, isLoading, error, refetch } = useFactories(params);
   const createFactory = useCreateFactory();
   const updateFactory = useUpdateFactory();
 
-  // Dialog state
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingFactory, setEditingFactory] = useState<Factory | null>(null);
-  const [formData, setFormData] = useState({
-    code: '',
-    name: '',
-    location: ''
-  });
+  // ============================================================================
+  // COMPUTED VALUES
+  // ============================================================================
 
-  const handleOpenDialog = (factory?: Factory) => {
-    if (factory) {
-      setEditingFactory(factory);
-      setFormData({
-        code: factory.code,
-        name: factory.name,
-        location: factory.location || ''
-      });
-    } else {
-      setEditingFactory(null);
-      setFormData({ code: '', name: '', location: '' });
+  /**
+   * Filter data based on search query
+   */
+  const filteredData = useMemo(() => {
+    if (!searchQuery || !data?.data) return data?.data || [];
+
+    const query = searchQuery.toLowerCase();
+    return data.data.filter(
+      (factory) =>
+        factory.name.toLowerCase().includes(query) ||
+        factory.code.toLowerCase().includes(query) ||
+        factory.location?.toLowerCase().includes(query)
+    );
+  }, [data?.data, searchQuery]);
+
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
+  /**
+   * Handle pull-to-refresh
+   */
+  const handleRefresh = async () => {
+    // Invalidate queries to refetch fresh data
+    await queryClient.invalidateQueries({ queryKey: ['factories'] });
+    await queryClient.invalidateQueries({ queryKey: ['factory-stats'] });
+
+    // Haptic feedback
+    if (window.navigator.vibrate) {
+      window.navigator.vibrate(10);
     }
-    setIsDialogOpen(true);
   };
 
-  // ✅ NEW: Handle save with API calls
+  /**
+   * Handle save (create or update)
+   */
   const handleSave = () => {
-    if (!formData.code || !formData.name) {
+    // Validate form
+    if (!form.validate()) {
       return;
     }
 
-    if (editingFactory) {
+    // Set submitting state
+    form.setIsSubmitting(true);
+
+    if (form.isEditMode && form.editingFactory) {
       // Update existing factory
-      updateFactory.mutate({
-        id: editingFactory.id,
-        data: {
-          code: formData.code,
-          name: formData.name,
-          location: formData.location || undefined,
+      updateFactory.mutate(
+        {
+          id: form.editingFactory.id,
+          data: {
+            code: form.formData.code,
+            name: form.formData.name,
+            location: form.formData.location || undefined,
+            status: form.formData.status,
+          },
+        },
+        {
+          onSuccess: () => {
+            form.closeDialog();
+            // Haptic feedback
+            if (window.navigator.vibrate) {
+              window.navigator.vibrate([10, 50, 10]); // Success pattern
+            }
+          },
+          onSettled: () => {
+            form.setIsSubmitting(false);
+          },
         }
-      }, {
-        onSuccess: () => {
-          setIsDialogOpen(false);
-        }
-      });
+      );
     } else {
       // Create new factory
-      createFactory.mutate({
-        code: formData.code,
-        name: formData.name,
-        location: formData.location || undefined,
-        status: 'ACTIVE',
-      }, {
-        onSuccess: () => {
-          setIsDialogOpen(false);
+      createFactory.mutate(
+        {
+          code: form.formData.code,
+          name: form.formData.name,
+          location: form.formData.location || undefined,
+          status: 'ACTIVE',
+        },
+        {
+          onSuccess: () => {
+            form.closeDialog();
+            // Haptic feedback
+            if (window.navigator.vibrate) {
+              window.navigator.vibrate([10, 50, 10]); // Success pattern
+            }
+          },
+          onSettled: () => {
+            form.setIsSubmitting(false);
+          },
         }
-      });
+      );
     }
   };
 
-  const viewEquipments = (factoryId: string) => {
-    navigate(`/equipments?factory=${factoryId}`);
-  };
+  // ============================================================================
+  // ERROR STATE
+  // ============================================================================
 
-  // ✅ NEW: Stats from API
-  const stats = [
-    {
-      label: 'Tổng số Nhà máy',
-      value: statsData?.data.totalFactories || 0,
-      icon: <Building2 className="h-5 w-5 text-primary" />,
-      iconBgClass: 'bg-primary/20'
-    },
-    {
-      label: 'Đang hoạt động',
-      value: statsData?.data.activeFactories || 0,
-      icon: <Building2 className="h-5 w-5 text-status-active" />,
-      iconBgClass: 'bg-status-active/20',
-      valueClass: 'text-[hsl(var(--status-active))]'
-    },
-    {
-      label: 'Tổng số Thiết bị',
-      value: statsData?.data.totalEquipment || 0,
-      icon: <Settings2 className="h-5 w-5 text-accent" />,
-      iconBgClass: 'bg-accent/20'
-    }
-  ];
-
-  // Table columns
-  const columns: Column<Factory>[] = [
-    {
-      key: 'code',
-      header: 'Mã nhà máy',
-      isPrimary: true,
-      width: 'w-[120px]',
-      render: (f) => <span className="font-mono font-medium text-primary">{f.code}</span>
-    },
-    {
-      key: 'name',
-      header: 'Tên nhà máy',
-      isSecondary: true,
-      render: (f) => <span className="font-medium">{f.name}</span>
-    },
-    {
-      key: 'location',
-      header: 'Địa điểm',
-      render: (f) => (
-        <div className="flex items-center gap-1.5 text-muted-foreground">
-          <MapPin className="h-4 w-4" />
-          {f.location || '-'}
-        </div>
-      ),
-      mobileRender: (f) => f.location || '-'
-    },
-    {
-      key: 'equipmentCount',
-      header: 'Số lượng TB',
-      align: 'center',
-      render: (f) => (
-        <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-          <Settings2 className="h-4 w-4" />
-          {f.equipmentCount}
-        </span>
-      ),
-      mobileRender: (f) => f.equipmentCount
-    },
-    {
-      key: 'status',
-      header: 'Trạng thái',
-      align: 'center',
-      render: (f) => <StatusBadge status={f.status} />,
-      mobileRender: (f) => <StatusBadge status={f.status} />
-    },
-    {
-      key: 'actions',
-      header: 'Thao tác',
-      align: 'right',
-      render: (f) => (
-        <div className="flex items-center justify-end gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => viewEquipments(f.id)}
-            className="h-8 px-2"
-          >
-            <Eye className="h-4 w-4" />
-            <span className="ml-1.5 hidden sm:inline">Xem TB</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleOpenDialog(f)}
-            className="h-8 px-2"
-          >
-            <Pencil className="h-4 w-4" />
-            <span className="ml-1.5 hidden sm:inline">Sửa</span>
-          </Button>
-        </div>
-      ),
-      mobileRender: (f) => (
-        <div className="flex gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => viewEquipments(f.id)}
-          >
-            <Eye className="h-4 w-4 mr-1" />
-            Xem TB
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleOpenDialog(f)}
-          >
-            <Pencil className="h-4 w-4 mr-1" />
-            Sửa
-          </Button>
-        </div>
-      )
-    }
-  ];
-
-  // ✅ NEW: Handle loading state
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-[50vh]">
-        <div className="text-center space-y-3">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-          <p className="text-sm text-muted-foreground">Đang tải dữ liệu...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // ✅ NEW: Handle error state
   if (error) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-center space-y-3">
           <p className="text-sm text-destructive">Có lỗi xảy ra khi tải dữ liệu</p>
-          <Button onClick={() => window.location.reload()}>Thử lại</Button>
+          <Button onClick={() => refetch()}>Thử lại</Button>
         </div>
       </div>
     );
   }
 
+  // ============================================================================
+  // RENDER HELPERS
+  // ============================================================================
+
+  /**
+   * Render mobile card with visible action buttons
+   */
+  const renderMobileCard = (factory: Factory) => (
+    <div className="bg-card rounded-xl border border-border/50 overflow-hidden transition-all hover:border-primary/50">
+      {/* Card Content - Clickable */}
+      <div
+        onClick={() => form.openDialog(factory)}
+        className="p-4 cursor-pointer active:bg-accent/50 transition-colors"
+      >
+        {/* Primary & Secondary info */}
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <div className="flex-1 min-w-0">
+            <div className="font-mono text-primary font-medium text-sm truncate">
+              {factory.code}
+            </div>
+            <div className="font-medium mt-0.5 truncate text-sm">{factory.name}</div>
+          </div>
+          {/* Status badge */}
+          <div className="shrink-0">
+            {columns.find((c) => c.key === 'status')?.render(factory)}
+          </div>
+        </div>
+
+        {/* Additional info */}
+        <div className="space-y-1.5 text-sm">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-muted-foreground text-xs">Địa điểm:</span>
+            <span className="text-right truncate text-xs">{factory.location || '-'}</span>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-muted-foreground text-xs">Số lượng TB:</span>
+            <span className="text-right text-xs">{factory.equipmentCount}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons - Visible, Touch-Optimized */}
+      <div className="flex gap-2 p-4 border-t border-border/50">
+        <MobileButton
+          size="sm"
+          variant="outline"
+          onClick={(e) => {
+            e.stopPropagation();
+            form.openDialog(factory);
+          }}
+          className="flex-1"
+        >
+          <Pencil className="h-4 w-4 mr-1.5" />
+          Sửa
+        </MobileButton>
+        <MobileButton
+          size="sm"
+          variant="outline"
+          onClick={(e) => {
+            e.stopPropagation();
+            // TODO: Add delete confirmation dialog
+            console.log('Delete factory:', factory.id);
+          }}
+          className="flex-1 text-destructive hover:text-destructive"
+        >
+          <Trash2 className="h-4 w-4 mr-1.5" />
+          Xóa
+        </MobileButton>
+      </div>
+    </div>
+  );
+
+  /**
+   * Render table content
+   */
+  const renderTableContent = () => {
+    if (isLoading) {
+      return <TableSkeleton rows={5} />;
+    }
+
+    if (filteredData.length === 0) {
+      return (
+        <EmptyState
+          icon={Building2}
+          title={searchQuery ? 'Không tìm thấy kết quả' : 'Chưa có nhà máy nào'}
+          description={
+            searchQuery
+              ? `Không tìm thấy nhà máy nào phù hợp với "${searchQuery}"`
+              : 'Bắt đầu bằng cách thêm nhà máy đầu tiên của bạn vào hệ thống'
+          }
+          action={
+            !searchQuery
+              ? {
+                  label: 'Thêm nhà máy đầu tiên',
+                  onClick: () => form.openDialog(),
+                  icon: <Plus className="h-4 w-4" />,
+                }
+              : undefined
+          }
+        />
+      );
+    }
+
+    if (isMobile) {
+      // Mobile: Render cards with swipe actions
+      return (
+        <div className="space-y-3">
+          {filteredData.map((factory) => (
+            <div key={factory.id}>{renderMobileCard(factory)}</div>
+          ))}
+        </div>
+      );
+    }
+
+    // Desktop: Regular table
+    return (
+      <ResponsiveTable<Factory>
+        columns={columns}
+        data={filteredData}
+        keyExtractor={(factory) => factory.id}
+        onRowClick={(factory) => form.openDialog(factory)}
+        emptyMessage="Chưa có nhà máy nào"
+        showPagination={false}
+      />
+    );
+  };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
-    <div className="flex flex-col h-full">
+    <PageContainer>
       {/* Mobile Header */}
       {isMobile && (
         <MobilePageHeader
           title="Nhà máy"
           actions={
-            <Button size="sm" onClick={() => handleOpenDialog()}>
-              <Plus className="h-4 w-4 mr-1.5" />
+            <MobileButton size="sm" onClick={() => form.openDialog()}>
+              <Plus className="h-5 w-5 mr-1.5" />
               Thêm
-            </Button>
+            </MobileButton>
           }
         />
       )}
@@ -273,97 +354,86 @@ export default function FactoryList() {
               Danh sách tất cả các nhà máy trong hệ thống
             </p>
           </div>
-          <Button onClick={() => handleOpenDialog()}>
+          <Button onClick={() => form.openDialog()}>
             <Plus className="h-4 w-4 mr-2" />
             Thêm Nhà máy
           </Button>
         </div>
       )}
 
-      {/* Stats Grid */}
-      <MobileStatsGrid stats={stats} className="mb-6" />
+      {/* Stats Cards */}
+      <FactoryStatsCards stats={stats} loading={statsLoading} />
 
-      {/* Table */}
-      <ResponsiveTable<Factory>
-        columns={columns}
-        data={data?.data || []}
-        keyExtractor={(factory) => factory.id}
-        onRowClick={(factory) => isMobile && handleOpenDialog(factory)}
-        emptyMessage="Chưa có nhà máy nào"
-        showPagination={false}
+      {/* Search Bar (sticky on mobile) */}
+      <SearchBar
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder="Tìm nhà máy..."
+        sticky={isMobile}
       />
 
-      {/* Create/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className={cn(
-          isMobile && "w-[95vw] max-w-[95vw] rounded-lg"
-        )}>
-          <DialogHeader>
-            <DialogTitle>
-              {editingFactory ? 'Chỉnh sửa Nhà máy' : 'Thêm Nhà máy mới'}
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="code">
-                Mã nhà máy <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="code"
-                placeholder="Ví dụ: F01"
-                value={formData.code}
-                onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                disabled={!!editingFactory}
-              />
+      {/* Table with Pull-to-Refresh (Mobile) or Regular Table (Desktop) */}
+      {isMobile ? (
+        <PullToRefresh
+          onRefresh={handleRefresh}
+          isPullable={!isLoading}
+          pullingContent={
+            <div className="text-center py-4">
+              <p className="text-sm text-muted-foreground">⬇️ Kéo để làm mới</p>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="name">
-                Tên nhà máy <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="name"
-                placeholder="Nhập tên nhà máy"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
+          }
+          refreshingContent={
+            <div className="text-center py-4">
+              <Loader2 className="h-5 w-5 animate-spin mx-auto text-primary" />
+              <p className="text-sm text-muted-foreground mt-2">Đang làm mới...</p>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="location">Địa điểm</Label>
-              <Input
-                id="location"
-                placeholder="Nhập địa điểm"
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              />
-            </div>
+          }
+        >
+          <div className="pb-20">{/* Extra padding for FAB */}
+            {renderTableContent()}
           </div>
+        </PullToRefresh>
+      ) : (
+        renderTableContent()
+      )}
 
-          <DialogFooter className={cn(
-            isMobile && "flex-col gap-2"
-          )}>
-            <Button
-              variant="outline"
-              onClick={() => setIsDialogOpen(false)}
-              className={cn(isMobile && "w-full")}
-            >
-              Hủy
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={createFactory.isPending || updateFactory.isPending}
-              className={cn(isMobile && "w-full")}
-            >
-              {(createFactory.isPending || updateFactory.isPending) && (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              )}
-              {editingFactory ? 'Cập nhật' : 'Thêm mới'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+      {/* Form Dialog/Drawer */}
+      {isMobile ? (
+        // Mobile: Bottom Sheet
+        <Drawer.Root open={form.isOpen} onOpenChange={(open) => !open && form.closeDialog()}>
+          <Drawer.Portal>
+            <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[60]" />
+            <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] h-[85%] mt-24 fixed bottom-0 left-0 right-0 z-[60]">
+              <div className="p-4 bg-background rounded-t-[10px] flex-1 flex flex-col overflow-hidden">
+                {/* Drag handle */}
+                <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-4" />
+
+                {/* Title */}
+                <Drawer.Title className="text-lg font-semibold mb-4">
+                  {form.isEditMode ? 'Chỉnh sửa Nhà máy' : 'Thêm Nhà máy mới'}
+                </Drawer.Title>
+
+                {/* Scrollable form content */}
+                <div className="flex-1 overflow-y-auto -mx-4 px-4">
+                  <FactoryFormFields
+                    form={form}
+                    onSave={handleSave}
+                    isSaving={createFactory.isPending || updateFactory.isPending}
+                    onCancel={form.closeDialog}
+                  />
+                </div>
+              </div>
+            </Drawer.Content>
+          </Drawer.Portal>
+        </Drawer.Root>
+      ) : (
+        // Desktop: Regular Dialog
+        <FactoryFormDialog
+          form={form}
+          onSave={handleSave}
+          isSaving={createFactory.isPending || updateFactory.isPending}
+        />
+      )}
+    </PageContainer>
   );
 }
