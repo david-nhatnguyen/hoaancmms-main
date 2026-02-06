@@ -29,14 +29,28 @@ yarn-error.log*
 # IDEs
 .idea
 .vscode
-.gemini-rules
+.agent
+
 GEMINI.md
 
 # Turbo
 .turbo
+apps/web/dev-dist
 
 # TypeScript
 *.tsbuildinfo
 
 # ESLint
 .eslintcache
+
+# Prisma
+apps/api/prisma/generated
+
+# Documents
+/docs
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

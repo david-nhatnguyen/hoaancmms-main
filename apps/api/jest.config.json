@@ -1,0 +1,50 @@
+{
+    "moduleFileExtensions": [
+        "js",
+        "json",
+        "ts"
+    ],
+    "rootDir": ".",
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+        "^@/(.*)$": "<rootDir>/src/$1",
+        "^@common/(.*)$": "<rootDir>/src/common/$1",
+        "^@modules/(.*)$": "<rootDir>/src/modules/$1",
+        "^@test/(.*)$": "<rootDir>/test/$1",
+        "^@prisma/generated/prisma$": "<rootDir>/prisma/generated/prisma"
+    },
+    "testMatch": [
+        "**/*.spec.ts",
+        "**/*.test.ts"
+    ],
+    "transform": {
+        "^.+\\.ts$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+        "src/**/*.ts",
+        "!src/**/*.spec.ts",
+        "!src/**/*.test.ts",
+        "!src/**/*.interface.ts",
+        "!src/**/*.dto.ts",
+        "!src/**/*.module.ts",
+        "!src/main.ts",
+        "!src/prisma/generated/**"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageThreshold": {
+        "global": {
+            "branches": 90,
+            "functions": 90,
+            "lines": 90,
+            "statements": 90
+        }
+    },
+    "maxWorkers": "50%",
+    "testTimeout": 10000,
+    "setupFilesAfterEnv": [
+        "<rootDir>/test/setup/jest.setup.ts"
+    ],
+    "clearMocks": true,
+    "resetMocks": true,
+    "restoreMocks": true
+}

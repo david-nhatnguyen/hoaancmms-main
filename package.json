@@ -1,0 +1,25 @@
+{
+  "name": "hoaancmms-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "packageManager": "yarn@1.22.22",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "scan:sonar": "npx sonar-scanner -Dsonar.projectKey=davidnhatnguyen_hoaancmms-main -Dsonar.organization=davidnhatnguyen -Dsonar.sources=apps/web/src,apps/api/src -Dsonar.tests=tests/e2e,apps/web/src/pages -Dsonar.javascript.lcov.reportPaths=apps/web/coverage/lcov.info,apps/api/coverage/lcov.info -Dsonar.host.url=https://sonarcloud.io"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.1",
+    "prettier": "^3.0.0",
+    "turbo": "^2.0.0"
+  }
+}
