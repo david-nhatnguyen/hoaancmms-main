@@ -68,7 +68,7 @@ describe('FactoryList Page', () => {
   });
 
   it('renders loading skeleton when fetching data', () => {
-    (useFactories as any).mockReturnValue({
+    (useFactories as jest.Mock).mockReturnValue({
       data: undefined,
       isLoading: true,
       error: null,
@@ -88,7 +88,7 @@ describe('FactoryList Page', () => {
   });
 
   it('renders error state correctly', () => {
-    (useFactories as any).mockReturnValue({
+    (useFactories as jest.Mock).mockReturnValue({
       data: undefined,
       isLoading: false,
       error: new Error('Failed'),
@@ -101,7 +101,7 @@ describe('FactoryList Page', () => {
   });
 
   it('renders empty state when no factories found', () => {
-    (useFactories as any).mockReturnValue({
+    (useFactories as jest.Mock).mockReturnValue({
       data: { data: [], meta: { total: 0 } },
       isLoading: false,
       error: null,
@@ -119,7 +119,7 @@ describe('FactoryList Page', () => {
       { id: '2', code: 'F02', name: 'Factory Two', status: 'INACTIVE' },
     ];
 
-    (useFactories as any).mockReturnValue({
+    (useFactories as jest.Mock).mockReturnValue({
       data: { 
         data: mockData, 
         meta: { total: 2, totalPages: 1 } 
@@ -139,7 +139,7 @@ describe('FactoryList Page', () => {
   });
 
   it('opens create dialog when "Thêm Nhà máy" is clicked', () => {
-    (useFactories as any).mockReturnValue({
+    (useFactories as jest.Mock).mockReturnValue({
       data: { data: [], meta: { total: 0 } }, // Empty state has "Thêm nhà máy đầu tiên" button
       isLoading: false,
       error: null,
@@ -156,7 +156,7 @@ describe('FactoryList Page', () => {
   });
 
   it('handles search input', async () => {
-    (useFactories as any).mockReturnValue({
+    (useFactories as jest.Mock).mockReturnValue({
       data: { data: [], meta: { total: 0 } },
       isLoading: false,
       error: null,

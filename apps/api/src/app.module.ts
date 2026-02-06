@@ -16,9 +16,7 @@ import { FactoriesModule } from './modules/factories/factories.module';
     ConfigModule.forRoot({
       isGlobal: true, // Dùng được ở mọi module khác mà không cần import lại
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string()
-          .valid('development', 'production', 'test')
-          .default('development'),
+        NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
         PORT: Joi.number().default(3000),
         DATABASE_URL: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
@@ -40,6 +38,4 @@ import { FactoriesModule } from './modules/factories/factories.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
-
-
+export class AppModule {}

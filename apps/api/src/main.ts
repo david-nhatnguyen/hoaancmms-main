@@ -18,9 +18,9 @@ async function bootstrap() {
   // 1. Security & Optimization
   app.enableCors({
     origin: [
-      'http://localhost:5173',  // Vite default
-      'http://localhost:3001',  // Current frontend
-      configService.get('CORS_ORIGIN') || 'http://localhost:5173'
+      'http://localhost:5173', // Vite default
+      'http://localhost:3001', // Current frontend
+      configService.get('CORS_ORIGIN') || 'http://localhost:5173',
     ],
     credentials: true,
   });
@@ -35,17 +35,17 @@ async function bootstrap() {
 
   // 4. Global Interceptors (order matters!)
   app.useGlobalInterceptors(
-    new LoggingInterceptor(),      // Log first
-    new TimeoutInterceptor(),      // Then check timeout
-    new TransformInterceptor(),    // Finally transform response
+    new LoggingInterceptor(), // Log first
+    new TimeoutInterceptor(), // Then check timeout
+    new TransformInterceptor(), // Finally transform response
   );
 
   // 5. Validation Pipe (auto-validate DTOs)
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,              // Strip unknown properties
-      transform: true,              // Auto-transform types
-      forbidNonWhitelisted: true,   // Throw error on unknown properties
+      whitelist: true, // Strip unknown properties
+      transform: true, // Auto-transform types
+      forbidNonWhitelisted: true, // Throw error on unknown properties
       transformOptions: {
         enableImplicitConversion: true, // Auto-convert primitives
       },

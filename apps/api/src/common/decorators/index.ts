@@ -1,6 +1,6 @@
 /**
  * Common Decorators Barrel Export
- * 
+ *
  * Why use barrel exports?
  * - Clean imports: import { Public, Roles } from '@/common/decorators'
  * - Instead of: import { Public } from '@/common/decorators/public.decorator'

@@ -48,7 +48,6 @@ export function MobileCameraInput({ onImageCaptured, label = "Chụp ảnh báo 
         ref={inputRef}
         type="file"
         accept="image/*"
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         capture={"environment" as any} // Fix lỗi TS: Ép kiểu để tránh lỗi type check trên một số phiên bản React
         className="hidden"
         onChange={handleFileChange}

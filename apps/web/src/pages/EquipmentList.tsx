@@ -54,9 +54,9 @@ interface Filters {
 
 // Filter options
 const STATUS_OPTIONS = [
-  { value: 'active', label: 'Hoạt động', color: 'bg-status-active' },
-  { value: 'maintenance', label: 'Bảo trì', color: 'bg-status-maintenance' },
-  { value: 'inactive', label: 'Ngừng hoạt động', color: 'bg-status-inactive' }
+  { value: 'ACTIVE', label: 'Hoạt động', color: 'bg-status-active' },
+  { value: 'MAINTENANCE', label: 'Bảo trì', color: 'bg-status-maintenance' },
+  { value: 'INACTIVE', label: 'Ngừng hoạt động', color: 'bg-status-inactive' }
 ];
 
 const PRIORITY_OPTIONS = [
@@ -245,7 +245,7 @@ export default function EquipmentList() {
     });
     
     filters.group.forEach(g => {
-      const group = EQUIPMENT_GROUPS[g];
+      const group = (EQUIPMENT_GROUPS as any)[g];
       if (group) tags.push({ category: 'group', value: g, label: group.name });
     });
     
@@ -267,9 +267,10 @@ export default function EquipmentList() {
   };
 
   // Stats
-  const activeCount = initialEquipments.filter(e => e.status === 'active').length;
-  const maintenanceCount = initialEquipments.filter(e => e.status === 'maintenance').length;
-  const inactiveCount = initialEquipments.filter(e => e.status === 'inactive').length;
+  // Stats
+  const activeCount = initialEquipments.filter(e => e.status === 'ACTIVE').length;
+  const maintenanceCount = initialEquipments.filter(e => e.status === 'MAINTENANCE').length;
+  const inactiveCount = initialEquipments.filter(e => e.status === 'INACTIVE').length;
 
   // Factory and Group options for dropdown
   const factoryOptions = factories.map(f => ({ value: f.id, label: f.name }));

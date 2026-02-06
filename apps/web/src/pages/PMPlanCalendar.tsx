@@ -35,6 +35,21 @@ export default function PMPlanCalendar() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
 
+  // Group items by date
+  const itemsByDate = useMemo(() => {
+    if (!plan) return {};
+    const grouped: Record<string, PMPlanItem[]> = {};
+    plan.items.forEach(item => {
+      if (item.plannedDate) {
+        const date = item.plannedDate;
+        if (!grouped[date]) grouped[date] = [];
+        grouped[date].push(item);
+      }
+    });
+    return grouped;
+  }, [plan]);
+
+  // Early return IF plan is missing, but Hook is now safe
   if (!plan) {
     return (
       <div className="p-6 text-center">
@@ -48,19 +63,6 @@ export default function PMPlanCalendar() {
 
   const daysInMonth = getDaysInMonth(plan.month, plan.year);
   const firstDayOfMonth = getFirstDayOfMonth(plan.month, plan.year);
-
-  // Group items by date
-  const itemsByDate = useMemo(() => {
-    const grouped: Record<string, PMPlanItem[]> = {};
-    plan.items.forEach(item => {
-      if (item.plannedDate) {
-        const date = item.plannedDate;
-        if (!grouped[date]) grouped[date] = [];
-        grouped[date].push(item);
-      }
-    });
-    return grouped;
-  }, [plan.items]);
 
   // Unscheduled items
   const unscheduledItems = plan.items.filter(i => !i.plannedDate);

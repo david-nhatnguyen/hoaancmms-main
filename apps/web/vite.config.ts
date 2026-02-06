@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { VitePWA } from "vite-plugin-pwa";
 import path from "path";
@@ -15,8 +16,6 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
   return {
-    // Cast 'as any' để tránh lỗi type do xung đột đường dẫn trong Monorepo
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     plugins: [
       react() as any,
       VitePWA({
@@ -25,7 +24,7 @@ export default defineConfig(({ mode }) => {
         manifest: {
           name: 'Hoa An CMMS',
           short_name: 'CMMS',
-          description: 'Hệ thống quản lý bảo trì thiết bị',
+          description: 'Computerized Maintenance Management System',
           theme_color: '#ffffff',
           background_color: '#ffffff',
           display: 'standalone', // Quan trọng: Chạy như app native, không hiện thanh URL
@@ -48,7 +47,7 @@ export default defineConfig(({ mode }) => {
         devOptions: {
           enabled: true // Bật PWA ngay cả khi chạy dev để test
         }
-      })
+      }) as any
     ],
     resolve: {
       alias: {

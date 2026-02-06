@@ -3,12 +3,12 @@ import { prisma } from '../../prisma/lib/prisma';
 
 /**
  * PrismaService - Centralized database client wrapper
- * 
+ *
  * Why use a centralized Prisma instance?
  * - Single database connection pool (better performance)
  * - Consistent configuration across the app
  * - Easier to mock in tests
- * 
+ *
  * Why implement OnModuleInit/OnModuleDestroy?
  * - Proper connection lifecycle management
  * - Graceful shutdown (important for Docker/K8s)
@@ -28,15 +28,14 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     await prisma.$connect();
     this.logger.log('✅ Database connected');
 
-    // Log slow queries (> 1s) for performance monitoring
-    // @ts-ignore - Prisma event types
+    // @ts-expect-error - Prisma event types
     prisma.$on('query', (e: any) => {
       if (e.duration > 1000) {
         this.logger.warn(`Slow query detected (${e.duration}ms): ${e.query}`);
       }
     });
 
-    // @ts-ignore
+    // @ts-expect-error - Prisma event types
     prisma.$on('error', (e: any) => {
       this.logger.error('Prisma error:', e);
     });
@@ -57,20 +56,21 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
       throw new Error('Cannot clean database in production!');
     }
 
-    const models = Reflect.ownKeys(prisma).filter(
-      (key) => key[0] !== '_' && key !== 'constructor',
-    );
+    const models = Reflect.ownKeys(prisma).filter((key) => key[0] !== '_' && key !== 'constructor');
 
     return Promise.all(
       models.map((modelKey) => {
-        // @ts-ignore
         return prisma[modelKey].deleteMany?.();
       }),
     );
   }
 
   // Proxy all Prisma methods for backward compatibility
-  get user() { return prisma.user; }
-  get factory() { return prisma.factory; }
+  get user() {
+    return prisma.user;
+  }
+  get factory() {
+    return prisma.factory;
+  }
   // Add more models as needed
 }

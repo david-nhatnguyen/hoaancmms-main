@@ -77,7 +77,7 @@ export function PMPlanStep1({ data, onChange }: PMPlanStep1Props) {
             </div>
           </SelectTrigger>
           <SelectContent className="bg-popover border-border">
-            {factories.filter(f => f.status === 'active').map(f => (
+            {factories.filter(f => f.status === 'ACTIVE').map(f => (
               <SelectItem key={f.id} value={f.id}>
                 <div className="flex items-center gap-2">
                   <span>{f.name}</span>

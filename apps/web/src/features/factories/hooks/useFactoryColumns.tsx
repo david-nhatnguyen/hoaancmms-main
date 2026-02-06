@@ -24,6 +24,9 @@ export interface UseFactoryColumnsReturn {
 // HOOK
 // ============================================================================
 
+// Default handler
+const NOOP = () => {};
+
 /**
  * Custom hook for factory table column definitions
  * 
@@ -47,11 +50,20 @@ export function useFactoryColumns(
   const navigate = useNavigate();
 
   // Default handlers
-  const handleEdit = onEdit || (() => {});
-  const handleDelete = onDelete || (() => {});
-  const handleViewEquipments = onViewEquipments || ((id: string) => {
-    navigate(`/equipments?factory=${id}`);
-  });
+  const handleEdit = onEdit || NOOP;
+  const handleDelete = onDelete || NOOP;
+  
+  // Create stable default view handler if one isn't provided
+  // We cannot use useMemo effectively here because we can't conditionally call hooks.
+  // But we can depend on "navigate".
+  // Best approach: Define the default logic inside the actions render or memoize properly.
+  // However, simplest fix for Lint is to make the dependency stable.
+  
+  const handleViewEquipments = useMemo(() => {
+    return onViewEquipments || ((id: string) => {
+       navigate(`/equipments?factory=${id}`);
+    });
+  }, [onViewEquipments, navigate]);
 
   // ============================================================================
   // COLUMN DEFINITIONS

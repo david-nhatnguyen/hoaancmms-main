@@ -1,28 +1,22 @@
-import {
-    Injectable,
-    NestInterceptor,
-    ExecutionContext,
-    CallHandler,
-    Logger,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Request } from 'express';
 
 /**
  * Logging Interceptor
- * 
+ *
  * Why we need this?
  * - Track all API requests/responses
  * - Monitor performance (response time)
  * - Debug issues in production
  * - Audit trail
- * 
+ *
  * What we log:
  * - Request: method, URL, user agent, IP
  * - Response: status code, time taken
  * - Performance: warn if request > 3s
- * 
+ *
  * Bad Practice: Manual logging in each controller
  * ```
  * @Get()
@@ -34,7 +28,7 @@ import { Request } from 'express';
  * }
  * ```
  * Result: Inconsistent logging, easy to forget
- * 
+ *
  * Best Practice: Centralized logging via interceptor
  * - Automatic for all endpoints
  * - Consistent format
@@ -42,46 +36,40 @@ import { Request } from 'express';
  */
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
-    private readonly logger = new Logger('HTTP');
+  private readonly logger = new Logger('HTTP');
 
-    intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-        const ctx = context.switchToHttp();
-        const request = ctx.getRequest<Request>();
-        const { method, url, ip } = request;
-        const userAgent = request.get('user-agent') || '';
-        const startTime = Date.now();
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const ctx = context.switchToHttp();
+    const request = ctx.getRequest<Request>();
+    const { method, url, ip } = request;
+    const userAgent = request.get('user-agent') || '';
+    const startTime = Date.now();
 
-        this.logger.log(
-            `→ ${method} ${url} - ${ip} - ${userAgent}`,
-        );
+    this.logger.log(`→ ${method} ${url} - ${ip} - ${userAgent}`);
 
-        return next.handle().pipe(
-            tap({
-                next: () => {
-                    const response = ctx.getResponse();
-                    const { statusCode } = response;
-                    const responseTime = Date.now() - startTime;
+    return next.handle().pipe(
+      tap({
+        next: () => {
+          const response = ctx.getResponse();
+          const { statusCode } = response;
+          const responseTime = Date.now() - startTime;
 
-                    // Warn if request is slow (> 3 seconds)
-                    if (responseTime > 3000) {
-                        this.logger.warn(
-                            `← ${method} ${url} ${statusCode} - ${responseTime}ms ⚠️ SLOW`,
-                        );
-                    } else {
-                        this.logger.log(
-                            `← ${method} ${url} ${statusCode} - ${responseTime}ms`,
-                        );
-                    }
-                },
-                error: (error) => {
-                    const responseTime = Date.now() - startTime;
-                    const statusCode = error?.status || 500;
+          // Warn if request is slow (> 3 seconds)
+          if (responseTime > 3000) {
+            this.logger.warn(`← ${method} ${url} ${statusCode} - ${responseTime}ms ⚠️ SLOW`);
+          } else {
+            this.logger.log(`← ${method} ${url} ${statusCode} - ${responseTime}ms`);
+          }
+        },
+        error: (error) => {
+          const responseTime = Date.now() - startTime;
+          const statusCode = error?.status || 500;
 
-                    this.logger.error(
-                        `← ${method} ${url} ${statusCode} - ${responseTime}ms - ${error?.message}`,
-                    );
-                },
-            }),
-        );
-    }
+          this.logger.error(
+            `← ${method} ${url} ${statusCode} - ${responseTime}ms - ${error?.message}`,
+          );
+        },
+      }),
+    );
+  }
 }
