@@ -76,7 +76,7 @@ jobs:
         run: yarn lint
 
       - name: Unit Testing (with Coverage)
-        run: yarn test --coverage
+        run: yarn test -- --coverage
 
       - name: Install Playwright Browsers
         run: yarn playwright install --with-deps
