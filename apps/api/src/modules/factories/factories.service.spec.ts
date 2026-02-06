@@ -117,7 +117,7 @@ describe('FactoriesService', () => {
       prisma.client.factory.findMany.mockResolvedValue([]);
       prisma.client.factory.count.mockResolvedValue(0);
 
-      // @ts-ignore
+      // @ts-expect-error - simulating single value for coverage
       await service.findAll({ status: 'ACTIVE', skip: 0, take: 10 });
 
       expect(prisma.client.factory.findMany).toHaveBeenCalledWith(

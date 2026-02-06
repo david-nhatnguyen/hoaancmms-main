@@ -38,14 +38,18 @@ describe('PrismaService', () => {
     expect(prisma.$on).toHaveBeenCalledWith('error', expect.any(Function));
 
     // Test the logic inside callbacks
-    const queryCallback = (prisma.$on as jest.Mock).mock.calls.find(call => call[call.length - 2] === 'query')[1];
-    const errorCallback = (prisma.$on as jest.Mock).mock.calls.find(call => call[call.length - 2] === 'error')[1];
+    const queryCallback = (prisma.$on as jest.Mock).mock.calls.find(
+      (call) => call[call.length - 2] === 'query',
+    )[1];
+    const errorCallback = (prisma.$on as jest.Mock).mock.calls.find(
+      (call) => call[call.length - 2] === 'error',
+    )[1];
 
     // Trigger slow query
     queryCallback({ duration: 1500, query: 'SELECT * FROM slow' });
     // Trigger fast query
     queryCallback({ duration: 100, query: 'SELECT * FROM fast' });
-    
+
     // Trigger error
     errorCallback(new Error('Prisma crash'));
   });
