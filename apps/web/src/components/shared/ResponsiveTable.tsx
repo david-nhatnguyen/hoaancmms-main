@@ -39,20 +39,26 @@ interface ResponsiveTableProps<T> {
   emptyMessage?: string;
   // Custom card renderer (overrides default card layout)
   renderMobileCard?: (item: T, columns: Column<T>[]) => ReactNode;
-  // Pagination
+  // Pagination Settings
   pageSize?: number;
   showPagination?: boolean;
+  // Controlled Pagination (Server-Side)
+  pageCount?: number;
+  currentPage?: number;
+  onPageChange?: (page: number) => void;
 }
 
-// Mobile Pagination Component
-function MobilePagination({
+// Pagination Component (Shared)
+function TablePagination({
   currentPage,
   totalPages,
   onPageChange,
+  className
 }: {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  className?: string;
 }) {
   if (totalPages <= 1) return null;
 
@@ -89,7 +95,7 @@ function MobilePagination({
   const visiblePages = getVisiblePages();
 
   return (
-    <div className="flex items-center justify-center gap-1 py-4 px-2">
+    <div className={cn("flex items-center gap-1 py-4 px-2", className)}>
       {/* Previous Button */}
       <Button
         variant="ghost"
@@ -117,7 +123,7 @@ function MobilePagination({
                 "h-9 w-9 text-sm font-medium",
                 currentPage === page && "bg-primary text-primary-foreground"
               )}
-              onClick={() => onPageChange(page)}
+              onClick={() => onPageChange(page as number)}
             >
               {page}
             </Button>
@@ -147,27 +153,43 @@ export function ResponsiveTable<T>({
   emptyMessage = 'Không có dữ liệu',
   renderMobileCard,
   pageSize = 10,
-  showPagination = true
+  showPagination = true,
+  pageCount,
+  currentPage: propCurrentPage,
+  onPageChange
 }: ResponsiveTableProps<T>) {
   const isMobile = useIsMobile();
-  const [currentPage, setCurrentPage] = useState(1);
+  const [internalPage, setInternalPage] = useState(1);
 
-  // Calculate pagination
-  const totalPages = Math.ceil(data.length / pageSize);
-  
-  // Get paginated data for mobile
-  const paginatedData = useMemo(() => {
-    if (!isMobile || !showPagination) return data;
-    const startIndex = (currentPage - 1) * pageSize;
-    return data.slice(startIndex, startIndex + pageSize);
-  }, [data, currentPage, pageSize, isMobile, showPagination]);
+  // Determine Controlled vs Uncontrolled
+  const isControlled = typeof pageCount === 'number';
+  const currentPage = isControlled ? (propCurrentPage || 1) : internalPage;
+  const totalPages = isControlled ? (pageCount || 1) : Math.ceil(data.length / pageSize);
 
-  // Reset to page 1 when data changes significantly
-  useMemo(() => {
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(1);
+  const handlePageChange = (page: number) => {
+    if (isControlled) {
+      onPageChange?.(page);
+    } else {
+      setInternalPage(page);
     }
-  }, [data.length, totalPages, currentPage]);
+  };
+
+  // Get items to render
+  const items = useMemo(() => {
+    // If controlled or hidden pagination, render data as is
+    if (isControlled || !showPagination) return data;
+    
+    // Client-side pagination logic
+    const startIndex = (internalPage - 1) * pageSize;
+    return data.slice(startIndex, startIndex + pageSize);
+  }, [data, isControlled, showPagination, internalPage, pageSize]);
+
+  // Reset internal page if data length changes drastically (only for uncontrolled)
+  useMemo(() => {
+    if (!isControlled && internalPage > totalPages && totalPages > 0) {
+      setInternalPage(1);
+    }
+  }, [data.length, totalPages, internalPage, isControlled]);
 
   // Mobile Card View
   if (isMobile) {
@@ -185,14 +207,14 @@ export function ResponsiveTable<T>({
         {showPagination && totalPages > 1 && (
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
             <span>
-              Trang {currentPage}/{totalPages} ({data.length} mục)
+              Trang {currentPage}/{totalPages} ({isControlled ? '...' : data.length} mục)
             </span>
           </div>
         )}
 
         {/* Cards */}
         <div className="space-y-3 max-w-full overflow-x-hidden">
-          {paginatedData.map((item) => {
+          {items.map((item) => {
             if (renderMobileCard) {
               return (
                 <div key={keyExtractor(item)} className="max-w-full overflow-hidden">
@@ -201,7 +223,7 @@ export function ResponsiveTable<T>({
               );
             }
 
-            // Default card layout
+            // Default card layout logic
             const primaryCol = columns.find(c => c.isPrimary);
             const secondaryCol = columns.find(c => c.isSecondary);
             const mobileColumns = columns.filter(c => c.showOnMobile !== false && !c.isPrimary && !c.isSecondary);
@@ -217,7 +239,7 @@ export function ResponsiveTable<T>({
               >
                 {/* Primary & Secondary info */}
                 <div className="flex items-start justify-between gap-2 mb-3 min-w-0">
-                  <div className="flex-1 min-w-0 overflow-hidden">
+                   <div className="flex-1 min-w-0 overflow-hidden">
                     {primaryCol && (
                       <div className="font-mono text-primary font-medium text-sm truncate">
                         {primaryCol.mobileRender?.(item) ?? primaryCol.render(item)}
@@ -229,7 +251,6 @@ export function ResponsiveTable<T>({
                       </div>
                     )}
                   </div>
-                  {/* Find status/badge column and render on right */}
                   {columns.find(c => c.key === 'status') && (
                     <div className="shrink-0">
                       {columns.find(c => c.key === 'status')?.render(item)}
@@ -237,11 +258,11 @@ export function ResponsiveTable<T>({
                   )}
                 </div>
 
-                {/* Other columns as key-value pairs */}
+                {/* Other columns */}
                 <div className="space-y-1.5 text-sm">
                   {mobileColumns
                     .filter(col => col.key !== 'status' && col.key !== 'actions')
-                    .slice(0, 3) // Limit to 3 extra fields on mobile for compact layout
+                    .slice(0, 3)
                     .map(col => (
                       <div key={col.key} className="flex items-center justify-between gap-2 min-w-0">
                         <span className="text-muted-foreground shrink-0 text-xs">{col.header}:</span>
@@ -253,7 +274,7 @@ export function ResponsiveTable<T>({
                   }
                 </div>
 
-                {/* Actions at bottom */}
+                {/* Actions */}
                 {columns.find(c => c.key === 'actions') && (
                   <div className="mt-3 pt-3 border-t border-border/50">
                     {columns.find(c => c.key === 'actions')?.mobileRender?.(item) ?? 
@@ -265,12 +286,13 @@ export function ResponsiveTable<T>({
           })}
         </div>
 
-        {/* Mobile Pagination */}
+        {/* Pagination */}
         {showPagination && totalPages > 1 && (
-          <MobilePagination
+          <TablePagination
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={setCurrentPage}
+            onPageChange={handlePageChange}
+            className="justify-center"
           />
         )}
       </div>
@@ -281,11 +303,9 @@ export function ResponsiveTable<T>({
   return (
     <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
       <Table>
-        <TableHeader>
-          <TableRow className="hover:bg-transparent border-border/50">
-            {columns
-              .filter(col => col.key !== 'actions' || true) // Show all columns on desktop
-              .map(col => (
+          <TableHeader>
+            <TableRow className="hover:bg-transparent border-border/50">
+              {columns.map(col => (
                 <TableHead 
                   key={col.key} 
                   className={cn(
@@ -297,43 +317,52 @@ export function ResponsiveTable<T>({
                 >
                   {col.header}
                 </TableHead>
-              ))
-            }
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-32 text-center text-muted-foreground">
-                {emptyMessage}
-              </TableCell>
+              ))}
             </TableRow>
-          ) : (
-            data.map((item) => (
-              <TableRow
-                key={keyExtractor(item)}
-                onClick={() => onRowClick?.(item)}
-                className={cn(
-                  "table-row-interactive",
-                  onRowClick && "cursor-pointer"
-                )}
-              >
-                {columns.map(col => (
-                  <TableCell 
-                    key={col.key}
-                    className={cn(
-                      col.align === 'center' && "text-center",
-                      col.align === 'right' && "text-right"
-                    )}
-                  >
-                    {col.render(item)}
-                  </TableCell>
-                ))}
+          </TableHeader>
+          <TableBody>
+            {items.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-32 text-center text-muted-foreground">
+                  {emptyMessage}
+                </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            ) : (
+              items.map((item) => (
+                <TableRow
+                  key={keyExtractor(item)}
+                  onClick={() => onRowClick?.(item)}
+                  className={cn(
+                    "table-row-interactive",
+                    onRowClick && "cursor-pointer"
+                  )}
+                >
+                  {columns.map(col => (
+                    <TableCell 
+                      key={col.key}
+                      className={cn(
+                        col.align === 'center' && "text-center",
+                        col.align === 'right' && "text-right"
+                      )}
+                    >
+                      {col.render(item)}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+
+      {/* Desktop Pagination */}
+      {showPagination && totalPages > 1 && (
+        <TablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          className="justify-end border-t border-border/50 bg-card/50"
+        />
+      )}
     </div>
   );
 }

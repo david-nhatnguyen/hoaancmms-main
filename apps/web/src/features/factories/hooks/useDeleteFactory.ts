@@ -16,6 +16,7 @@ export function useDeleteFactory() {
         mutationFn: (id: string) => factoriesApi.delete(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['factories'] });
+            queryClient.invalidateQueries({ queryKey: ['factory-stats'] });
             toast.success('Xóa nhà máy thành công');
         },
         onError: (error: any) => {

@@ -18,6 +18,7 @@ export function useCreateFactory() {
         onSuccess: () => {
             // Invalidate and refetch factories list
             queryClient.invalidateQueries({ queryKey: ['factories'] });
+            queryClient.invalidateQueries({ queryKey: ['factory-stats'] });
             toast.success('Tạo nhà máy thành công');
         },
         onError: (error: any) => {

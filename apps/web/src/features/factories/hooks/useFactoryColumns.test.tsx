@@ -19,7 +19,7 @@ describe('useFactoryColumns', () => {
     name: 'Test Factory',
     location: 'Test Location',
     equipmentCount: 5,
-    status: 'active',
+    status: 'ACTIVE',
     createdAt: '2024-01-01T00:00:00.000Z',
     updatedAt: '2024-01-01T00:00:00.000Z',
   };
@@ -98,7 +98,7 @@ describe('useFactoryColumns', () => {
       const { result } = renderHook(() => useFactoryColumns());
 
       const actionsColumn = result.current.columns.find(col => col.key === 'actions');
-      expect(actionsColumn?.align).toBe('right');
+      expect(actionsColumn?.align).toBe('center');
     });
 
     it('should set width for code column', () => {
@@ -286,9 +286,10 @@ describe('useFactoryColumns', () => {
     it('should return same columns reference when callbacks unchanged', () => {
       const onEdit = jest.fn();
       const onViewEquipments = jest.fn();
+      const onDelete = jest.fn(); // Need all to stabilize
       
       const { result, rerender } = renderHook(() => 
-        useFactoryColumns({ onEdit, onViewEquipments })
+        useFactoryColumns({ onEdit, onViewEquipments, onDelete })
       );
 
       const firstColumns = result.current.columns;

@@ -44,19 +44,31 @@ export class FactoriesService {
      * - Case-insensitive search with Prisma mode
      */
     async findAll(query: FactoryQueryDto) {
-        const { skip, take, sortBy, sortOrder, status, search } = query;
+        const { skip, take, sortBy, sortOrder, status, search, fromDate, toDate } = query;
 
         // Build where clause
         const where: any = {};
 
-        if (status) {
+        // Filter by status (multi-select)
+        if (status && Array.isArray(status) && status.length > 0) {
+            where.status = { in: status };
+        } else if (status) {
+            // Fallback for single value not in array (should be handled by DTO transform but safe to keep)
             where.status = status;
+        }
+
+        // Filter by date range
+        if (fromDate || toDate) {
+            where.createdAt = {};
+            if (fromDate) where.createdAt.gte = new Date(fromDate);
+            if (toDate) where.createdAt.lte = new Date(toDate);
         }
 
         if (search) {
             where.OR = [
                 { code: { contains: search, mode: 'insensitive' } },
                 { name: { contains: search, mode: 'insensitive' } },
+                { location: { contains: search, mode: 'insensitive' } }, // Added location search as per requirement
             ];
         }
 

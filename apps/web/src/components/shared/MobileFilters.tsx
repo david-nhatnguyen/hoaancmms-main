@@ -63,7 +63,7 @@ export function MobileFilters({
     return (
       <div className="max-w-full overflow-hidden">
         {/* Mobile: Search + Filter Button */}
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2 m-2">
           <div className="relative flex-1 min-w-0">
             <Input
               placeholder={searchPlaceholder}

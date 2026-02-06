@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Pencil, Eye, MapPin, Settings2 } from 'lucide-react';
+import { Pencil, Eye, MapPin, Settings2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import type { Column } from '@/components/shared/ResponsiveTable';
@@ -13,6 +13,7 @@ import type { Factory } from '@/api/types/factory.types';
 export interface UseFactoryColumnsOptions {
   onEdit?: (factory: Factory) => void;
   onViewEquipments?: (factoryId: string) => void;
+  onDelete?: (factory: Factory) => void;
 }
 
 export interface UseFactoryColumnsReturn {
@@ -42,11 +43,12 @@ export interface UseFactoryColumnsReturn {
 export function useFactoryColumns(
   options: UseFactoryColumnsOptions = {}
 ): UseFactoryColumnsReturn {
-  const { onEdit, onViewEquipments } = options;
+  const { onEdit, onViewEquipments, onDelete } = options;
   const navigate = useNavigate();
 
   // Default handlers
   const handleEdit = onEdit || (() => {});
+  const handleDelete = onDelete || (() => {});
   const handleViewEquipments = onViewEquipments || ((id: string) => {
     navigate(`/equipments?factory=${id}`);
   });
@@ -119,51 +121,77 @@ export function useFactoryColumns(
     {
       key: 'actions',
       header: 'Thao tác',
-      align: 'right',
+      align: 'center',
       render: (factory) => (
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-center gap-2">
           <Button
             variant="ghost"
-            size="sm"
-            onClick={() => handleViewEquipments(factory.id)}
-            className="h-8 px-2"
+            size="icon"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(factory);
+            }}
+            className="h-8 w-8 hover:bg-orange-500/10 hover:text-orange-500 rounded-full transition-colors"
+            title="Sửa"
           >
-            <Eye className="h-4 w-4" />
-            <span className="ml-1.5 hidden sm:inline">Xem TB</span>
+            <Pencil className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
-            size="sm"
-            onClick={() => handleEdit(factory)}
-            className="h-8 px-2"
+            size="icon"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(factory);
+            }}
+            className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-full transition-colors"
+            title="Xóa"
           >
-            <Pencil className="h-4 w-4" />
-            <span className="ml-1.5 hidden sm:inline">Sửa</span>
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       ),
       mobileRender: (factory) => (
-        <div className="flex gap-2">
+        <div className="grid grid-cols-3 gap-2 mt-2">
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            onClick={() => handleViewEquipments(factory.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewEquipments(factory.id);
+            }}
+            className="w-full flex items-center justify-center gap-2 border-primary/20 text-primary hover:bg-primary/5 dark:border-primary/30"
           >
-            <Eye className="h-4 w-4 mr-1" />
-            Xem TB
+            <Eye className="h-4 w-4" />
+            <span>Xem TB</span>
           </Button>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            onClick={() => handleEdit(factory)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(factory);
+            }}
+            className="w-full flex items-center justify-center gap-2 border-orange-500/20 text-orange-600 hover:bg-orange-500/5 dark:text-orange-400 dark:border-orange-500/30"
           >
-            <Pencil className="h-4 w-4 mr-1" />
-            Sửa
+            <Pencil className="h-4 w-4" />
+            <span>Sửa</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(factory);
+            }}
+            className="w-full flex items-center justify-center gap-2 border-destructive/20 text-destructive hover:bg-destructive/5 dark:border-destructive/30"
+          >
+            <Trash2 className="h-4 w-4" />
+            <span>Xóa</span>
           </Button>
         </div>
       ),
     },
-  ], [handleEdit, handleViewEquipments]);
+  ], [handleEdit, handleViewEquipments, handleDelete]);
 
   return { columns };
 }

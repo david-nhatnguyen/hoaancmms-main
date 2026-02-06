@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Loader2, Building2, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Loader2, Building2, Pencil, Trash2, Search, X, Filter } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import PullToRefresh from 'react-simple-pull-to-refresh';
 import { Drawer } from 'vaul';
@@ -9,11 +9,16 @@ import { Drawer } from 'vaul';
 import { Button } from '@/components/ui/button';
 import { MobileButton } from '@/components/ui/mobile-button';
 import { FAB } from '@/components/ui/fab';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { MobileFilters } from '@/components/shared/MobileFilters';
+import { ChipFilter } from '@/components/shared/filters/ChipFilter';
+import { useDebounce } from '@/hooks/use-debounce';
 import { MobilePageHeader } from '@/components/shared/MobilePageHeader';
 import { ResponsiveTable } from '@/components/shared/ResponsiveTable';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { SearchBar } from '@/components/shared/SearchBar';
+import { SearchBar } from '@/components/shared/SearchBar'; // Maybe remove if unused?
 import { PageContainer } from '@/components/shared/PageContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -25,11 +30,13 @@ import {
   useFactories,
   useCreateFactory,
   useUpdateFactory,
+  useDeleteFactory,
 } from '@/features/factories/hooks';
 
 import {
   FactoryFormDialog,
   FactoryStatsCards,
+  DeleteFactoryDialog,
 } from '@/features/factories/components';
 import { FactoryFormFields } from '@/features/factories/components/FactoryFormDialog/FactoryFormFields';
 
@@ -48,6 +55,12 @@ import type { Factory, FactoryQueryParams } from '@/api/types/factory.types';
  * - FAB for primary action
  * - Bottom sheet for mobile forms
  */
+// Filter Options
+const STATUS_OPTIONS = [
+  { value: 'ACTIVE', label: 'Hoạt động', color: 'bg-emerald-500' },
+  { value: 'INACTIVE', label: 'Ngừng hoạt động', color: 'bg-slate-500' }
+];
+
 export default function FactoryList() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -59,14 +72,25 @@ export default function FactoryList() {
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
   // Query parameters
-  const [params] = useState<FactoryQueryParams>({
+  const [params, setParams] = useState<FactoryQueryParams>({
     page: 1,
     limit: 10,
     sortBy: 'createdAt',
     sortOrder: 'desc',
+    status: [], // Empty array = all statuses
   });
+
+  // Sync search with params
+  useMemo(() => {
+    setParams(prev => {
+      if (prev.search === debouncedSearch) return prev;
+      return { ...prev, search: debouncedSearch, page: 1 };
+    });
+  }, [debouncedSearch]);
+
 
   // Custom hooks for form management
   const form = useFactoryForm();
@@ -75,6 +99,7 @@ export default function FactoryList() {
   const { columns } = useFactoryColumns({
     onEdit: form.openDialog,
     onViewEquipments: (id) => navigate(`/equipments?factory=${id}`),
+    onDelete: (factory) => setDeletingFactory(factory),
   });
 
   // Custom hook for stats
@@ -84,25 +109,102 @@ export default function FactoryList() {
   const { data, isLoading, error, refetch } = useFactories(params);
   const createFactory = useCreateFactory();
   const updateFactory = useUpdateFactory();
+  const deleteFactory = useDeleteFactory();
+
+  // Delete State
+  const [deletingFactory, setDeletingFactory] = useState<Factory | null>(null);
 
   // ============================================================================
-  // COMPUTED VALUES
+  // FILTER LOGIC
   // ============================================================================
 
-  /**
-   * Filter data based on search query
-   */
-  const filteredData = useMemo(() => {
-    if (!searchQuery || !data?.data) return data?.data || [];
+  const toggleStatus = (value: string) => {
+    setParams(prev => {
+      const current = Array.isArray(prev.status) ? prev.status : [];
+      // Use "as any" safely here because value comes from trusted options
+      const next = current.includes(value as any)
+        ? current.filter(s => s !== value)
+        : [...current, value as any];
+      return { ...prev, status: next, page: 1 };
+    });
+  };
 
-    const query = searchQuery.toLowerCase();
-    return data.data.filter(
-      (factory) =>
-        factory.name.toLowerCase().includes(query) ||
-        factory.code.toLowerCase().includes(query) ||
-        factory.location?.toLowerCase().includes(query)
+  const clearFilters = () => {
+    setParams(prev => ({
+      ...prev,
+      status: [],
+      search: '',
+      page: 1
+    }));
+    setSearchQuery('');
+  };
+
+  const removeStatus = (value: string) => {
+     setParams(prev => {
+      const current = Array.isArray(prev.status) ? prev.status : [];
+      return { ...prev, status: current.filter(s => s !== value), page: 1 };
+    });
+  };
+
+  const activeFiltersCount = (Array.isArray(params.status) ? params.status.length : 0);
+
+  // Desktop Filters Component
+  const desktopFilters = (
+    <div className="flex items-center gap-2">
+      <div className="relative flex-1 min-w-[200px] max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Tìm kiếm nhà máy..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-9 h-9"
+        />
+      </div>
+      <div className="h-6 w-px bg-border/50 mx-2" />
+      <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Trạng thái:</span>
+      <ChipFilter 
+        options={STATUS_OPTIONS} 
+        selected={(params.status as string[]) || []} 
+        onToggle={toggleStatus} 
+      />
+    </div>
+  );
+
+  // Mobile Filter Sections
+  const filterSections = [
+    {
+      id: 'status',
+      label: 'Trạng thái',
+      activeCount: Array.isArray(params.status) ? params.status.length : 0,
+      content: (
+        <ChipFilter 
+          options={STATUS_OPTIONS} 
+          selected={(params.status as string[]) || []} 
+          onToggle={toggleStatus} 
+        />
+      )
+    }
+  ];
+
+  // Active Filter Tags
+  const activeFilterTags = (Array.isArray(params.status) ? params.status : []).map(s => {
+    const label = STATUS_OPTIONS.find(o => o.value === s)?.label || s;
+    return (
+      <Badge 
+        key={s} 
+        variant="secondary"
+        className="gap-1 pl-2 pr-1 py-0.5"
+      >
+        {label}
+        <button 
+          onClick={() => removeStatus(s)} 
+          className="ml-1 hover:bg-muted rounded-full p-0.5"
+        >
+          <X className="h-3 w-3" />
+        </button>
+      </Badge>
     );
-  }, [data?.data, searchQuery]);
+  });
 
   // ============================================================================
   // HANDLERS
@@ -204,74 +306,6 @@ export default function FactoryList() {
   // ============================================================================
 
   /**
-   * Render mobile card with visible action buttons
-   */
-  const renderMobileCard = (factory: Factory) => (
-    <div className="bg-card rounded-xl border border-border/50 overflow-hidden transition-all hover:border-primary/50">
-      {/* Card Content - Clickable */}
-      <div
-        onClick={() => form.openDialog(factory)}
-        className="p-4 cursor-pointer active:bg-accent/50 transition-colors"
-      >
-        {/* Primary & Secondary info */}
-        <div className="flex items-start justify-between gap-2 mb-3">
-          <div className="flex-1 min-w-0">
-            <div className="font-mono text-primary font-medium text-sm truncate">
-              {factory.code}
-            </div>
-            <div className="font-medium mt-0.5 truncate text-sm">{factory.name}</div>
-          </div>
-          {/* Status badge */}
-          <div className="shrink-0">
-            {columns.find((c) => c.key === 'status')?.render(factory)}
-          </div>
-        </div>
-
-        {/* Additional info */}
-        <div className="space-y-1.5 text-sm">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-muted-foreground text-xs">Địa điểm:</span>
-            <span className="text-right truncate text-xs">{factory.location || '-'}</span>
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-muted-foreground text-xs">Số lượng TB:</span>
-            <span className="text-right text-xs">{factory.equipmentCount}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Action Buttons - Visible, Touch-Optimized */}
-      <div className="flex gap-2 p-4 border-t border-border/50">
-        <MobileButton
-          size="sm"
-          variant="outline"
-          onClick={(e) => {
-            e.stopPropagation();
-            form.openDialog(factory);
-          }}
-          className="flex-1"
-        >
-          <Pencil className="h-4 w-4 mr-1.5" />
-          Sửa
-        </MobileButton>
-        <MobileButton
-          size="sm"
-          variant="outline"
-          onClick={(e) => {
-            e.stopPropagation();
-            // TODO: Add delete confirmation dialog
-            console.log('Delete factory:', factory.id);
-          }}
-          className="flex-1 text-destructive hover:text-destructive"
-        >
-          <Trash2 className="h-4 w-4 mr-1.5" />
-          Xóa
-        </MobileButton>
-      </div>
-    </div>
-  );
-
-  /**
    * Render table content
    */
   const renderTableContent = () => {
@@ -279,49 +313,46 @@ export default function FactoryList() {
       return <TableSkeleton rows={5} />;
     }
 
-    if (filteredData.length === 0) {
+    const factories = data?.data || [];
+
+    if (factories.length === 0) {
       return (
         <EmptyState
-          icon={Building2}
-          title={searchQuery ? 'Không tìm thấy kết quả' : 'Chưa có nhà máy nào'}
+          icon={<Building2 className="h-12 w-12 text-muted-foreground/50" />}
+          title={params.search || params.status?.length ? 'Không tìm thấy kết quả' : 'Chưa có nhà máy nào'}
           description={
-            searchQuery
-              ? `Không tìm thấy nhà máy nào phù hợp với "${searchQuery}"`
+            params.search || params.status?.length
+              ? `Không tìm thấy nhà máy nào phù hợp với bộ lọc`
               : 'Bắt đầu bằng cách thêm nhà máy đầu tiên của bạn vào hệ thống'
           }
           action={
-            !searchQuery
+            !(params.search || params.status?.length)
               ? {
                   label: 'Thêm nhà máy đầu tiên',
                   onClick: () => form.openDialog(),
                   icon: <Plus className="h-4 w-4" />,
                 }
-              : undefined
+              : {
+                  label: 'Xóa bộ lọc',
+                  onClick: clearFilters,
+                  icon: <Filter className="h-4 w-4" />,
+              }
           }
         />
       );
     }
 
-    if (isMobile) {
-      // Mobile: Render cards with swipe actions
-      return (
-        <div className="space-y-3">
-          {filteredData.map((factory) => (
-            <div key={factory.id}>{renderMobileCard(factory)}</div>
-          ))}
-        </div>
-      );
-    }
-
-    // Desktop: Regular table
     return (
       <ResponsiveTable<Factory>
         columns={columns}
-        data={filteredData}
+        data={factories}
         keyExtractor={(factory) => factory.id}
-        onRowClick={(factory) => form.openDialog(factory)}
+        onRowClick={(factory) => navigate(`/equipments?factory=${factory.id}`)}
         emptyMessage="Chưa có nhà máy nào"
-        showPagination={false}
+        pageCount={data?.meta?.totalPages}
+        currentPage={params.page}
+        showPagination={true}
+        onPageChange={(page) => setParams((prev) => ({ ...prev, page }))}
       />
     );
   };
@@ -364,12 +395,16 @@ export default function FactoryList() {
       {/* Stats Cards */}
       <FactoryStatsCards stats={stats} loading={statsLoading} />
 
-      {/* Search Bar (sticky on mobile) */}
-      <SearchBar
-        value={searchQuery}
-        onChange={setSearchQuery}
-        placeholder="Tìm nhà máy..."
-        sticky={isMobile}
+      {/* Filters */}
+      <MobileFilters
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Tìm nhà máy..."
+        sections={filterSections}
+        activeFiltersCount={activeFiltersCount}
+        onClearAll={clearFilters}
+        activeFilterTags={activeFilterTags}
+        desktopFilters={desktopFilters}
       />
 
       {/* Table with Pull-to-Refresh (Mobile) or Regular Table (Desktop) */}
@@ -434,6 +469,21 @@ export default function FactoryList() {
           isSaving={createFactory.isPending || updateFactory.isPending}
         />
       )}
+
+      {/* Delete Factory Dialog */}
+      <DeleteFactoryDialog 
+        factory={deletingFactory}
+        open={!!deletingFactory}
+        onOpenChange={(open) => !open && setDeletingFactory(null)}
+        onConfirm={() => {
+          if (deletingFactory) {
+            deleteFactory.mutate(deletingFactory.id, {
+              onSuccess: () => setDeletingFactory(null)
+            });
+          }
+        }}
+        isDeleting={deleteFactory.isPending}
+      />
     </PageContainer>
   );
 }

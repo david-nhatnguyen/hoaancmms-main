@@ -19,6 +19,7 @@ export function useUpdateFactory() {
         onSuccess: (_, variables) => {
             // Invalidate both list and detail queries
             queryClient.invalidateQueries({ queryKey: ['factories'] });
+            queryClient.invalidateQueries({ queryKey: ['factory-stats'] });
             queryClient.invalidateQueries({ queryKey: ['factory', variables.id] });
             toast.success('Cập nhật nhà máy thành công');
         },

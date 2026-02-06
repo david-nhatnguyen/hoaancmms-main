@@ -66,7 +66,7 @@ describe('FactoriesService', () => {
             await service.findAll({
                 page: 1,
                 limit: 10,
-                status: FactoryStatus.ACTIVE,
+                status: [FactoryStatus.ACTIVE],
                 sortBy: 'createdAt',
                 sortOrder: 'desc',
                 skip: 0,
@@ -76,7 +76,7 @@ describe('FactoriesService', () => {
             // Assert
             expect(prisma.client.factory.findMany).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    where: expect.objectContaining({ status: FactoryStatus.ACTIVE }),
+                    where: expect.objectContaining({ status: { in: [FactoryStatus.ACTIVE] } }),
                 })
             );
         });

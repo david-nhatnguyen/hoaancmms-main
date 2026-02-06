@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsIn } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { PaginationDto } from '@common/dto/pagination.dto';
 import { FactoryStatus } from '@prisma/generated/prisma';
 
@@ -27,13 +28,36 @@ import { FactoryStatus } from '@prisma/generated/prisma';
  */
 export class FactoryQueryDto extends PaginationDto {
     @ApiPropertyOptional({
-        description: 'Filter by factory status',
+        description: 'Filter by one or more factory statuses',
         enum: FactoryStatus,
-        example: FactoryStatus.ACTIVE,
+        isArray: true,
+        example: [FactoryStatus.ACTIVE],
     })
-    @IsEnum(FactoryStatus, { message: 'Trạng thái không hợp lệ' })
     @IsOptional()
-    status?: FactoryStatus;
+    @IsEnum({ ACTIVE: 'ACTIVE', INACTIVE: 'INACTIVE' }, { each: true, message: 'Trạng thái không hợp lệ' })
+    @Transform(({ value }) => {
+        if (!value) return undefined;
+        let result = value;
+        // Handle comma-separated string
+        if (typeof value === 'string') {
+            result = value.includes(',') ? value.split(',') : [value];
+        }
+        // Ensure array
+        if (!Array.isArray(result)) {
+            result = [result];
+        }
+        // Trim strings
+        return result.map((s: any) => typeof s === 'string' ? s.trim() : s);
+    })
+    status?: FactoryStatus[];
+
+    @ApiPropertyOptional({ description: 'Filter from date (ISO string)' })
+    @IsOptional()
+    fromDate?: string;
+
+    @ApiPropertyOptional({ description: 'Filter to date (ISO string)' })
+    @IsOptional()
+    toDate?: string;
 
     @ApiPropertyOptional({
         description: 'Search by factory code or name',

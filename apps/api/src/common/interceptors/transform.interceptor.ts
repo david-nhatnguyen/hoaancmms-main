@@ -14,6 +14,7 @@ export interface ApiResponse<T> {
     statusCode: number;
     message: string;
     data: T;
+    meta?: any;
     timestamp: string;
 }
 
@@ -64,6 +65,7 @@ export class TransformInterceptor<T>
                 statusCode: response.statusCode,
                 message: data?.message || 'Success',
                 data: data?.data !== undefined ? data.data : data,
+                meta: data?.meta,
                 timestamp: new Date().toISOString(),
             })),
         );

@@ -48,8 +48,10 @@ export interface UpdateFactoryDto {
  * Matches backend FactoryQueryDto
  */
 export interface FactoryQueryParams extends PaginationParams {
-    status?: 'ACTIVE' | 'INACTIVE';
+    status?: FactoryStatus | FactoryStatus[];
     search?: string;
+    fromDate?: string;
+    toDate?: string;
 }
 
 /**
