@@ -112,6 +112,40 @@ describe('FactoriesService', () => {
         }),
       );
     });
+
+    it('should filter by single status', async () => {
+      prisma.client.factory.findMany.mockResolvedValue([]);
+      prisma.client.factory.count.mockResolvedValue(0);
+
+      // @ts-ignore
+      await service.findAll({ status: 'ACTIVE', skip: 0, take: 10 });
+
+      expect(prisma.client.factory.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ status: 'ACTIVE' }),
+        }),
+      );
+    });
+
+    it('should filter by date range', async () => {
+      prisma.client.factory.findMany.mockResolvedValue([]);
+      prisma.client.factory.count.mockResolvedValue(0);
+      const fromDate = '2024-01-01';
+      const toDate = '2024-12-31';
+
+      await service.findAll({ fromDate, toDate, skip: 0, take: 10 });
+
+      expect(prisma.client.factory.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            createdAt: {
+              gte: new Date(fromDate),
+              lte: new Date(toDate),
+            },
+          }),
+        }),
+      );
+    });
   });
 
   describe('findOne', () => {
