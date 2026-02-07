@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Loader2, Building2, Pencil, Trash2, Search, X, Filter } from 'lucide-react';
+import { Plus, Loader2, Building2, Search, X, Filter, FileSpreadsheet, Download } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import PullToRefresh from 'react-simple-pull-to-refresh';
 import { Drawer } from 'vaul';
@@ -8,7 +8,6 @@ import { Drawer } from 'vaul';
 // UI Components
 import { Button } from '@/components/ui/button';
 import { MobileButton } from '@/components/ui/mobile-button';
-import { FAB } from '@/components/ui/fab';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { MobileFilters } from '@/components/shared/MobileFilters';
@@ -18,7 +17,6 @@ import { MobilePageHeader } from '@/components/shared/MobilePageHeader';
 import { ResponsiveTable } from '@/components/shared/ResponsiveTable';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { SearchBar } from '@/components/shared/SearchBar'; // Maybe remove if unused?
 import { PageContainer } from '@/components/shared/PageContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -199,6 +197,8 @@ export default function FactoryList() {
         <button 
           onClick={() => removeStatus(s)} 
           className="ml-1 hover:bg-muted rounded-full p-0.5"
+          aria-label={`Xóa lọc ${label}`}
+          title={`Xóa lọc ${label}`}
         >
           <X className="h-3 w-3" />
         </button>
@@ -378,17 +378,25 @@ export default function FactoryList() {
 
       {/* Desktop Header */}
       {!isMobile && (
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Quản lý Nhà máy</h1>
-            <p className="text-muted-foreground mt-1">
-              Danh sách tất cả các nhà máy trong hệ thống
-            </p>
+        <div className="mb-6">
+          <p className="page-subtitle">QUẢN LÝ NHÀ MÁY</p>
+          <div className="flex items-center justify-between">
+            <h1 className="page-title">Danh sách Nhà máy</h1>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="action-btn-secondary">
+                <FileSpreadsheet className="h-4 w-4" />
+                Import
+              </Button>
+              <Button variant="outline" size="sm" className="action-btn-secondary">
+                <Download className="h-4 w-4" />
+                Xuất
+              </Button>
+              <Button onClick={() => form.openDialog()} className="action-btn-primary">
+                <Plus className="h-4 w-4" />
+                Thêm Nhà máy
+              </Button>
+            </div>
           </div>
-          <Button onClick={() => form.openDialog()}>
-            <Plus className="h-4 w-4 mr-2" />
-            Thêm Nhà máy
-          </Button>
         </div>
       )}
 

@@ -13,11 +13,13 @@ export const mockPrismaService = () => {
       equipment: {
         findMany: jest.fn(),
         findUnique: jest.fn(),
+        findFirst: jest.fn(),
         create: jest.fn(),
         createMany: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
         count: jest.fn(),
+        groupBy: jest.fn(),
       },
       user: {
         findUnique: jest.fn(),

@@ -9,6 +9,13 @@ export default {
           react: {
             runtime: 'automatic',
           },
+          optimizer: {
+            globals: {
+              vars: {
+                'import.meta.env': 'process.env',
+              },
+            },
+          },
         },
       },
     }],
