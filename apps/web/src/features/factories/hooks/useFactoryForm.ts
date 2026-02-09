@@ -97,7 +97,7 @@ const INITIAL_FORM_DATA: FactoryFormData = {
  * }
  * ```
  */
-export function useFactoryForm(options?: UseFactoryFormOptions): UseFactoryFormReturn {
+export function useFactoryForm(): UseFactoryFormReturn {
     // ============================================================================
     // STATE
     // ============================================================================
@@ -124,7 +124,7 @@ export function useFactoryForm(options?: UseFactoryFormOptions): UseFactoryFormR
                 code: factory.code,
                 name: factory.name,
                 location: factory.location || '',
-                status: factory.status,
+                status: factory.status?.toUpperCase() as FactoryStatus,
             });
         } else {
             // Create mode
@@ -166,7 +166,7 @@ export function useFactoryForm(options?: UseFactoryFormOptions): UseFactoryFormR
                 code: editingFactory.code,
                 name: editingFactory.name,
                 location: editingFactory.location || '',
-                status: editingFactory.status,
+                status: editingFactory.status?.toUpperCase() as FactoryStatus,
             });
         } else {
             setFormData(INITIAL_FORM_DATA);

@@ -301,7 +301,7 @@ export default function CorrectiveMaintenanceList() {
     {
       key: 'code',
       header: 'Mã sự cố',
-      isPrimary: true,
+      mobilePriority: 'primary',
       width: 'w-[140px]',
       render: (cm) => (
         <span className="font-mono font-medium text-destructive">{cm.code}</span>
@@ -310,7 +310,7 @@ export default function CorrectiveMaintenanceList() {
     {
       key: 'equipment',
       header: 'Thiết bị',
-      isSecondary: true,
+      mobilePriority: 'secondary',
       render: (cm) => (
         <div>
           <p className="font-medium">{cm.equipmentCode} - {cm.equipmentName}</p>
@@ -322,7 +322,7 @@ export default function CorrectiveMaintenanceList() {
     {
       key: 'machineType',
       header: 'Loại máy',
-      showOnMobile: false,
+      hiddenOnMobile: true,
       render: (cm) => <span className="text-sm">{cm.machineType}</span>
     },
     {
@@ -355,7 +355,7 @@ export default function CorrectiveMaintenanceList() {
       key: 'downtime',
       header: 'Downtime',
       align: 'center',
-      showOnMobile: false,
+      hiddenOnMobile: true,
       render: (cm) => (
         <span className={cn(
           "text-sm font-medium",
@@ -518,6 +518,8 @@ export default function CorrectiveMaintenanceList() {
                     <button
                       onClick={() => toggleFilter(key as keyof FilterState, value)}
                       className="hover:bg-primary/30 rounded-full p-0.5"
+                      aria-label={`Remove filter ${value}`}
+                      title={`Remove filter ${value}`}
                     >
                       <X className="h-3 w-3" />
                     </button>

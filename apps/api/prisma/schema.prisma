@@ -7,7 +7,6 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-
 enum UserRole {
   ADMIN
   MANAGER
@@ -17,6 +16,17 @@ enum UserRole {
 enum FactoryStatus {
   ACTIVE
   INACTIVE
+}
+enum EquipmentStatus {
+  ACTIVE
+  MAINTENANCE
+  INACTIVE
+}
+
+enum EquipmentPriority {
+  HIGH
+  MEDIUM
+  LOW
 }
 
 model User {
@@ -49,28 +59,75 @@ model Factory {
   @@map("factories")
 }
 
-model Equipment {
-  id            String   @id @default(uuid())
-  code          String   @unique
-  name          String
-  factoryId     String
-  groupId       String?
-  machineType   String?
-  manufacturer  String?
-  model         String?
-  serialNumber  String?
-  yearInService Int?
-  department    String?
-  priority      String?
-  status        String?
-  notes         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+ model Equipment {
+  id           String            @id @default(uuid())
+  code         String            @unique
+  name         String // Name/List of machine
+  category     String // Chủng loại máy (Type of machine)
+  origin       String? // Xuất xứ (Original)
+  brand        String? // Thương hiệu (Trademark)
+  modelYear    Int? // Năm sản xuất (Model year)
+  image        String? // Hình ảnh (Picture)
+  qrCode       String? // Mã QR (QR Code)
+  dimension    String? // Kích thước (Dimension)
+  quantity     Int     @default(1) // Số lượng (Quantity)
+  factoryId    String?
+  
+  status       EquipmentStatus   @default(ACTIVE)
+  notes        String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 
   // Relationships
-  factory Factory @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+  factory      Factory?          @relation(fields: [factoryId], references: [id], onDelete: SetNull)
+  documents    EquipmentDocument[]
 
-  @@index([factoryId])
+  // Indexes for high performance querying
+  @@index([category])
+  @@index([status])
   @@index([code])
+  @@index([name])
   @@map("equipments")
+}
+
+model EquipmentDocument {
+  id          String   @id @default(uuid())
+  name        String   // Original file name
+  path        String   // File path (relative)
+  type        String?  // MIME type
+  size        Int?     // Size in bytes
+  equipmentId String
+  createdAt   DateTime @default(now())
+
+  equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+
+  @@index([equipmentId])
+  @@map("equipment_documents")
+}
+
+enum ImportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model ImportHistory {
+  id               String       @id @default(uuid())
+  fileName         String
+  fileSize         Int?         // File size in bytes
+  totalRecords     Int          @default(0)
+  processedRecords Int          @default(0)
+  successCount     Int          @default(0)
+  failedCount      Int          @default(0)
+  status           ImportStatus @default(PENDING)
+  errorFileUrl     String?
+  importType       String       @default("EQUIPMENT") // Use string for flexibility or enum if strict
+  
+  startedAt        DateTime?
+  finishedAt       DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@map("import_histories")
 }
