@@ -576,24 +576,6 @@ export default function EquipmentForm() {
                                             </div>
                                           )}
                                       </div>
-                                      
-                                        {/* URL Fallback */}
-                                        <div className="relative">
-                                          <Input 
-                                            placeholder="Hoặc dán URL ảnh..." 
-                                            {...field} 
-                                            value={field.value || ''} 
-                                            disabled={isSubmitting} 
-                                            className="h-9 text-xs"
-                                            onChange={(e) => {
-                                              field.onChange(e);
-                                              if (e.target.value) {
-                                                setPreviewUrl(e.target.value);
-                                                setSelectedFile(null);
-                                              }
-                                            }}
-                                          />
-                                        </div>
                                     </div>
                                   </FormControl>
                                   <FormMessage />

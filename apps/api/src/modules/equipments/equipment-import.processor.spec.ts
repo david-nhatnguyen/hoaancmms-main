@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EquipmentImportProcessor } from './equipment-import.processor';
 import { PrismaService } from '@/database/prisma.service';
+import { EquipmentsQrService } from './equipments.qr.service';
 import { Job } from 'bullmq';
 import * as fs from 'fs';
 import * as sharp from 'sharp';
@@ -20,11 +21,11 @@ describe('EquipmentImportProcessor', () => {
         findUnique: jest.fn(),
       },
       equipment: {
-        findMany: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([]),
         createMany: jest.fn(),
       },
       factory: {
-        findMany: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([]),
       },
     },
   };
@@ -39,7 +40,14 @@ describe('EquipmentImportProcessor', () => {
     jest.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [EquipmentImportProcessor, { provide: PrismaService, useValue: mockPrisma }],
+      providers: [
+        EquipmentImportProcessor,
+        { provide: PrismaService, useValue: mockPrisma },
+        {
+          provide: EquipmentsQrService,
+          useValue: { generateQrCode: jest.fn().mockResolvedValue('qr-code-url') },
+        },
+      ],
     }).compile();
 
     processor = module.get<EquipmentImportProcessor>(EquipmentImportProcessor);
@@ -196,7 +204,7 @@ describe('EquipmentImportProcessor', () => {
         return {
           actualCellCount: 5,
           getCell: (idx: number) => ({
-            text: idx === 1 ? 'DUP-001' : 'Test',
+            text: idx === 1 ? 'DUP-001' : idx === 2 ? 'Name' : idx === 3 ? 'Category' : 'Test',
             value: 1,
           }),
         };
@@ -219,7 +227,16 @@ describe('EquipmentImportProcessor', () => {
       mockWorksheet.getRow.mockReturnValue({
         actualCellCount: 5,
         getCell: (idx: number) => ({
-          text: idx === 1 ? 'IMG-001' : 'Test',
+          text:
+            idx === 1
+              ? 'IMG-001'
+              : idx === 2
+                ? 'Name'
+                : idx === 3
+                  ? 'Category'
+                  : idx === 4
+                    ? ''
+                    : 'Test',
           value: 1,
         }),
       });
@@ -256,7 +273,19 @@ describe('EquipmentImportProcessor', () => {
       const { mockWorkbook, mockWorksheet } = getMockWorkbook();
       mockWorksheet.getRow.mockReturnValue({
         actualCellCount: 5,
-        getCell: () => ({ text: 'IMG-FAIL', value: 1 }),
+        getCell: (idx: number) => ({
+          text:
+            idx === 1
+              ? 'IMG-FAIL'
+              : idx === 2
+                ? 'Name'
+                : idx === 3
+                  ? 'Category'
+                  : idx === 4
+                    ? ''
+                    : 'Test',
+          value: 1,
+        }),
       });
       mockWorksheet.getImages.mockReturnValue([
         {
@@ -347,7 +376,16 @@ describe('EquipmentImportProcessor', () => {
         mockWorksheet.getRow.mockReturnValue({
           actualCellCount: 5,
           getCell: (idx: number) => ({
-            text: idx === 1 ? 'EQ-FAIL' : idx === 4 ? 'INVALID-FAC' : '',
+            text:
+              idx === 1
+                ? 'EQ-FAIL'
+                : idx === 2
+                  ? 'Name'
+                  : idx === 3
+                    ? 'Category'
+                    : idx === 4
+                      ? 'INVALID-FAC'
+                      : '',
             value: idx === 6 ? 1 : '',
           }),
         });
@@ -370,7 +408,7 @@ describe('EquipmentImportProcessor', () => {
         mockWorksheet.getRow.mockReturnValue({
           actualCellCount: 5,
           getCell: (idx: number) => ({
-            text: idx === 1 ? 'EQ-NO-FAC' : idx === 4 ? '' : '', // No factory code
+            text: idx === 1 ? 'EQ-NO-FAC' : idx === 2 ? 'Name' : idx === 3 ? 'Category' : '', // Category/Name are required, No factory code in idx 4
             value: idx === 6 ? 1 : '',
           }),
         });
@@ -384,7 +422,7 @@ describe('EquipmentImportProcessor', () => {
 
         expect(result.success).toBe(true);
         expect(mockPrisma.client.equipment.createMany).toHaveBeenCalledWith({
-          data: [expect.objectContaining({ factoryId: undefined })],
+          data: [expect.objectContaining({ code: 'EQ-NO-FAC' })],
           skipDuplicates: true,
         });
       });

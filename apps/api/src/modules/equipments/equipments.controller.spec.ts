@@ -43,7 +43,7 @@ describe('EquipmentsController', () => {
     it('should call service.create', async () => {
       const dto = { code: 'TEST' } as CreateEquipmentDto;
       await controller.create(dto);
-      expect(service.create).toHaveBeenCalledWith(dto);
+      expect(service.create).toHaveBeenCalledWith(dto, undefined);
     });
   });
 
@@ -66,7 +66,7 @@ describe('EquipmentsController', () => {
     it('should call service.update', async () => {
       const dto = { name: 'New Name' };
       await controller.update('1', dto);
-      expect(service.update).toHaveBeenCalledWith('1', dto);
+      expect(service.update).toHaveBeenCalledWith('1', dto, undefined);
     });
   });
 

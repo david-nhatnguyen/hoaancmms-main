@@ -74,7 +74,7 @@ export function useFactoryColumns(
     {
       key: 'code',
       header: 'Mã nhà máy',
-      isPrimary: true,
+      mobilePriority: 'primary',
       width: 'w-[120px]',
       render: (factory) => (
         <span className="font-mono font-medium text-primary">
@@ -87,7 +87,7 @@ export function useFactoryColumns(
     {
       key: 'name',
       header: 'Tên nhà máy',
-      isSecondary: true,
+      mobilePriority: 'secondary',
       render: (factory) => (
         <span className="font-medium">{factory.name}</span>
       ),

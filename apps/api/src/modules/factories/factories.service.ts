@@ -310,7 +310,7 @@ export class FactoriesService {
       name: factory.name,
       location: factory.location,
       equipmentCount: factory._count?.equipments || 0,
-      status: factory.status.toLowerCase(), // ACTIVE -> active
+      status: factory.status, // KEEP UPPERCASE: ACTIVE, INACTIVE
       createdAt: factory.createdAt,
       updatedAt: factory.updatedAt,
     };

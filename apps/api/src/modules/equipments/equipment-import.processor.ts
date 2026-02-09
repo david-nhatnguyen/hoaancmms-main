@@ -176,10 +176,11 @@ export class EquipmentImportProcessor extends WorkerHost {
     if (factoryCodes.size === 0) return;
 
     // Bulk lookup factories
-    const factories = await this.prisma.client.factory.findMany({
-      where: { code: { in: Array.from(factoryCodes), mode: 'insensitive' } },
-      select: { id: true, code: true },
-    });
+    const factories =
+      (await this.prisma.client.factory.findMany({
+        where: { code: { in: Array.from(factoryCodes), mode: 'insensitive' } },
+        select: { id: true, code: true },
+      })) || [];
 
     const factoryMap = new Map(factories.map((f) => [f.code.toUpperCase(), f.id]));
 
@@ -215,7 +216,7 @@ export class EquipmentImportProcessor extends WorkerHost {
       select: { code: true },
     });
 
-    const dbCodes = new Set(existingEquipments.map((e) => e.code));
+    const dbCodes = new Set((existingEquipments || []).map((e) => e.code));
     rows.forEach((row) => {
       if (dbCodes.has(row.dto.code)) {
         rowErrors.set(row.index, `Mã thiết bị '${row.dto.code}' đã tồn tại trong hệ thống`);
