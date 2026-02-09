@@ -49,6 +49,13 @@ export const factoriesApi = {
     },
 
     /**
+     * Delete multiple factories
+     */
+    bulkDelete: async (ids: string[]): Promise<ApiResponse<{ message: string; success: string[]; failed: any[] }>> => {
+        return apiClient.post('/factories/bulk-delete', { ids });
+    },
+
+    /**
      * Get factory statistics
      */
     getStats: async (): Promise<ApiResponse<FactoryStats>> => {

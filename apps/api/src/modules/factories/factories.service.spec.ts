@@ -165,7 +165,7 @@ describe('FactoriesService', () => {
       // Assert
       expect(result.id).toBe(mockFactory.id);
       expect(result.equipmentCount).toBe(5);
-      expect(result.status).toBe('active'); // Lowercase transformation
+      expect(result.status).toBe(FactoryStatus.ACTIVE); // Uppercase return value
       expect(prisma.client.factory.findUnique).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { id: mockFactory.id },

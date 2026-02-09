@@ -1,8 +1,9 @@
-import { ReactNode, useState, useMemo } from 'react';
+import { ReactNode, useState, useMemo, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
   TableBody,
@@ -11,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { MobileCard } from './table/MobileCard';
 
 export interface Column<T> {
   key: string;
@@ -19,16 +21,14 @@ export interface Column<T> {
   render: (item: T) => ReactNode;
   // For mobile card (optional - if not provided, uses render)
   mobileRender?: (item: T) => ReactNode;
-  // Show in mobile card view?
-  showOnMobile?: boolean;
+  // Meta-data for mobile
+  mobileLabel?: string;
+  hiddenOnMobile?: boolean;
+  mobilePriority?: 'primary' | 'secondary' | 'metadata';
   // Column alignment
   align?: 'left' | 'center' | 'right';
   // Column width class
   width?: string;
-  // Is this the main/primary column?
-  isPrimary?: boolean;
-  // Is this the secondary info column?
-  isSecondary?: boolean;
 }
 
 interface ResponsiveTableProps<T> {
@@ -37,8 +37,9 @@ interface ResponsiveTableProps<T> {
   keyExtractor: (item: T) => string;
   onRowClick?: (item: T) => void;
   emptyMessage?: string;
-  // Custom card renderer (overrides default card layout)
+  // Mobile Card Styling
   renderMobileCard?: (item: T, columns: Column<T>[]) => ReactNode;
+  mobileCardAction?: (item: T) => ReactNode;
   // Pagination Settings
   pageSize?: number;
   showPagination?: boolean;
@@ -46,6 +47,9 @@ interface ResponsiveTableProps<T> {
   pageCount?: number;
   currentPage?: number;
   onPageChange?: (page: number) => void;
+  // Selection
+  selectedIds?: string[];
+  onSelectionChange?: (ids: string[]) => void;
 }
 
 // Pagination Component (Shared)
@@ -156,7 +160,10 @@ export function ResponsiveTable<T>({
   showPagination = true,
   pageCount,
   currentPage: propCurrentPage,
-  onPageChange
+  onPageChange,
+  selectedIds,
+  onSelectionChange,
+  mobileCardAction
 }: ResponsiveTableProps<T>) {
   const isMobile = useIsMobile();
   const [internalPage, setInternalPage] = useState(1);
@@ -174,6 +181,32 @@ export function ResponsiveTable<T>({
     }
   };
 
+  // Selection Logic
+  const isSelectable = !!onSelectionChange;
+  const selectedIdsSet = useMemo(() => new Set(selectedIds || []), [selectedIds]);
+
+  const toggleSelectAll = () => {
+    if (!onSelectionChange) return;
+    const currentIds = items.map(item => keyExtractor(item));
+    const allSelectedInView = currentIds.every(id => selectedIdsSet.has(id));
+
+    if (allSelectedInView) {
+      onSelectionChange(selectedIds?.filter(id => !currentIds.includes(id)) || []);
+    } else {
+      const newSelection = Array.from(new Set([...(selectedIds || []), ...currentIds]));
+      onSelectionChange(newSelection);
+    }
+  };
+
+  const toggleSelectItem = (id: string) => {
+    if (!onSelectionChange) return;
+    if (selectedIdsSet.has(id)) {
+      onSelectionChange(selectedIds?.filter(sid => sid !== id) || []);
+    } else {
+      onSelectionChange([...(selectedIds || []), id]);
+    }
+  };
+
   // Get items to render
   const items = useMemo(() => {
     // If controlled or hidden pagination, render data as is
@@ -185,11 +218,11 @@ export function ResponsiveTable<T>({
   }, [data, isControlled, showPagination, internalPage, pageSize]);
 
   // Reset internal page if data length changes drastically (only for uncontrolled)
-  useMemo(() => {
+  useEffect(() => {
     if (!isControlled && internalPage > totalPages && totalPages > 0) {
       setInternalPage(1);
     }
-  }, [data.length, totalPages, internalPage, isControlled]);
+  }, [totalPages, internalPage, isControlled]);
 
   // Mobile Card View
   if (isMobile) {
@@ -213,7 +246,7 @@ export function ResponsiveTable<T>({
         )}
 
         {/* Cards */}
-        <div className="space-y-3 max-w-full overflow-x-hidden">
+        <div className="space-y-4 max-w-full overflow-x-hidden pt-1 pb-4">
           {items.map((item) => {
             if (renderMobileCard) {
               return (
@@ -223,65 +256,17 @@ export function ResponsiveTable<T>({
               );
             }
 
-            // Default card layout logic
-            const primaryCol = columns.find(c => c.isPrimary);
-            const secondaryCol = columns.find(c => c.isSecondary);
-            const mobileColumns = columns.filter(c => c.showOnMobile !== false && !c.isPrimary && !c.isSecondary);
-
             return (
-              <div
+              <MobileCard<T>
                 key={keyExtractor(item)}
+                item={item}
+                columns={columns}
+                isSelected={selectedIdsSet.has(keyExtractor(item))}
+                onToggleSelection={() => toggleSelectItem(keyExtractor(item))}
                 onClick={() => onRowClick?.(item)}
-                className={cn(
-                  "bg-card rounded-xl border border-border/50 p-4 transition-all max-w-full overflow-hidden",
-                  onRowClick && "cursor-pointer active:scale-[0.99] hover:border-primary/50"
-                )}
-              >
-                {/* Primary & Secondary info */}
-                <div className="flex items-start justify-between gap-2 mb-3 min-w-0">
-                   <div className="flex-1 min-w-0 overflow-hidden">
-                    {primaryCol && (
-                      <div className="font-mono text-primary font-medium text-sm truncate">
-                        {primaryCol.mobileRender?.(item) ?? primaryCol.render(item)}
-                      </div>
-                    )}
-                    {secondaryCol && (
-                      <div className="font-medium mt-0.5 truncate text-sm">
-                        {secondaryCol.mobileRender?.(item) ?? secondaryCol.render(item)}
-                      </div>
-                    )}
-                  </div>
-                  {columns.find(c => c.key === 'status') && (
-                    <div className="shrink-0">
-                      {columns.find(c => c.key === 'status')?.render(item)}
-                    </div>
-                  )}
-                </div>
-
-                {/* Other columns */}
-                <div className="space-y-1.5 text-sm">
-                  {mobileColumns
-                    .filter(col => col.key !== 'status' && col.key !== 'actions')
-                    .slice(0, 3)
-                    .map(col => (
-                      <div key={col.key} className="flex items-center justify-between gap-2 min-w-0">
-                        <span className="text-muted-foreground shrink-0 text-xs">{col.header}:</span>
-                        <span className="text-right truncate text-xs">
-                          {col.mobileRender?.(item) ?? col.render(item)}
-                        </span>
-                      </div>
-                    ))
-                  }
-                </div>
-
-                {/* Actions */}
-                {columns.find(c => c.key === 'actions') && (
-                  <div className="mt-3 pt-3 border-t border-border/50">
-                    {columns.find(c => c.key === 'actions')?.mobileRender?.(item) ?? 
-                     columns.find(c => c.key === 'actions')?.render(item)}
-                  </div>
-                )}
-              </div>
+                renderSelection={isSelectable}
+                action={mobileCardAction}
+              />
             );
           })}
         </div>
@@ -305,6 +290,15 @@ export function ResponsiveTable<T>({
       <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border/50">
+              {isSelectable && (
+                <TableHead className="w-[40px] px-4">
+                  <Checkbox 
+                    checked={items.length > 0 && items.every(item => selectedIdsSet.has(keyExtractor(item)))}
+                    onCheckedChange={toggleSelectAll}
+                    className="border-border/50 data-[state=checked]:bg-primary"
+                  />
+                </TableHead>
+              )}
               {columns.map(col => (
                 <TableHead 
                   key={col.key} 
@@ -334,9 +328,19 @@ export function ResponsiveTable<T>({
                   onClick={() => onRowClick?.(item)}
                   className={cn(
                     "table-row-interactive",
-                    onRowClick && "cursor-pointer"
+                    onRowClick && "cursor-pointer",
+                    selectedIdsSet.has(keyExtractor(item)) && "bg-primary/[0.03] dark:bg-primary/[0.05]"
                   )}
                 >
+                  {isSelectable && (
+                    <TableCell className="w-[40px] px-4" onClick={e => e.stopPropagation()}>
+                      <Checkbox 
+                        checked={selectedIdsSet.has(keyExtractor(item))}
+                        onCheckedChange={() => toggleSelectItem(keyExtractor(item))}
+                        className="border-border/50 data-[state=checked]:bg-primary"
+                      />
+                    </TableCell>
+                  )}
                   {columns.map(col => (
                     <TableCell 
                       key={col.key}

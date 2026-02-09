@@ -9,6 +9,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './modules/health/health.module';
 import { QueueModule } from './modules/queue/queue.module';
 import { FactoriesModule } from './modules/factories/factories.module';
+import { EquipmentsModule } from './modules/equipments/equipments.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { FactoriesModule } from './modules/factories/factories.module';
     AuthModule,
     HealthModule,
     FactoriesModule, // Factory CRUD API
+    EquipmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

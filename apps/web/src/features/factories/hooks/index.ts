@@ -9,6 +9,7 @@ export { useCreateFactory } from './useCreateFactory';
 export { useUpdateFactory } from './useUpdateFactory';
 
 export { useDeleteFactory } from './useDeleteFactory';
+export { useBulkDeleteFactories } from './useBulkDeleteFactories';
 export { useFactoryStats } from './useFactoryStats';
 
 // UI Hooks

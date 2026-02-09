@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Loader2, Building2, Pencil, Trash2, Search, X, Filter } from 'lucide-react';
+import { Plus, Loader2, Building2, X, Filter, FileSpreadsheet, Download } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import PullToRefresh from 'react-simple-pull-to-refresh';
 import { Drawer } from 'vaul';
@@ -8,8 +8,6 @@ import { Drawer } from 'vaul';
 // UI Components
 import { Button } from '@/components/ui/button';
 import { MobileButton } from '@/components/ui/mobile-button';
-import { FAB } from '@/components/ui/fab';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { MobileFilters } from '@/components/shared/MobileFilters';
 import { ChipFilter } from '@/components/shared/filters/ChipFilter';
@@ -18,7 +16,6 @@ import { MobilePageHeader } from '@/components/shared/MobilePageHeader';
 import { ResponsiveTable } from '@/components/shared/ResponsiveTable';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { SearchBar } from '@/components/shared/SearchBar'; // Maybe remove if unused?
 import { PageContainer } from '@/components/shared/PageContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -31,6 +28,7 @@ import {
   useCreateFactory,
   useUpdateFactory,
   useDeleteFactory,
+  useBulkDeleteFactories,
 } from '@/features/factories/hooks';
 
 import {
@@ -39,6 +37,9 @@ import {
   DeleteFactoryDialog,
 } from '@/features/factories/components';
 import { FactoryFormFields } from '@/features/factories/components/FactoryFormDialog/FactoryFormFields';
+import { BulkActionsToolbar } from '@/components/shared/table/BulkActionsToolbar';
+import { MobileCardActions } from '@/components/shared/table/MobileCardActions';
+import { TableToolbarFilters } from '@/components/shared/table/TableToolbarFilters';
 
 import type { Factory, FactoryQueryParams } from '@/api/types/factory.types';
 
@@ -57,8 +58,8 @@ import type { Factory, FactoryQueryParams } from '@/api/types/factory.types';
  */
 // Filter Options
 const STATUS_OPTIONS = [
-  { value: 'ACTIVE', label: 'Hoạt động', color: 'bg-emerald-500' },
-  { value: 'INACTIVE', label: 'Ngừng hoạt động', color: 'bg-slate-500' }
+  { value: 'ACTIVE', label: 'Hoạt động', color: 'bg-status-active' },
+  { value: 'INACTIVE', label: 'Ngừng hoạt động', color: 'bg-status-inactive' }
 ];
 
 export default function FactoryList() {
@@ -98,7 +99,7 @@ export default function FactoryList() {
   // Custom hook for table columns
   const { columns } = useFactoryColumns({
     onEdit: form.openDialog,
-    onViewEquipments: (id) => navigate(`/equipments?factory=${id}`),
+    onViewEquipments: (code) => navigate(`/equipments?factoryCode=${code}`),
     onDelete: (factory) => setDeletingFactory(factory),
   });
 
@@ -113,6 +114,10 @@ export default function FactoryList() {
 
   // Delete State
   const [deletingFactory, setDeletingFactory] = useState<Factory | null>(null);
+
+  // Selection State
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const bulkDelete = useBulkDeleteFactories();
 
   // ============================================================================
   // FILTER LOGIC
@@ -150,24 +155,20 @@ export default function FactoryList() {
 
   // Desktop Filters Component
   const desktopFilters = (
-    <div className="flex items-center gap-2">
-      <div className="relative flex-1 min-w-[200px] max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Tìm kiếm nhà máy..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-9 h-9"
+    <TableToolbarFilters
+      searchQuery={searchQuery}
+      onSearchChange={setSearchQuery}
+      searchPlaceholder="Tìm kiếm nhà máy..."
+    >
+      <div className="flex items-center gap-3">
+        <span className="text-sm font-medium text-muted-foreground">Trạng thái</span>
+        <ChipFilter 
+          options={STATUS_OPTIONS} 
+          selected={(params.status as string[]) || []} 
+          onToggle={toggleStatus} 
         />
       </div>
-      <div className="h-6 w-px bg-border/50 mx-2" />
-      <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Trạng thái:</span>
-      <ChipFilter 
-        options={STATUS_OPTIONS} 
-        selected={(params.status as string[]) || []} 
-        onToggle={toggleStatus} 
-      />
-    </div>
+    </TableToolbarFilters>
   );
 
   // Mobile Filter Sections
@@ -199,6 +200,8 @@ export default function FactoryList() {
         <button 
           onClick={() => removeStatus(s)} 
           className="ml-1 hover:bg-muted rounded-full p-0.5"
+          aria-label={`Xóa lọc ${label}`}
+          title={`Xóa lọc ${label}`}
         >
           <X className="h-3 w-3" />
         </button>
@@ -347,12 +350,21 @@ export default function FactoryList() {
         columns={columns}
         data={factories}
         keyExtractor={(factory) => factory.id}
-        onRowClick={(factory) => navigate(`/equipments?factory=${factory.id}`)}
         emptyMessage="Chưa có nhà máy nào"
         pageCount={data?.meta?.totalPages}
         currentPage={params.page}
         showPagination={true}
         onPageChange={(page) => setParams((prev) => ({ ...prev, page }))}
+        selectedIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+        mobileCardAction={(factory) => (
+          <MobileCardActions 
+            onView={() => navigate(`/equipments?factory=${factory.id}`)}
+            onEdit={() => form.openDialog(factory)}
+            onDelete={() => setDeletingFactory(factory)}
+            viewLabel="Xem TB"
+          />
+        )}
       />
     );
   };
@@ -378,17 +390,21 @@ export default function FactoryList() {
 
       {/* Desktop Header */}
       {!isMobile && (
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Quản lý Nhà máy</h1>
-            <p className="text-muted-foreground mt-1">
-              Danh sách tất cả các nhà máy trong hệ thống
-            </p>
+        <div className="mb-6">
+          <p className="page-subtitle">QUẢN LÝ NHÀ MÁY</p>
+          <div className="flex items-center justify-between">
+            <h1 className="page-title">Danh sách Nhà máy</h1>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="action-btn-secondary">
+                <Download className="h-4 w-4" />
+                Xuất
+              </Button>
+              <Button onClick={() => form.openDialog()} className="action-btn-primary">
+                <Plus className="h-4 w-4" />
+                Thêm Nhà máy
+              </Button>
+            </div>
           </div>
-          <Button onClick={() => form.openDialog()}>
-            <Plus className="h-4 w-4 mr-2" />
-            Thêm Nhà máy
-          </Button>
         </div>
       )}
 
@@ -431,6 +447,20 @@ export default function FactoryList() {
       ) : (
         renderTableContent()
       )}
+
+      {/* Bulk Actions */}
+      <BulkActionsToolbar
+        selectedCount={selectedIds.length}
+        onClear={() => setSelectedIds([])}
+        onDelete={() => {
+           if (window.confirm(`Bạn có chắc muốn xóa ${selectedIds.length} nhà máy đã chọn?`)) {
+             bulkDelete.mutate(selectedIds, {
+               onSuccess: () => setSelectedIds([])
+             });
+           }
+        }}
+        isDeleting={bulkDelete.isPending}
+      />
 
       {/* Form Dialog/Drawer */}
       {isMobile ? (

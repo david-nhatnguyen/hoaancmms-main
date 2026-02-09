@@ -1,635 +1,543 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { 
-  Plus, 
-  Pencil, 
-  Eye, 
-  FileSpreadsheet, 
-  Download, 
-  Search,
-  Cpu,
-  CheckCircle,
-  AlertTriangle,
-  X,
-  ChevronDown,
-  Check
-} from 'lucide-react';
+import { Plus, Loader2, Cpu, Filter, X, FileSpreadsheet, Download, Factory, Building2 } from 'lucide-react';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
+import PullToRefresh from 'react-simple-pull-to-refresh';
+
+// UI Components
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { MobileButton } from '@/components/ui/mobile-button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-import { StatusBadge } from '@/components/shared/StatusBadge';
-import { PriorityIndicator } from '@/components/shared/PriorityIndicator';
-import { MobilePageHeader } from '@/components/shared/MobilePageHeader';
-import { MobileStatsGrid } from '@/components/shared/MobileStatsGrid';
-import { ResponsiveTable, Column } from '@/components/shared/ResponsiveTable';
 import { MobileFilters } from '@/components/shared/MobileFilters';
-import { 
-  equipments as initialEquipments, 
-  factories, 
-  EQUIPMENT_GROUPS,
-  Equipment
-} from '@/data/mockData';
-import { cn } from '@/lib/utils';
+import { ChipFilter } from '@/components/shared/filters/ChipFilter';
+import { FilterCheckbox } from '@/components/shared/filters/FilterCheckbox';
+import { useDebounce } from '@/hooks/use-debounce';
+import { MobilePageHeader } from '@/components/shared/MobilePageHeader';
+import { ResponsiveTable } from '@/components/shared/ResponsiveTable';
+import { TableSkeleton } from '@/components/shared/TableSkeleton';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { PageContainer } from '@/components/shared/PageContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { factoriesApi } from '@/api/endpoints/factories.api';
 
-interface Filters {
-  factory: string[];
-  group: string[];
-  status: string[];
-  priority: string[];
-}
+// Feature Components & Hooks
+import {
+  useEquipmentColumns,
+  useEquipmentStats,
+  useEquipments,
+  useDeleteEquipment,
+  useBulkDeleteEquipment,
+  STATUS_OPTIONS,
+} from '@/features/equipments/hooks';
 
-// Filter options
-const STATUS_OPTIONS = [
-  { value: 'ACTIVE', label: 'Hoạt động', color: 'bg-status-active' },
-  { value: 'MAINTENANCE', label: 'Bảo trì', color: 'bg-status-maintenance' },
-  { value: 'INACTIVE', label: 'Ngừng hoạt động', color: 'bg-status-inactive' }
-];
+import {
+  EquipmentStats,
+  DeleteEquipmentDialog,
+  QuickAccessFilters as EquipmentDesktopFilters, // This is now a generic component but we keep the import name for now or rename
+  ImportEquipmentDialog,
+  ImportProgress,
+} from '@/features/equipments/components';
+import { MultiSelectDropdown } from '@/components/shared/filters/MultiSelectDropdown';
+import { BulkActionsToolbar } from '@/components/shared/table/BulkActionsToolbar';
 
-const PRIORITY_OPTIONS = [
-  { value: 'high', label: 'Cao', color: 'bg-destructive' },
-  { value: 'medium', label: 'Trung bình', color: 'bg-status-maintenance' },
-  { value: 'low', label: 'Thấp', color: 'bg-muted-foreground' }
-];
+import type { Equipment, EquipmentQueryParams } from '@/api/types/equipment.types';
 
-// Multi-select dropdown component
-interface MultiSelectDropdownProps {
-  label: string;
-  options: { value: string; label: string }[];
-  selected: string[];
-  onToggle: (value: string) => void;
-  searchable?: boolean;
-  icon?: React.ReactNode;
-}
-
-function MultiSelectDropdown({
-  label,
-  options,
-  selected,
-  onToggle,
-  searchable = false,
-  icon
-}: MultiSelectDropdownProps) {
-  const [open, setOpen] = useState(false);
-  const selectedLabels = options
-    .filter(o => selected.includes(o.value))
-    .map(o => o.label);
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className={cn(
-            "h-9 gap-2 border-border/50 bg-secondary/50 hover:bg-secondary",
-            selected.length > 0 && "border-primary/50 bg-primary/10"
-          )}
-        >
-          {icon}
-          <span className="text-sm">
-            {selected.length === 0 
-              ? label 
-              : selected.length === 1 
-                ? selectedLabels[0]
-                : `${label} (${selected.length})`
-            }
-          </span>
-          <ChevronDown className="h-3.5 w-3.5 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-56 p-0 bg-popover border-border z-50" align="start">
-        <Command className="bg-transparent">
-          {searchable && <CommandInput placeholder={`Tìm ${label.toLowerCase()}...`} className="h-9" />}
-          <CommandList>
-            <CommandEmpty>Không tìm thấy.</CommandEmpty>
-            <CommandGroup>
-              {options.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  onSelect={() => onToggle(option.value)}
-                  className="cursor-pointer"
-                >
-                  <div className={cn(
-                    "mr-2 h-4 w-4 rounded border border-primary flex items-center justify-center",
-                    selected.includes(option.value) ? "bg-primary" : "bg-transparent"
-                  )}>
-                    {selected.includes(option.value) && <Check className="h-3 w-3 text-primary-foreground" />}
-                  </div>
-                  {option.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-// Chip filter component
-function ChipFilter({
-  options,
-  selected,
-  onToggle
-}: {
-  options: { value: string; label: string; color: string }[];
-  selected: string[];
-  onToggle: (value: string) => void;
-}) {
-  return (
-    <div className="flex items-center gap-1.5 flex-wrap">
-      {options.map((option) => (
-        <button
-          key={option.value}
-          onClick={() => onToggle(option.value)}
-          className={cn(
-            "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border",
-            selected.includes(option.value)
-              ? `${option.color} text-white border-transparent shadow-sm`
-              : "bg-secondary/50 text-muted-foreground border-border/50 hover:bg-secondary hover:text-foreground"
-          )}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
+/**
+ * Equipment List Page
+ * Follows FactoryList pattern for consistency
+ */
 export default function EquipmentList() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [searchParams] = useSearchParams();
-  const preselectedFactory = searchParams.get('factory');
+  const queryClient = useQueryClient();
 
+  // ============================================================================
+  // STATE & HOOKS
+  // ============================================================================
+
+  // Search state
   const [searchQuery, setSearchQuery] = useState('');
-  const [filters, setFilters] = useState<Filters>({
-    factory: preselectedFactory ? [preselectedFactory] : [],
-    group: [],
-    status: [],
-    priority: []
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
+  // Import Dialog State
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [activeImportId, setActiveImportId] = useState<string | null>(() => {
+    const saved = localStorage.getItem('import_id');
+    if (!saved || saved === 'undefined' || saved === 'null') return null;
+    return saved;
+  });
+  const [activeImportFileName, setActiveImportFileName] = useState<string | null>(() => {
+    return localStorage.getItem('import_file_name');
   });
 
-  // Filter equipments
-  const filteredEquipments = useMemo(() => {
-    return initialEquipments.filter(eq => {
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        const matches = 
-          eq.code.toLowerCase().includes(query) ||
-          eq.name.toLowerCase().includes(query) ||
-          eq.manufacturer.toLowerCase().includes(query) ||
-          eq.model.toLowerCase().includes(query);
-        if (!matches) return false;
-      }
+  // Handle cleanup for import
+  const handleCloseImport = useCallback(() => {
+    setActiveImportId(null);
+    setActiveImportFileName(null);
+    localStorage.removeItem('import_id');
+    localStorage.removeItem('import_file_name');
+    localStorage.removeItem('import_duration');
+    localStorage.removeItem('import_start_time');
+  }, []);
 
-      if (filters.factory.length && !filters.factory.includes(eq.factoryId)) return false;
-      if (filters.group.length && !filters.group.includes(eq.groupId)) return false;
-      if (filters.status.length && !filters.status.includes(eq.status)) return false;
-      if (filters.priority.length && !filters.priority.includes(eq.priority)) return false;
+  const handleUploadStart = useCallback((id: string, estimatedDuration?: number, fileName?: string) => {
+    if (!id) return;
+    
+    setActiveImportId(id);
+    localStorage.setItem('import_id', id);
 
-      return true;
+    if (fileName) {
+      setActiveImportFileName(fileName);
+      localStorage.setItem('import_file_name', fileName);
+    }
+
+    if (estimatedDuration) {
+      localStorage.setItem('import_duration', estimatedDuration.toString());
+      localStorage.setItem('import_start_time', Date.now().toString());
+    }
+  }, []);
+
+  // Sync activeImportId (basic sync only for the ID)
+  useEffect(() => {
+    if (!activeImportId) {
+      localStorage.removeItem('import_id');
+      localStorage.removeItem('import_duration');
+      localStorage.removeItem('import_start_time');
+    }
+  }, [activeImportId]);
+
+  // Selection state
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  // ... (rest of file)
+
+
+
+  // Query parameters
+  const [params, setParams] = useState<EquipmentQueryParams>({
+    page: 1,
+    limit: 10,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+    status: [],
+    factoryId: undefined, // Filter by factory
+  });
+
+  // Sync search with params
+  useMemo(() => {
+    setParams(prev => {
+      if (prev.search === debouncedSearch) return prev;
+      return { ...prev, search: debouncedSearch, page: 1 };
     });
-  }, [searchQuery, filters]);
+  }, [debouncedSearch]);
 
-  const toggleFilter = (category: keyof Filters, value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [category]: prev[category].includes(value)
-        ? prev[category].filter(v => v !== value)
-        : [...prev[category], value]
-    }));
+  const [searchParams] = useSearchParams();
+  
+  // URL to State Sync
+  useEffect(() => {
+    const factoryIds = searchParams.getAll('factoryId');
+    const factoryCodes = searchParams.getAll('factoryCode');
+    // Also support 'factory' as a legacy/generic param
+    const genericFactories = searchParams.getAll('factory');
+
+    if (factoryIds.length > 0 || factoryCodes.length > 0 || genericFactories.length > 0) {
+      setParams(prev => {
+        const nextFactoryIds = [...factoryIds];
+        const nextFactoryCodes = [...factoryCodes];
+
+        genericFactories.forEach(gf => {
+          if (gf.length > 20) nextFactoryIds.push(gf);
+          else nextFactoryCodes.push(gf);
+        });
+
+        return {
+          ...prev,
+          factoryId: nextFactoryIds.length > 0 ? nextFactoryIds : undefined,
+          factoryCode: nextFactoryCodes.length > 0 ? nextFactoryCodes : undefined,
+          page: 1
+        };
+      });
+    }
+  }, [searchParams]);
+
+
+  // Custom hook for table columns
+  const { columns, previewDialog } = useEquipmentColumns({
+    onEdit: (eq) => navigate(`/equipments/${eq.id}/edit`),
+    onViewDetails: (code) => navigate(`/equipments/${code}`),
+    onDelete: (equipment) => setDeletingEquipment(equipment),
+  });
+
+  // Custom hook for stats
+  const { data: statsData, isLoading: statsLoading } = useEquipmentStats();
+
+  // API hooks
+  const { data, isLoading } = useEquipments(params);
+  const deleteEquipment = useDeleteEquipment();
+  const bulkDeleteEquipment = useBulkDeleteEquipment();
+
+  // Fetch factories for filters
+  const { data: factoriesData } = useQuery({
+    queryKey: ['factories-list'],
+    queryFn: () => factoriesApi.getAll({ limit: 100, page: 1 }),
+  });
+  
+  const factoriesList = factoriesData?.data || [];
+  const factoryOptions = factoriesList.map(f => ({ value: f.id, label: f.name }));
+
+  // Delete State
+  const [deletingEquipment, setDeletingEquipment] = useState<Equipment | null>(null);
+
+  // ============================================================================
+  // FILTER LOGIC
+  // ============================================================================
+
+  const toggleStatus = (value: string) => {
+    setParams(prev => {
+      const current = Array.isArray(prev.status) ? prev.status : [];
+      const next = current.includes(value as any)
+        ? current.filter(s => s !== value)
+        : [...current, value as any];
+      return { ...prev, status: next.length > 0 ? next : undefined, page: 1 };
+    });
   };
 
-  const removeFilter = (category: keyof Filters, value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [category]: prev[category].filter(v => v !== value)
-    }));
+  const toggleFactory = (value: string) => {
+      setParams(prev => {
+          const current = Array.isArray(prev.factoryId) ? prev.factoryId : [];
+          const next = current.includes(value)
+            ? current.filter(id => id !== value)
+            : [...current, value];
+          return { ...prev, factoryId: next.length > 0 ? next : undefined, page: 1 };
+      });
   };
 
   const clearFilters = () => {
-    setFilters({
-      factory: [],
-      group: [],
-      status: [],
-      priority: []
-    });
+    setParams(prev => ({
+      ...prev,
+      status: undefined,
+      factoryId: undefined,
+      search: '',
+      page: 1
+    }));
     setSearchQuery('');
   };
 
-  const hasActiveFilters = Object.values(filters).some(arr => arr.length > 0);
-  const activeFiltersCount = Object.values(filters).reduce((sum, arr) => sum + arr.length, 0);
+  const activeFiltersCount = 
+    (Array.isArray(params.status) ? params.status.length : 0) +
+    (Array.isArray(params.factoryId) ? params.factoryId.length : 0) +
+    (Array.isArray(params.factoryCode) ? params.factoryCode.length : 0);
 
-  // Get active filter labels for display
-  const getActiveFilterTags = () => {
-    const tags: { category: keyof Filters; value: string; label: string }[] = [];
-    
-    filters.factory.forEach(f => {
-      const factory = factories.find(fac => fac.id === f);
-      if (factory) tags.push({ category: 'factory', value: f, label: factory.name });
-    });
-    
-    filters.group.forEach(g => {
-      const group = (EQUIPMENT_GROUPS as any)[g];
-      if (group) tags.push({ category: 'group', value: g, label: group.name });
-    });
-    
-    filters.status.forEach(s => {
-      const status = STATUS_OPTIONS.find(st => st.value === s);
-      if (status) tags.push({ category: 'status', value: s, label: status.label });
-    });
-    
-    filters.priority.forEach(p => {
-      const priority = PRIORITY_OPTIONS.find(pr => pr.value === p);
-      if (priority) tags.push({ category: 'priority', value: p, label: priority.label });
-    });
-    
-    return tags;
-  };
-
-  const viewEquipment = (id: string) => {
-    navigate(`/equipments/${id}`);
-  };
-
-  // Stats
-  // Stats
-  const activeCount = initialEquipments.filter(e => e.status === 'ACTIVE').length;
-  const maintenanceCount = initialEquipments.filter(e => e.status === 'MAINTENANCE').length;
-  const inactiveCount = initialEquipments.filter(e => e.status === 'INACTIVE').length;
-
-  // Factory and Group options for dropdown
-  const factoryOptions = factories.map(f => ({ value: f.id, label: f.name }));
-  const groupOptions = Object.values(EQUIPMENT_GROUPS).map(g => ({ value: g.id, label: g.name }));
-
-  const activeFilterTags = getActiveFilterTags();
-
-  // Table columns definition
-  const columns: Column<Equipment>[] = [
-    {
-      key: 'code',
-      header: 'Mã TB',
-      isPrimary: true,
-      width: 'w-[100px]',
-      render: (eq) => <span className="font-mono font-medium text-primary">{eq.code}</span>
-    },
-    {
-      key: 'name',
-      header: 'Tên thiết bị',
-      isSecondary: true,
-      render: (eq) => <span className="font-medium">{eq.name}</span>
-    },
-    {
-      key: 'group',
-      header: 'Nhóm TB',
-      render: (eq) => <span className="text-sm text-muted-foreground">{EQUIPMENT_GROUPS[eq.groupId]?.name}</span>
-    },
-    {
-      key: 'factory',
-      header: 'Nhà máy',
-      render: (eq) => <span className="text-sm">{eq.factoryName}</span>
-    },
-    {
-      key: 'manufacturer',
-      header: 'Hãng / Model',
-      showOnMobile: false,
-      render: (eq) => <span className="text-sm text-muted-foreground">{eq.manufacturer} / {eq.model}</span>
-    },
-    {
-      key: 'status',
-      header: 'Trạng thái',
-      align: 'center',
-      render: (eq) => <StatusBadge status={eq.status} />
-    },
-    {
-      key: 'priority',
-      header: 'Mức độ',
-      align: 'center',
-      showOnMobile: false,
-      render: (eq) => <PriorityIndicator priority={eq.priority} showLabel={false} />
-    },
-    {
-      key: 'actions',
-      header: 'Thao tác',
-      align: 'right',
-      width: 'w-[100px]',
-      render: (eq) => (
-        <div className="flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => viewEquipment(eq.id)}
-            className="h-8 w-8 text-muted-foreground hover:text-primary"
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => navigate(`/equipments/${eq.id}/edit`)}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-        </div>
-      ),
-      mobileRender: (eq) => (
-        <div className="flex gap-2">
-          <Button 
-            size="sm"
-            variant="outline"
-            onClick={(e) => {
-              e.stopPropagation();
-              viewEquipment(eq.id);
-            }}
-            className="flex-1"
-          >
-            <Eye className="h-4 w-4 mr-1" />
-            Xem
-          </Button>
-          <Button 
-            size="sm"
-            variant="outline"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/equipments/${eq.id}/edit`);
-            }}
-            className="flex-1"
-          >
-            <Pencil className="h-4 w-4 mr-1" />
-            Sửa
-          </Button>
-        </div>
-      )
-    }
-  ];
-
-  // Stats data
-  const statsData = [
-    {
-      label: 'Tổng số thiết bị',
-      value: initialEquipments.length,
-      icon: <Cpu className="h-5 w-5 text-primary" />,
-      iconBgClass: 'bg-primary/20'
-    },
-    {
-      label: 'Hoạt động tốt',
-      value: activeCount,
-      icon: <CheckCircle className="h-5 w-5 text-status-active" />,
-      iconBgClass: 'bg-status-active/20',
-      valueClass: 'text-[hsl(var(--status-active))]'
-    },
-    {
-      label: 'Đang bảo trì',
-      value: maintenanceCount,
-      icon: <AlertTriangle className="h-5 w-5 text-[hsl(var(--status-maintenance))]" />,
-      iconBgClass: 'bg-status-maintenance/20',
-      valueClass: 'text-[hsl(var(--status-maintenance))]'
-    },
-    {
-      label: 'Ngừng hoạt động',
-      value: inactiveCount,
-      icon: <Cpu className="h-5 w-5 text-status-inactive" />,
-      iconBgClass: 'bg-status-inactive/20',
-      valueClass: 'text-[hsl(var(--status-inactive))]'
-    }
-  ];
-
-  // Desktop filter content
-  const desktopFilters = (
-    <div className="bg-card rounded-xl border border-border/50 p-4 space-y-3">
-      <div className="flex flex-wrap items-center gap-3">
-        {/* Search */}
-        <div className="relative flex-1 min-w-[200px] max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Tìm kiếm theo mã, tên, hãng, model..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input pl-9 h-9"
-          />
-        </div>
-
-        <div className="h-6 w-px bg-border/50" />
-
-        {/* Factory Dropdown */}
-        <MultiSelectDropdown
-          label="Nhà máy"
-          options={factoryOptions}
-          selected={filters.factory}
-          onToggle={(value) => toggleFilter('factory', value)}
-          searchable
-        />
-
-        {/* Equipment Group Dropdown */}
-        <MultiSelectDropdown
-          label="Nhóm thiết bị"
-          options={groupOptions}
-          selected={filters.group}
-          onToggle={(value) => toggleFilter('group', value)}
-        />
-
-        <div className="h-6 w-px bg-border/50" />
-
-        {/* Status Chips */}
-        <ChipFilter
-          options={STATUS_OPTIONS}
-          selected={filters.status}
-          onToggle={(value) => toggleFilter('status', value)}
-        />
-
-        <div className="h-6 w-px bg-border/50" />
-
-        {/* Priority Chips */}
-        <ChipFilter
-          options={PRIORITY_OPTIONS}
-          selected={filters.priority}
-          onToggle={(value) => toggleFilter('priority', value)}
-        />
-      </div>
-    </div>
-  );
-
-  // Active filter tags JSX
-  const filterTagsContent = activeFilterTags.map((tag, idx) => (
-    <Badge 
-      key={`${tag.category}-${tag.value}-${idx}`}
-      variant="secondary"
-      className="bg-secondary text-foreground gap-1 pl-2 pr-1 py-0.5"
-    >
-      {tag.label}
-      <button 
-        onClick={() => removeFilter(tag.category, tag.value)} 
-        className="ml-1 hover:bg-muted rounded-full p-0.5"
-      >
-        <X className="h-3 w-3" />
-      </button>
-    </Badge>
-  ));
-
-  // Mobile filter sections
+  // Mobile Filter Sections
   const filterSections = [
     {
       id: 'factory',
       label: 'Nhà máy',
-      activeCount: filters.factory.length,
-      content: (
-        <div className="space-y-2">
-          {factoryOptions.map(f => (
-            <button
-              key={f.value}
-              onClick={() => toggleFilter('factory', f.value)}
-              className={cn(
-                "w-full flex items-center gap-2 p-2 rounded-lg text-sm",
-                filters.factory.includes(f.value) 
-                  ? "bg-primary/20 text-primary" 
-                  : "hover:bg-secondary"
-              )}
-            >
-              <div className={cn(
-                "h-4 w-4 rounded border flex items-center justify-center",
-                filters.factory.includes(f.value) ? "bg-primary border-primary" : "border-muted-foreground"
-              )}>
-                {filters.factory.includes(f.value) && <Check className="h-3 w-3 text-primary-foreground" />}
-              </div>
-              {f.label}
-            </button>
-          ))}
-        </div>
-      )
+       activeCount: Array.isArray(params.factoryId) ? params.factoryId.length : 0,
+       content: (
+          <div className="space-y-2">
+            {factoryOptions.map(f => {
+              const isActive = Array.isArray(params.factoryId) && params.factoryId.includes(f.value);
+              return (
+                <button
+                  key={f.value}
+                  onClick={() => toggleFactory(f.value)}
+                  className={`w-full flex items-center gap-3 p-2 rounded-lg text-sm transition-colors ${isActive ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-secondary text-muted-foreground'}`}
+                >
+                   <FilterCheckbox checked={isActive} />
+                   {f.label}
+                </button>
+              );
+            })}
+          </div>
+       )
     },
     {
-      id: 'group',
-      label: 'Nhóm thiết bị',
-      activeCount: filters.group.length,
-      content: (
-        <div className="space-y-2">
-          {groupOptions.map(g => (
-            <button
-              key={g.value}
-              onClick={() => toggleFilter('group', g.value)}
-              className={cn(
-                "w-full flex items-center gap-2 p-2 rounded-lg text-sm",
-                filters.group.includes(g.value) 
-                  ? "bg-primary/20 text-primary" 
-                  : "hover:bg-secondary"
-              )}
-            >
-              <div className={cn(
-                "h-4 w-4 rounded border flex items-center justify-center",
-                filters.group.includes(g.value) ? "bg-primary border-primary" : "border-muted-foreground"
-              )}>
-                {filters.group.includes(g.value) && <Check className="h-3 w-3 text-primary-foreground" />}
-              </div>
-              {g.label}
-            </button>
-          ))}
-        </div>
-      )
-    },
-    {
-      id: 'status',
-      label: 'Trạng thái',
-      activeCount: filters.status.length,
-      content: (
-        <ChipFilter
-          options={STATUS_OPTIONS}
-          selected={filters.status}
-          onToggle={(value) => toggleFilter('status', value)}
-        />
-      )
-    },
-    {
-      id: 'priority',
-      label: 'Mức độ ưu tiên',
-      activeCount: filters.priority.length,
-      content: (
-        <ChipFilter
-          options={PRIORITY_OPTIONS}
-          selected={filters.priority}
-          onToggle={(value) => toggleFilter('priority', value)}
-        />
-      )
-    }
+       id: 'status',
+       label: 'Trạng thái',
+       activeCount: Array.isArray(params.status) ? params.status.length : 0,
+       content: (
+         <ChipFilter 
+           options={STATUS_OPTIONS} 
+           selected={(params.status as string[]) || []} 
+           onToggle={toggleStatus} 
+         />
+       )
+     },
   ];
 
+  // Active Filter Tags
+  const renderActiveTags = () => {
+      const tags: React.ReactNode[] = [];
+      (params.factoryId || []).forEach(fid => {
+          const label = factoryOptions.find(f => f.value === fid)?.label;
+          tags.push(
+            <Badge key={`f-${fid}`} variant="secondary" className="gap-1 pl-2 pr-1 py-0.5">
+               {label}
+               <button onClick={() => toggleFactory(fid)} className="ml-1 hover:bg-muted rounded-full p-0.5" aria-label="Remove factory filter"><X className="h-3 w-3" /></button>
+            </Badge>
+          );
+      });
+      (params.factoryCode || []).forEach(code => {
+          tags.push(
+            <Badge key={`fc-${code}`} variant="secondary" className="gap-1 pl-2 pr-1 py-0.5">
+               {code}
+               <button onClick={() => setParams(prev => ({ ...prev, factoryCode: prev.factoryCode?.filter(c => c !== code) }))} className="ml-1 hover:bg-muted rounded-full p-0.5" aria-label="Remove factory code filter"><X className="h-3 w-3" /></button>
+            </Badge>
+          );
+      });
+      (params.status || []).forEach(s => {
+          const label = STATUS_OPTIONS.find(o => o.value === s)?.label;
+          tags.push(
+            <Badge key={`s-${s}`} variant="secondary" className="gap-1 pl-2 pr-1 py-0.5">
+               {label}
+               <button onClick={() => toggleStatus(s)} className="ml-1 hover:bg-muted rounded-full p-0.5" aria-label={`Remove status filter ${label}`}><X className="h-3 w-3" /></button>
+            </Badge>
+          );
+      });
+      return tags;
+  };
+
+
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
+  const handleRefresh = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['equipments'] });
+    await queryClient.invalidateQueries({ queryKey: ['equipment-stats'] });
+    setSelectedIds([]); // Clear selection on refresh
+    if (window.navigator.vibrate) window.navigator.vibrate(10);
+  };
+
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) return;
+    
+    // Using the same dialog for bulk delete
+    setDeletingEquipment({ id: 'bulk', name: `${selectedIds.length} thiết bị`, code: 'BULK' } as any);
+    setIsBulkDeleting(true);
+  };
+
+
+  // ============================================================================
+  // RENDER HELPERS
+  // ============================================================================
+
+  const renderTableContent = () => {
+    if (isLoading) return <TableSkeleton rows={5} />;
+
+    const equipments = data?.data || [];
+
+    if (equipments.length === 0) {
+      return (
+        <EmptyState
+          icon={<Cpu className="h-12 w-12 text-muted-foreground/50" />}
+          title={params.search || activeFiltersCount > 0 ? 'Không tìm thấy kết quả' : 'Chưa có thiết bị nào'}
+          description={
+            params.search || activeFiltersCount > 0
+              ? `Không tìm thấy thiết bị phù hợp với bộ lọc`
+              : 'Bắt đầu bằng cách thêm thiết bị đầu tiên của bạn'
+          }
+          action={
+            !(params.search || activeFiltersCount > 0)
+              ? {
+                  label: 'Thêm thiết bị mới',
+                  onClick: () => navigate('/equipments/new'),
+                  icon: <Plus className="h-4 w-4" />,
+                }
+              : {
+                  label: 'Xóa bộ lọc',
+                  onClick: clearFilters,
+                  icon: <Filter className="h-4 w-4" />,
+              }
+          }
+        />
+      );
+    }
+
+    return (
+      <>
+        <ResponsiveTable<Equipment>
+          columns={columns}
+          data={equipments}
+          keyExtractor={(eq) => eq.id}
+          emptyMessage="Chưa có thiết bị nào"
+          pageCount={data?.meta?.totalPages}
+          currentPage={params.page}
+          showPagination={true}
+          onPageChange={(page) => setParams((prev) => ({ ...prev, page }))}
+          selectedIds={selectedIds}
+          onSelectionChange={setSelectedIds}
+          mobileCardAction={(item) => columns.find(c => c.key === 'actions')?.mobileRender?.(item)}
+        />
+        {previewDialog}
+      </>
+    );
+  };
+
   return (
-    <div className={cn(
-      "animate-fade-in",
-      isMobile 
-        ? "px-4 py-3 max-w-full overflow-x-hidden" 
-        : "p-6"
-    )}>
-      {/* Page Header */}
-      <MobilePageHeader
-        subtitle="QUẢN LÝ TÀI SẢN"
-        title="Danh sách Thiết bị"
-        actions={
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="action-btn-secondary hidden md:flex">
-              <FileSpreadsheet className="h-4 w-4" />
-              Import
-            </Button>
-            <Button variant="outline" size="sm" className="action-btn-secondary hidden md:flex">
-              <Download className="h-4 w-4" />
-              Xuất
-            </Button>
-            <Button 
-              onClick={() => navigate('/equipments/new')} 
-              className="action-btn-primary" 
-              size={isMobile ? "sm" : "default"}
-            >
-              <Plus className="h-4 w-4" />
-              {!isMobile && "Thêm thiết bị"}
-            </Button>
+    <PageContainer>
+      {/* Mobile Header */}
+      {isMobile && (
+        <MobilePageHeader
+          title="Thiết bị"
+          actions={
+            <MobileButton size="sm" onClick={() => navigate('/equipments/new')}>
+              <Plus className="h-5 w-5 mr-1.5" />
+              Thêm
+            </MobileButton>
+          }
+        />
+      )}
+
+      {/* Desktop Header */}
+      {!isMobile && (
+        <div className="mb-6">
+          <p className="page-subtitle">QUẢN LÝ THIẾT BỊ</p>
+          <div className="flex items-center justify-between">
+            <h1 className="page-title">Danh sách Thiết bị</h1>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="action-btn-secondary" onClick={() => setShowImportDialog(true)}>
+                <FileSpreadsheet className="h-4 w-4" />
+                Import
+              </Button>
+              <Button variant="outline" size="sm" className="action-btn-secondary">
+                <Download className="h-4 w-4" />
+                Xuất
+              </Button>
+              <Button onClick={() => navigate('/equipments/new')} className="action-btn-primary">
+                <Plus className="h-4 w-4" />
+                Thêm Thiết bị
+              </Button>
+            </div>
           </div>
-        }
+        </div>
+      )}
+
+      <ImportEquipmentDialog 
+        open={showImportDialog} 
+        onOpenChange={setShowImportDialog}
+        onUploadStart={handleUploadStart}
       />
 
       {/* Stats Cards */}
-      <MobileStatsGrid stats={statsData} />
+      <EquipmentStats stats={statsData?.data} isLoading={statsLoading} />
+
+      {activeImportId && (
+        <ImportProgress 
+          key={activeImportId}
+          jobId={activeImportId} 
+          fileName={activeImportFileName || undefined}
+          onClose={handleCloseImport} 
+        />
+      )}
+
+      {/* Bulk Actions */}
+      <BulkActionsToolbar
+        selectedCount={selectedIds.length}
+        onClear={() => setSelectedIds([])}
+        onDelete={handleBulkDelete}
+        isDeleting={bulkDeleteEquipment.isPending}
+      />
 
       {/* Filters */}
       <MobileFilters
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
-        searchPlaceholder="Tìm kiếm thiết bị..."
+        searchPlaceholder="Tìm thiết bị..."
         sections={filterSections}
         activeFiltersCount={activeFiltersCount}
         onClearAll={clearFilters}
-        activeFilterTags={filterTagsContent}
-        desktopFilters={desktopFilters}
+        activeFilterTags={renderActiveTags()}
+        desktopFilters={
+          <EquipmentDesktopFilters
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            searchPlaceholder="Tìm kiếm theo mã, tên, hãng, model..."
+            filters={[
+              {
+                id: 'factory',
+                component: (
+                  <MultiSelectDropdown
+                    label="Nhà máy"
+                    icon={<Building2 className="h-4 w-4 opacity-70" />}
+                    options={factoryOptions}
+                    selected={params.factoryId || []}
+                    onToggle={(val) => toggleFactory(val)}
+                    searchable
+                  />
+                )
+              },
+              {
+                id: 'status',
+                label: 'Trạng thái',
+                component: (
+                  <ChipFilter
+                    options={STATUS_OPTIONS}
+                    selected={params.status || []}
+                    onToggle={(val) => toggleStatus(val)}
+                  />
+                )
+              }
+            ]}
+          />
+        }
       />
 
-      {/* Results Count */}
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm text-muted-foreground">
-          Hiển thị <span className="font-semibold text-foreground">{filteredEquipments.length}</span> thiết bị
-        </span>
-      </div>
+       {/* Table with Pull-to-Refresh */}
+       {isMobile ? (
+        <PullToRefresh
+          onRefresh={handleRefresh}
+          isPullable={!isLoading}
+          pullingContent={
+            <div className="text-center py-4">
+              <p className="text-sm text-muted-foreground">⬇️ Kéo để làm mới</p>
+            </div>
+          }
+          refreshingContent={
+            <div className="text-center py-4">
+              <Loader2 className="h-5 w-5 animate-spin mx-auto text-primary" />
+              <p className="text-sm text-muted-foreground mt-2">Đang làm mới...</p>
+            </div>
+          }
+        >
+          <div className="pb-20">
+            {renderTableContent()}
+          </div>
+        </PullToRefresh>
+      ) : (
+        renderTableContent()
+      )}
 
-      {/* Table/Cards */}
-      <ResponsiveTable
-        data={filteredEquipments}
-        columns={columns}
-        keyExtractor={(eq) => eq.id}
-        onRowClick={(eq) => viewEquipment(eq.id)}
-        emptyMessage="Không tìm thấy thiết bị nào"
+      <DeleteEquipmentDialog
+         equipment={deletingEquipment}
+         open={!!deletingEquipment}
+         onOpenChange={(open) => {
+             if (!open) {
+                 setDeletingEquipment(null);
+                 setIsBulkDeleting(false);
+             }
+         }}
+         onConfirm={() => {
+             if (isBulkDeleting) {
+                 bulkDeleteEquipment.mutate(selectedIds, {
+                     onSuccess: () => {
+                         setDeletingEquipment(null);
+                         setSelectedIds([]);
+                         setIsBulkDeleting(false);
+                     }
+                 });
+             } else if (deletingEquipment) {
+                 deleteEquipment.mutate(deletingEquipment.id, {
+                     onSuccess: () => setDeletingEquipment(null)
+                 });
+             }
+         }}
+         isDeleting={isBulkDeleting ? bulkDeleteEquipment.isPending : deleteEquipment.isPending}
       />
-    </div>
+
+    </PageContainer>
   );
 }
