@@ -34,13 +34,18 @@ describe('ImportProgress Component', () => {
   it('should render processing state correctly', () => {
     (useImportProgress as jest.Mock).mockReturnValue({
       progress: 45,
-      history: { status: 'PROCESSING' },
+      history: { status: 'PROCESSING', fileName: 'test.xlsx' },
       isSimulationDone: false
     });
 
     render(<ImportProgress jobId={jobId} onClose={onClose} />);
     
-    expect(screen.getByText('Đang xử lý dữ liệu')).toBeInTheDocument();
+    // Header
+    expect(screen.getByText('test.xlsx')).toBeInTheDocument();
+    // Badge
+    expect(screen.getByText('PROCESSING')).toBeInTheDocument();
+    // Progress
+    expect(screen.getByText('Tiến độ xử lý')).toBeInTheDocument();
     expect(screen.getByText('45%')).toBeInTheDocument();
   });
 
@@ -51,20 +56,52 @@ describe('ImportProgress Component', () => {
         status: 'COMPLETED',
         successCount: 10,
         failedCount: 0,
-        fileName: 'test.xlsx'
+        fileName: 'test.xlsx',
+        totalRecords: 10,
+        processedRecords: 10
       },
       isSimulationDone: true
     });
 
     render(<ImportProgress jobId={jobId} onClose={onClose} />);
     
-    expect(screen.getByText('Import Hoàn Tất')).toBeInTheDocument();
-    expect(screen.getByText('Thành công')).toBeInTheDocument();
-    expect(screen.getAllByText('10')[0]).toBeInTheDocument(); // In MetricStat
-    expect(screen.getByText('Đồng bộ thành công!')).toBeInTheDocument();
+    expect(screen.getByText('test.xlsx')).toBeInTheDocument();
+    expect(screen.getByText('COMPLETED')).toBeInTheDocument();
+    
+    // Success message
+    expect(screen.getByText('Toàn bộ 10 thiết bị đã được import thành công!')).toBeInTheDocument();
+    
+    // Metrics
+    expect(screen.getAllByText('10').length).toBeGreaterThan(0); 
+    expect(screen.getAllByText(/Thành công/i).length).toBeGreaterThan(0);
   });
 
   it('should render completed state with errors and download button', () => {
+    (useImportProgress as jest.Mock).mockReturnValue({
+      progress: 100,
+      history: { 
+        status: 'COMPLETED',
+        successCount: 8,
+        failedCount: 2,
+        fileName: 'test.xlsx',
+        totalRecords: 10,
+        processedRecords: 10,
+        errorFileUrl: '/uploads/imports/errors/err.xlsx'
+      },
+      isSimulationDone: true
+    });
+
+    render(<ImportProgress jobId={jobId} onClose={onClose} />);
+    
+    expect(screen.getByText(/Thất bại/i)).toBeInTheDocument();
+    expect(screen.getAllByText('2').length).toBeGreaterThan(0);
+    
+    // Error section text
+    expect(screen.getByText('Phát hiện 2 dòng lỗi')).toBeInTheDocument();
+    expect(screen.getByText('Tải báo cáo lỗi')).toBeInTheDocument();
+  });
+
+  it('should handle report download click', () => {
     (useImportProgress as jest.Mock).mockReturnValue({
       progress: 100,
       history: { 
@@ -79,26 +116,7 @@ describe('ImportProgress Component', () => {
 
     render(<ImportProgress jobId={jobId} onClose={onClose} />);
     
-    expect(screen.getByText('Dòng lỗi')).toBeInTheDocument();
-    expect(screen.getAllByText('2')[0]).toBeInTheDocument();
-    expect(screen.getByText('Tải báo cáo lỗi (.xlsx)')).toBeInTheDocument();
-  });
-
-  it('should handle report download click', () => {
-    (useImportProgress as jest.Mock).mockReturnValue({
-      progress: 100,
-      history: { 
-        status: 'COMPLETED',
-        successCount: 8,
-        failedCount: 2,
-        errorFileUrl: '/uploads/imports/errors/err.xlsx'
-      },
-      isSimulationDone: true
-    });
-
-    render(<ImportProgress jobId={jobId} onClose={onClose} />);
-    
-    const downloadBtn = screen.getByText('Tải báo cáo lỗi (.xlsx)');
+    const downloadBtn = screen.getByText('Tải báo cáo lỗi');
     fireEvent.click(downloadBtn);
 
     expect(mockOpen).toHaveBeenCalledWith(
@@ -107,17 +125,28 @@ describe('ImportProgress Component', () => {
     );
   });
 
-  it('should render failed state', () => {
+  it('should render failed state (job failed)', () => {
     (useImportProgress as jest.Mock).mockReturnValue({
       progress: 0,
-      history: { status: 'FAILED' },
+      history: { 
+        status: 'FAILED', 
+        fileName: 'test.xlsx',
+        // Assuming if job failed entirely, counts might be 0 but status is FAILED
+        totalRecords: 0,
+        successCount: 0,
+        failedCount: 0
+      },
       isSimulationDone: true
     });
 
     render(<ImportProgress jobId={jobId} onClose={onClose} />);
     
-    expect(screen.getByText('Tiến Trình Thất Bại')).toBeInTheDocument();
-    expect(screen.getByText(/Hệ thống gặp lỗi nghiêm trọng/)).toBeInTheDocument();
+    expect(screen.getByText('test.xlsx')).toBeInTheDocument();
+    expect(screen.getByText('FAILED')).toBeInTheDocument();
+    
+    // Since failedCount is 0, no error download section.
+    // Just empty grid and failed badge.
+    expect(screen.queryByText('Phát hiện')).not.toBeInTheDocument();
   });
 
   it('should call onClose when close button is clicked', () => {
@@ -129,9 +158,9 @@ describe('ImportProgress Component', () => {
 
     render(<ImportProgress jobId={jobId} onClose={onClose} />);
     
-    const closeBtn = screen.getByRole('button', { name: '' }); // The X button
+    const buttons = screen.getAllByRole('button');
+    const closeBtn = buttons[0]; 
     fireEvent.click(closeBtn);
-    
     expect(onClose).toHaveBeenCalled();
   });
 });

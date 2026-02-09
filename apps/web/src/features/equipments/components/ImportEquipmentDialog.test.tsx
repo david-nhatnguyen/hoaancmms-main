@@ -88,7 +88,7 @@ describe('ImportEquipmentDialog Component', () => {
     fireEvent.change(input, { target: { files: [file] } });
 
     expect(screen.getByText('machines.xlsx')).toBeInTheDocument();
-    expect(screen.getByText('Sẵn sàng')).toBeInTheDocument();
+    expect(screen.getByText(/KB/i)).toBeInTheDocument();
   });
 
   it('should handle start import mutation', async () => {

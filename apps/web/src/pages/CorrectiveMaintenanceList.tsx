@@ -518,6 +518,8 @@ export default function CorrectiveMaintenanceList() {
                     <button
                       onClick={() => toggleFilter(key as keyof FilterState, value)}
                       className="hover:bg-primary/30 rounded-full p-0.5"
+                      aria-label={`Remove filter ${value}`}
+                      title={`Remove filter ${value}`}
                     >
                       <X className="h-3 w-3" />
                     </button>

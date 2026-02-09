@@ -52,6 +52,7 @@ jest.mock('@/features/factories/hooks', () => ({
   useCreateFactory: () => ({ mutate: jest.fn(), isPending: false }),
   useUpdateFactory: () => ({ mutate: jest.fn(), isPending: false }),
   useDeleteFactory: () => ({ mutate: jest.fn(), isPending: false }),
+  useBulkDeleteFactories: () => ({ mutate: jest.fn(), isPending: false }),
 }));
 
 // Mock Components that might be complex
@@ -82,7 +83,7 @@ describe('FactoryList Page', () => {
     // We didn't mock TableSkeleton, so it renders.
     // Let's check for "Loading..." text or class if possible, or success render.
     // FactoryList renderTableContent returns TableSkeleton.
-    const skeletons = document.querySelectorAll('.animate-pulse'); // Tailwind skeleton class
+    document.querySelectorAll('.animate-pulse'); // Tailwind skeleton class
     // Or just ensure no error/empty state
     expect(screen.queryByText('Có lỗi xảy ra')).toBeNull();
   });
@@ -131,7 +132,7 @@ describe('FactoryList Page', () => {
     render(<FactoryList />);
     
     // Check for Headers
-    expect(screen.getByText('Quản lý Nhà máy')).toBeInTheDocument();
+    expect(screen.getByText(/Quản lý Nhà máy/i)).toBeInTheDocument();
     
     // Check for Table Content (via our mocked columns)
     expect(screen.getByText('F01')).toBeInTheDocument();

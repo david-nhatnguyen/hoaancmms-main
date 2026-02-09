@@ -11,6 +11,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';
+import * as fs from 'fs';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -19,7 +20,12 @@ async function bootstrap() {
 
   // Serve Static Assets
   // process.cwd() will always point to the root of the apps/api folder when running via nest/yarn
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+  const uploadDir = join(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+  app.useStaticAssets(uploadDir, {
     prefix: '/api/uploads/',
   });
 

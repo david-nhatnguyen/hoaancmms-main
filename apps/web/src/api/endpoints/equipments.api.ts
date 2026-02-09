@@ -45,14 +45,16 @@ export const equipmentsApi = {
      * Create new equipment
      */
     create: async (data: CreateEquipmentDto | FormData): Promise<ApiResponse<Equipment>> => {
-        return apiClient.post('/equipments', data);
+        const config = data instanceof FormData ? { headers: { 'Content-Type': undefined } } : {};
+        return apiClient.post('/equipments', data, config);
     },
 
     /**
      * Update equipment
      */
     update: async (id: string, data: UpdateEquipmentDto | FormData): Promise<ApiResponse<Equipment>> => {
-        return apiClient.patch(`/equipments/${id}`, data);
+        const config = data instanceof FormData ? { headers: { 'Content-Type': undefined } } : {};
+        return apiClient.patch(`/equipments/${id}`, data, config);
     },
 
     /**
@@ -80,7 +82,9 @@ export const equipmentsApi = {
     }> => {
         const formData = new FormData();
         formData.append('file', file);
-        return apiClient.post('/equipments/import', formData);
+        return apiClient.post('/equipments/import', formData, {
+            headers: { 'Content-Type': undefined },
+        });
     },
 
     /**
@@ -114,7 +118,9 @@ export const equipmentsApi = {
     uploadDocument: async (id: string, file: File): Promise<ApiResponse<EquipmentDocument>> => {
         const formData = new FormData();
         formData.append('file', file);
-        return apiClient.post(`/equipments/${id}/documents`, formData);
+        return apiClient.post(`/equipments/${id}/documents`, formData, {
+            headers: { 'Content-Type': undefined },
+        });
     },
 
     /**

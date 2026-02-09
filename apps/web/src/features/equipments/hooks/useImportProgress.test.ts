@@ -11,7 +11,6 @@ jest.mock('sonner');
 
 describe('useImportProgress', () => {
   const jobId = 'test-job-id';
-  const onClose = jest.fn();
   const mockInvalidateQueries = jest.fn();
 
   beforeEach(() => {
@@ -35,7 +34,6 @@ describe('useImportProgress', () => {
     (toast.info as jest.Mock).mockReturnValue('info-id');
 
     localStorage.clear();
-    onClose.mockClear();
     mockInvalidateQueries.mockClear();
   });
 
@@ -44,7 +42,7 @@ describe('useImportProgress', () => {
   });
 
   it('should initialize with 0 progress and null history', () => {
-    const { result } = renderHook(() => useImportProgress({ jobId, onClose }));
+    const { result } = renderHook(() => useImportProgress({ jobId }));
     
     expect(result.current.progress).toBe(0);
     expect(result.current.history).toBeNull();
@@ -55,7 +53,7 @@ describe('useImportProgress', () => {
     localStorage.setItem('import_duration', '10000');
     localStorage.setItem('import_start_time', Date.now().toString());
 
-    const { result } = renderHook(() => useImportProgress({ jobId, onClose }));
+    const { result } = renderHook(() => useImportProgress({ jobId }));
 
     // Step 0: Initial
     expect(result.current.progress).toBe(0);
@@ -91,7 +89,7 @@ describe('useImportProgress', () => {
     localStorage.setItem('import_duration', duration.toString());
     localStorage.setItem('import_start_time', startTime.toString());
 
-    const { result } = renderHook(() => useImportProgress({ jobId, onClose }));
+    const { result } = renderHook(() => useImportProgress({ jobId }));
 
     // Should immediately jump to 45% (Step 2)
     expect(result.current.progress).toBe(45);
@@ -111,7 +109,7 @@ describe('useImportProgress', () => {
 
     (equipmentsApi.getImportStatus as jest.Mock).mockResolvedValue(mockHistory);
 
-    const { result } = renderHook(() => useImportProgress({ jobId, onClose }));
+    const { result } = renderHook(() => useImportProgress({ jobId }));
 
     // Wait for simulation to finish
     await act(async () => {
@@ -140,7 +138,7 @@ describe('useImportProgress', () => {
 
     (equipmentsApi.getImportStatus as jest.Mock).mockResolvedValue(completedHistory);
 
-    const { result } = renderHook(() => useImportProgress({ jobId, onClose }));
+    const { result } = renderHook(() => useImportProgress({ jobId }));
 
     await act(async () => {
       jest.advanceTimersByTime(duration + 100);
@@ -150,11 +148,5 @@ describe('useImportProgress', () => {
     expect(result.current.progress).toBe(100);
     expect(toast.success).toHaveBeenCalled();
     expect(mockInvalidateQueries).toHaveBeenCalled();
-    
-    // Check if onClose is called after 5s
-    await act(async () => {
-      jest.advanceTimersByTime(5000);
-    });
-    expect(onClose).toHaveBeenCalled();
   });
 });

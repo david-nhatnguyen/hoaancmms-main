@@ -165,7 +165,14 @@ export class EquipmentsService {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(filePath);
     const worksheet = workbook.getWorksheet(1);
-    const totalRecords = worksheet && worksheet.rowCount > 1 ? worksheet.rowCount - 1 : 0;
+    let totalRecords = 0;
+    if (worksheet) {
+      worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber > 1 && row.actualCellCount > 0) {
+          totalRecords++;
+        }
+      });
+    }
 
     // 2. Create Import History Record
     const importHistory = await this.prisma.client.importHistory.create({
@@ -237,9 +244,18 @@ export class EquipmentsService {
     // Safety check: if image is an object/empty from body, but file exists, prioritze file path
     if (file) {
       data.image = await this.saveEquipmentImage(file);
-    } else if (typeof data.image !== 'string') {
-      // If no file and image is somehow an object (shouldn't happen with DTO, but for safety)
-      data.image = undefined;
+    } else {
+      if (typeof data.image === 'string') {
+        if (
+          data.image.includes('[object Object]') ||
+          data.image === 'undefined' ||
+          data.image === 'null'
+        ) {
+          data.image = undefined;
+        }
+      } else {
+        data.image = undefined;
+      }
     }
 
     // Generate QR Code
@@ -364,9 +380,18 @@ export class EquipmentsService {
     // Safety check: prioritze physical file over anything in the body's image field
     if (file) {
       data.image = await this.saveEquipmentImage(file);
-    } else if (data.image && typeof data.image !== 'string') {
-      // If it's the string "[object Object]" or a real object, clear it to avoid corruption
-      data.image = undefined;
+    } else {
+      if (typeof data.image === 'string') {
+        if (
+          data.image.includes('[object Object]') ||
+          data.image === 'undefined' ||
+          data.image === 'null'
+        ) {
+          data.image = undefined;
+        }
+      } else if (typeof data.image === 'object' && data.image !== null) {
+        data.image = undefined;
+      }
     }
 
     // If code changes, regenerate QR code

@@ -17,10 +17,9 @@ export interface ImportHistory {
 
 export interface UseImportProgressProps {
   jobId: string;
-  onClose: () => void;
 }
 
-export function useImportProgress({ jobId, onClose }: UseImportProgressProps) {
+export function useImportProgress({ jobId }: UseImportProgressProps) {
   const [history, setHistory] = useState<ImportHistory | null>(null);
   const [progress, setProgress] = useState(0);
   const [isSimulationDone, setIsSimulationDone] = useState(false);
@@ -45,7 +44,7 @@ export function useImportProgress({ jobId, onClose }: UseImportProgressProps) {
               toast.warning(`Hoàn tất: ${data.failedCount} lỗi`);
             } else {
               toast.success('Import thành công!');
-              setTimeout(onClose, 5000);
+
             }
           }
         }
@@ -58,7 +57,7 @@ export function useImportProgress({ jobId, onClose }: UseImportProgressProps) {
     poll();
     // Then fallback polling every 3s
     pollingRef.current = setInterval(poll, 3000);
-  }, [jobId, queryClient, onClose]);
+  }, [jobId, queryClient]);
 
   useEffect(() => {
     if (!jobId) return;
