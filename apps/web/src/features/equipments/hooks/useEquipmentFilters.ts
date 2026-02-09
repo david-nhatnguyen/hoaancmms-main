@@ -43,7 +43,7 @@ export function useEquipmentFilters() {
     page,
     limit,
     search: debouncedSearch || undefined,
-    factoryId: filters.factory.length > 0 ? filters.factory[0] : undefined, // API currently supports single factory
+    factoryId: filters.factory.length > 0 ? filters.factory : undefined,
     status: filters.status.length > 0 ? filters.status : undefined,
     sortBy: 'createdAt',
     sortOrder: 'desc'
