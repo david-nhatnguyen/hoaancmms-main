@@ -53,13 +53,6 @@ export class EquipmentsController {
     return this.equipmentsService.importExcel(file.path);
   }
 
-  @Get('import/:id')
-  @ApiOperation({ summary: 'Get import job status' })
-  @ApiResponse({ status: 200, description: 'Return job status' })
-  async getImportStatus(@Param('id') id: string) {
-    return this.equipmentsService.getImportStatus(id);
-  }
-
   @Get('import/template')
   @ApiOperation({ summary: 'Download equipment import template' })
   async downloadTemplate(@Res() res: Response) {
@@ -109,11 +102,22 @@ export class EquipmentsController {
     res.end();
   }
 
+  @Get('import/:id')
+  @ApiOperation({ summary: 'Get import job status' })
+  @ApiResponse({ status: 200, description: 'Return job status' })
+  async getImportStatus(@Param('id') id: string) {
+    return this.equipmentsService.getImportStatus(id);
+  }
+
   @Post()
+  @UseInterceptors(FileInterceptor('image'))
   @ApiOperation({ summary: 'Create a new equipment' })
   @ApiResponse({ status: 201, description: 'The equipment has been successfully created.' })
-  create(@Body() createEquipmentDto: CreateEquipmentDto) {
-    return this.equipmentsService.create(createEquipmentDto);
+  create(
+    @Body() createEquipmentDto: CreateEquipmentDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.equipmentsService.create(createEquipmentDto, file);
   }
 
   @Get()
@@ -138,12 +142,25 @@ export class EquipmentsController {
     return this.equipmentsService.findOne(id);
   }
 
+  @Get('by-code/:code')
+  @ApiOperation({ summary: 'Retrieve a specific equipment by code' })
+  @ApiResponse({ status: 200, description: 'Equipment details retrieved successfully.' })
+  @ApiResponse({ status: 404, description: 'Equipment not found.' })
+  findOneByCode(@Param('code') code: string) {
+    return this.equipmentsService.findOneByCode(code);
+  }
+
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('image'))
   @ApiOperation({ summary: 'Update an equipment' })
   @ApiResponse({ status: 200, description: 'The equipment has been successfully updated.' })
   @ApiResponse({ status: 404, description: 'Equipment not found.' })
-  update(@Param('id') id: string, @Body() updateEquipmentDto: UpdateEquipmentDto) {
-    return this.equipmentsService.update(id, updateEquipmentDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateEquipmentDto: UpdateEquipmentDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.equipmentsService.update(id, updateEquipmentDto, file);
   }
 
   @Delete(':id')
@@ -152,5 +169,34 @@ export class EquipmentsController {
   @ApiResponse({ status: 404, description: 'Equipment not found.' })
   remove(@Param('id') id: string) {
     return this.equipmentsService.remove(id);
+  }
+
+  @Post(':id/documents')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    }),
+  )
+  @ApiOperation({ summary: 'Upload a document for an equipment' })
+  @ApiResponse({ status: 201, description: 'Document uploaded successfully.' })
+  async uploadDocument(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+    return this.equipmentsService.uploadDocument(id, file);
+  }
+
+  @Delete('documents/:docId')
+  @ApiOperation({ summary: 'Delete a document' })
+  @ApiResponse({ status: 200, description: 'Document deleted successfully.' })
+  async deleteDocument(@Param('docId') docId: string) {
+    return this.equipmentsService.deleteDocument(docId);
+  }
+
+  @Post('bulk-delete')
+  @ApiOperation({ summary: 'Delete multiple equipments' })
+  @ApiResponse({ status: 200, description: 'Equipments have been successfully deleted.' })
+  bulkDelete(@Body() bulkDeleteDto: { ids: string[] }) {
+    return this.equipmentsService.removeMany(bulkDeleteDto.ids);
   }
 }

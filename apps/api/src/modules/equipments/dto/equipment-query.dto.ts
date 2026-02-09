@@ -1,4 +1,4 @@
-import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsArray, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { EquipmentStatus } from '@prisma/generated/prisma';
 import { ApiPropertyOptional } from '@nestjs/swagger';
@@ -23,10 +23,17 @@ export class EquipmentQueryDto {
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: [String] })
   @IsOptional()
-  @IsString()
-  factoryId?: string;
+  @IsArray()
+  @IsString({ each: true })
+  factoryId?: string[];
+
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  factoryCode?: string[];
 
   @ApiPropertyOptional()
   @ApiPropertyOptional({ enum: EquipmentStatus, isArray: true })

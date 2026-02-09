@@ -130,14 +130,16 @@ export function ImportEquipmentDialog({ open, onOpenChange, onUploadStart }: Imp
 
         <div className="space-y-6 py-4">
              {/* Instructions & Template */}
-            <div className="bg-muted/50 rounded-lg p-3 text-sm flex items-start justify-between gap-4">
-                <div className="space-y-1">
-                <p className="font-medium">1. Chuẩn bị file dữ liệu</p>
-                <p className="text-muted-foreground text-xs">Sử dụng file mẫu để đảm bảo đúng định dạng.</p>
+            <div className="bg-muted/50 rounded-lg p-3 text-sm flex flex-col gap-3">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1">
+                    <p className="font-medium">1. Chuẩn bị file dữ liệu</p>
+                    <p className="text-muted-foreground text-xs">Sử dụng file mẫu để đảm bảo đúng định dạng.</p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={handleDownloadTemplate} className="h-8 shrink-0">
+                    <Download className="h-3 w-3 mr-1" /> File mẫu
+                  </Button>
                 </div>
-                <Button variant="outline" size="sm" onClick={handleDownloadTemplate} className="h-8 shrink-0">
-                <Download className="h-3 w-3 mr-1" /> File mẫu
-                </Button>
             </div>
 
             {/* Upload Area */}

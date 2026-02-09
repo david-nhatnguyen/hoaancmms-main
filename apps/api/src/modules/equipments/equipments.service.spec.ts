@@ -5,6 +5,7 @@ import { CreateEquipmentDto } from './dto/create-equipment.dto';
 import { EquipmentStatus } from '@prisma/generated/prisma';
 import { NotFoundException, ConflictException } from '@nestjs/common';
 import { mockPrismaService, MockPrismaService } from '@test/mocks/prisma.mock';
+import { EquipmentsQrService } from './equipments.qr.service';
 
 describe('EquipmentsService', () => {
   let service: EquipmentsService;
@@ -35,6 +36,14 @@ describe('EquipmentsService', () => {
         {
           provide: PrismaService,
           useValue: mockPrismaService(),
+        },
+        {
+          provide: 'BullQueue_excel-import', // Match QUEUE_NAMES.EXCEL_IMPORT
+          useValue: { add: jest.fn() },
+        },
+        {
+          provide: EquipmentsQrService,
+          useValue: { generateQrCode: jest.fn(), deleteQrCode: jest.fn() },
         },
       ],
     }).compile();
@@ -149,6 +158,27 @@ describe('EquipmentsService', () => {
         }),
       );
     });
+
+    it('should filter by multiple factoryIds and factoryCodes', async () => {
+      const query = {
+        factoryId: ['factory-1'],
+        factoryCode: ['FAC-01'],
+      };
+
+      prisma.client.equipment.findMany.mockResolvedValue([]);
+      prisma.client.equipment.count.mockResolvedValue(0);
+
+      await service.findAll(query as any);
+
+      expect(prisma.client.equipment.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            factoryId: { in: ['factory-1'] },
+            factory: { code: { in: ['FAC-01'] } },
+          }),
+        }),
+      );
+    });
   });
 
   describe('findOne', () => {
@@ -214,6 +244,35 @@ describe('EquipmentsService', () => {
       expect(result.active).toBe(5);
       expect(result.maintenance).toBe(2);
       expect(result.inactive).toBe(1);
+    });
+  });
+
+  describe('removeMany', () => {
+    it('should delete multiple equipments and cleanup assets', async () => {
+      const ids = ['eq-1', 'eq-2'];
+      const mockEquipments = [
+        { id: 'eq-1', code: 'EQ-001', image: '/uploads/img1.webp' },
+        { id: 'eq-2', code: 'EQ-002', image: null },
+      ];
+
+      prisma.client.equipment.findMany.mockResolvedValue(mockEquipments as any);
+      prisma.client.$transaction.mockResolvedValue([{ count: 2 }]);
+
+      const result = await service.removeMany(ids);
+
+      expect(result.count).toBe(2);
+      expect(prisma.client.equipment.deleteMany).toHaveBeenCalledWith({
+        where: { id: { in: ids } },
+      });
+    });
+
+    it('should return 0 count if no equipments found', async () => {
+      prisma.client.equipment.findMany.mockResolvedValue([]);
+
+      const result = await service.removeMany(['non-existent']);
+
+      expect(result.count).toBe(0);
+      expect(prisma.client.$transaction).not.toHaveBeenCalled();
     });
   });
 });

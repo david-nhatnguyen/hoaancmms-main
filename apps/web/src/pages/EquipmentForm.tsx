@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,6 +43,7 @@ import {
 
 import { cn } from '@/lib/utils';
 import { factoriesApi } from '@/api/endpoints/factories.api';
+import { env } from '@/config/env';
 import {
   useEquipment,
   useCreateEquipment,
@@ -72,9 +73,13 @@ export default function EquipmentForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditing = Boolean(id);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Queries & Mutations
-  const { data: equipment, isLoading: isLoadingEquipment } = useEquipment(id || '');
+  const { data: equipmentData, isLoading: isLoadingEquipment } = useEquipment(id || '');
+  const equipment = equipmentData?.data;
   const createEquipment = useCreateEquipment();
   const updateEquipment = useUpdateEquipment();
 
@@ -107,7 +112,6 @@ export default function EquipmentForm() {
     },
   });
 
-  // Populate form in Edit Mode
   useEffect(() => {
     if (isEditing && equipment) {
       form.reset({
@@ -124,24 +128,63 @@ export default function EquipmentForm() {
         status: equipment.status as any,
         notes: equipment.notes || '',
       });
+
+      // If equipment has an image, set it as preview
+      if (equipment.image) {
+        let fullUrl = equipment.image;
+        if (!fullUrl.startsWith('http')) {
+          // Handle double /api issue: if path already starts with /api, remove it since baseUrl will add it
+          const cleanPath = fullUrl.startsWith('/api/') ? fullUrl.replace('/api', '') : fullUrl;
+          const baseUrl = env.API_URL.endsWith('/') ? env.API_URL.slice(0, -1) : env.API_URL;
+          fullUrl = `${baseUrl}${cleanPath.startsWith('/') ? '' : '/'}${cleanPath}`;
+        }
+        setPreviewUrl(fullUrl);
+      }
     }
   }, [isEditing, equipment, form]);
 
-  const onSubmit = (data: EquipmentFormData, isCreateNew: boolean = false) => {
-    const payload = {
-       ...data,
-       // Handle optional fields that might be empty strings
-       factoryId: data.factoryId || undefined,
-       origin: data.origin || undefined,
-       brand: data.brand || undefined,
-       image: data.image || undefined,
-       dimension: data.dimension || undefined,
-       notes: data.notes || undefined,
+  // Clean up preview URL
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
     };
+  }, [previewUrl]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+      // Clear URL fallback in form if a file is chosen
+      form.setValue('image', ''); 
+    }
+  };
+
+  const onSubmit = (data: EquipmentFormData, isCreateNew: boolean = false) => {
+    // Construct FormData for physical file upload
+    const formData = new FormData();
+    
+    // Append all form fields except image (we handle image separately)
+    Object.entries(data).forEach(([key, value]) => {
+      if (key === 'image') return; // Skip image here
+      
+      if (value !== undefined && value !== null && value !== '') {
+        formData.append(key, value.toString());
+      }
+    });
+
+    // Handle image: either the file or the URL string
+    if (selectedFile) {
+      formData.append('image', selectedFile);
+    } else if (data.image) {
+      formData.append('image', data.image);
+    }
     if (isEditing && id) {
       updateEquipment.mutate(
-        { id, data: payload as any },
+        { id, data: formData as any },
         {
           onSuccess: () => {
              toast.success('Cập nhật thiết bị thành công');
@@ -152,12 +195,14 @@ export default function EquipmentForm() {
       );
     } else {
       createEquipment.mutate(
-        payload as any,
+        formData as any,
         {
           onSuccess: () => {
              toast.success('Thêm thiết bị thành công');
              if (isCreateNew) {
                form.reset({ ...data, code: '', name: '' });
+               setSelectedFile(null);
+               setPreviewUrl('');
              } else {
                navigate('/equipments');
              }
@@ -509,15 +554,13 @@ export default function EquipmentForm() {
                                             accept="image/*" 
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                                             disabled={isSubmitting}
-                                            onChange={(e) => {
-                                              const file = e.target.files?.[0];
-                                              if(file) console.log("File:", file);
-                                            }}
+                                            onChange={handleFileChange}
+                                            ref={fileInputRef}
                                           />
                                           
-                                          {field.value ? (
+                                          {previewUrl ? (
                                             <>
-                                              <img src={field.value} alt="Preview" className="h-full w-full object-cover" />
+                                              <img src={previewUrl} alt="Preview" className="h-full w-full object-cover" />
                                               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex flex-col items-center justify-center text-white">
                                                   <Pencil className="h-8 w-8 mb-2" />
                                                   <span className="text-sm font-medium">Thay đổi ảnh</span>
@@ -542,6 +585,13 @@ export default function EquipmentForm() {
                                             value={field.value || ''} 
                                             disabled={isSubmitting} 
                                             className="h-9 text-xs"
+                                            onChange={(e) => {
+                                              field.onChange(e);
+                                              if (e.target.value) {
+                                                setPreviewUrl(e.target.value);
+                                                setSelectedFile(null);
+                                              }
+                                            }}
                                           />
                                         </div>
                                     </div>

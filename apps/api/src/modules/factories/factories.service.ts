@@ -221,6 +221,59 @@ export class FactoriesService {
   }
 
   /**
+   * Bulk delete factories
+   *
+   * Rules:
+   * - Cannot delete if factory has equipments
+   * - Returns list of successes and failures
+   */
+  async removeMany(ids: string[]) {
+    // 1. Get all factories with equipment counts
+    const factories = await this.prisma.client.factory.findMany({
+      where: { id: { in: ids } },
+      include: {
+        _count: {
+          select: { equipments: true },
+        },
+      },
+    });
+
+    const results = {
+      success: [] as string[],
+      failed: [] as { id: string; code: string; reason: string }[],
+    };
+
+    const deletableIds: string[] = [];
+
+    // 2. Validate each factory
+    factories.forEach((factory) => {
+      if (factory._count.equipments > 0) {
+        results.failed.push({
+          id: factory.id,
+          code: factory.code,
+          reason: `Nhà máy còn ${factory._count.equipments} thiết bị`,
+        });
+      } else {
+        deletableIds.push(factory.id);
+        results.success.push(factory.id);
+      }
+    });
+
+    // 3. Perform bulk delete in transaction
+    if (deletableIds.length > 0) {
+      await this.prisma.client.factory.deleteMany({
+        where: { id: { in: deletableIds } },
+      });
+      this.logger.log(`Bulk deleted ${deletableIds.length} factories`);
+    }
+
+    return {
+      message: `Đã xóa ${deletableIds.length} nhà máy. ${results.failed.length} mục thất bại.`,
+      ...results,
+    };
+  }
+
+  /**
    * Get dashboard stats
    *
    * Returns:

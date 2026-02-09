@@ -68,16 +68,14 @@ describe('useFactoryColumns', () => {
   describe('Column Configuration', () => {
     it('should mark code as primary column', () => {
       const { result } = renderHook(() => useFactoryColumns());
-
       const codeColumn = result.current.columns.find(col => col.key === 'code');
-      expect(codeColumn?.isPrimary).toBe(true);
+      expect(codeColumn?.mobilePriority).toBe('primary');
     });
 
     it('should mark name as secondary column', () => {
       const { result } = renderHook(() => useFactoryColumns());
-
       const nameColumn = result.current.columns.find(col => col.key === 'name');
-      expect(nameColumn?.isSecondary).toBe(true);
+      expect(nameColumn?.mobilePriority).toBe('secondary');
     });
 
     it('should set correct alignment for equipment count', () => {

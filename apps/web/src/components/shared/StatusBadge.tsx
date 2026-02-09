@@ -16,6 +16,8 @@ function normalizeStatus(status: StatusType): 'active' | 'maintenance' | 'inacti
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
+  if (!status) return null;
+  
   const normalizedStatus = normalizeStatus(status);
   
   // STATUS_LABELS use uppercase keys, so we need to convert back for lookup
@@ -31,7 +33,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
         className
       )}
     >
-      {STATUS_LABELS[labelKey]}
+      {STATUS_LABELS[labelKey] || status}
     </span>
   );
 }

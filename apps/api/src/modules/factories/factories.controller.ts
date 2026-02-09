@@ -16,6 +16,7 @@ import { CreateFactoryDto } from './dto/create-factory.dto';
 import { UpdateFactoryDto } from './dto/update-factory.dto';
 import { FactoryQueryDto } from './dto/factory-query.dto';
 import { FactoryResponseDto } from './dto/factory-response.dto';
+import { BulkDeleteFactoriesDto } from './dto/bulk-delete-factories.dto';
 import { Public } from '@common/decorators/public.decorator';
 
 /**
@@ -211,5 +212,24 @@ export class FactoriesController {
   })
   async remove(@Param('id') id: string) {
     return this.factoriesService.remove(id);
+  }
+
+  /**
+   * POST /api/factories/bulk-delete
+   *
+   * Delete multiple factories
+   */
+  @Post('bulk-delete')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Delete multiple factories',
+    description: 'Deletes several factories at once (skips the ones with equipment)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Bulk delete report returned',
+  })
+  async bulkDelete(@Body() dto: BulkDeleteFactoriesDto) {
+    return this.factoriesService.removeMany(dto.ids);
   }
 }

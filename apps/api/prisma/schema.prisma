@@ -68,6 +68,7 @@ model Factory {
   brand        String? // Thương hiệu (Trademark)
   modelYear    Int? // Năm sản xuất (Model year)
   image        String? // Hình ảnh (Picture)
+  qrCode       String? // Mã QR (QR Code)
   dimension    String? // Kích thước (Dimension)
   quantity     Int     @default(1) // Số lượng (Quantity)
   factoryId    String?
@@ -79,6 +80,7 @@ model Factory {
 
   // Relationships
   factory      Factory?          @relation(fields: [factoryId], references: [id], onDelete: SetNull)
+  documents    EquipmentDocument[]
 
   // Indexes for high performance querying
   @@index([category])
@@ -86,6 +88,21 @@ model Factory {
   @@index([code])
   @@index([name])
   @@map("equipments")
+}
+
+model EquipmentDocument {
+  id          String   @id @default(uuid())
+  name        String   // Original file name
+  path        String   // File path (relative)
+  type        String?  // MIME type
+  size        Int?     // Size in bytes
+  equipmentId String
+  createdAt   DateTime @default(now())
+
+  equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+
+  @@index([equipmentId])
+  @@map("equipment_documents")
 }
 
 enum ImportStatus {

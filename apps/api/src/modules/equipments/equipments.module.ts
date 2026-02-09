@@ -6,6 +6,8 @@ import { QueueModule } from '../queue/queue.module';
 import { QUEUE_NAMES } from '@/common/constants';
 import { EquipmentImportProcessor } from './equipment-import.processor';
 
+import { EquipmentsQrService } from './equipments.qr.service';
+
 @Module({
   imports: [
     QueueModule,
@@ -14,7 +16,7 @@ import { EquipmentImportProcessor } from './equipment-import.processor';
     }),
   ],
   controllers: [EquipmentsController],
-  providers: [EquipmentsService, EquipmentImportProcessor],
+  providers: [EquipmentsService, EquipmentImportProcessor, EquipmentsQrService],
   exports: [EquipmentsService],
 })
 export class EquipmentsModule {}

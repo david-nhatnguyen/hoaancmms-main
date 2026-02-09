@@ -90,3 +90,18 @@ export function useDeleteEquipment() {
         },
     });
 }
+
+/**
+ * Hook to delete multiple equipments
+ */
+export function useBulkDeleteEquipment() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (ids: string[]) => equipmentsApi.bulkDelete(ids),
+        onSuccess: () => {
+             queryClient.invalidateQueries({ queryKey: EQUIPMENT_KEYS.all });
+             queryClient.invalidateQueries({ queryKey: EQUIPMENT_KEYS.stats() });
+        },
+    });
+}

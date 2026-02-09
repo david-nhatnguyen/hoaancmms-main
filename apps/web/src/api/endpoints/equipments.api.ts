@@ -4,9 +4,10 @@ import type {
     EquipmentQueryParams, 
     CreateEquipmentDto, 
     UpdateEquipmentDto,
-    EquipmentStats
+    EquipmentStats,
+    EquipmentDocument,
 } from '../types/equipment.types';
-import type { PaginatedResponse } from '../types/common.types';
+import type { ApiResponse, PaginatedResponse } from '../types/common.types';
 
 /**
  * Equipment API Endpoints
@@ -22,28 +23,35 @@ export const equipmentsApi = {
     /**
      * Get equipment statistics
      */
-    getStats: async (): Promise<EquipmentStats> => {
+    getStats: async (): Promise<ApiResponse<EquipmentStats>> => {
         return apiClient.get('/equipments/stats');
     },
 
     /**
      * Get equipment by ID
      */
-    getById: async (id: string): Promise<Equipment> => {
+    getById: async (id: string): Promise<ApiResponse<Equipment>> => {
         return apiClient.get(`/equipments/${id}`);
+    },
+
+    /**
+     * Get equipment by Code
+     */
+    getByCode: async (code: string): Promise<ApiResponse<Equipment>> => {
+        return apiClient.get(`/equipments/by-code/${code}`);
     },
 
     /**
      * Create new equipment
      */
-    create: async (data: CreateEquipmentDto): Promise<Equipment> => {
+    create: async (data: CreateEquipmentDto | FormData): Promise<ApiResponse<Equipment>> => {
         return apiClient.post('/equipments', data);
     },
 
     /**
      * Update equipment
      */
-    update: async (id: string, data: UpdateEquipmentDto): Promise<Equipment> => {
+    update: async (id: string, data: UpdateEquipmentDto | FormData): Promise<ApiResponse<Equipment>> => {
         return apiClient.patch(`/equipments/${id}`, data);
     },
 
@@ -52,6 +60,13 @@ export const equipmentsApi = {
      */
     delete: async (id: string): Promise<void> => {
          return apiClient.delete(`/equipments/${id}`);
+    },
+
+    /**
+     * Delete multiple equipments
+     */
+    bulkDelete: async (ids: string[]): Promise<{ message: string; count: number }> => {
+        return apiClient.post('/equipments/bulk-delete', { ids });
     },
 
     /**
@@ -65,9 +80,7 @@ export const equipmentsApi = {
     }> => {
         const formData = new FormData();
         formData.append('file', file);
-        return apiClient.post('/equipments/import', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        return apiClient.post('/equipments/import', formData);
     },
 
     /**
@@ -93,5 +106,21 @@ export const equipmentsApi = {
         errorFileUrl?: string;
     }> => {
         return apiClient.get(`/equipments/import/${importId}`);
-    }
+    },
+
+    /**
+     * Upload document
+     */
+    uploadDocument: async (id: string, file: File): Promise<ApiResponse<EquipmentDocument>> => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return apiClient.post(`/equipments/${id}/documents`, formData);
+    },
+
+    /**
+     * Delete document
+     */
+    deleteDocument: async (docId: string): Promise<void> => {
+        return apiClient.delete(`/equipments/documents/${docId}`);
+    },
 };

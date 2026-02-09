@@ -83,7 +83,7 @@ describe('ImportEquipmentDialog Component', () => {
     );
     
     const file = new File(['test'], 'machines.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    const input = screen.getByTitle('Upload file') as HTMLInputElement;
+    const input = screen.getByTitle('Upload Excel File') as HTMLInputElement;
     
     fireEvent.change(input, { target: { files: [file] } });
 
@@ -105,7 +105,7 @@ describe('ImportEquipmentDialog Component', () => {
 
     // Select file
     const file = new File(['test'], 'data.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    const input = screen.getByTitle('Upload file');
+    const input = screen.getByTitle('Upload Excel File');
     fireEvent.change(input, { target: { files: [file] } });
 
     // Click Import

@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { MainLayout } from "./components/layout/MainLayout";
-import Index from "./pages/Index";
 import FactoryList from "./pages/FactoryList";
 import EquipmentList from "./pages/EquipmentList";
 import EquipmentDetail from "./pages/EquipmentDetail";
@@ -47,7 +46,7 @@ const App = () => (
               <Route path="factories" element={<FactoryList />} />
               <Route path="equipments" element={<EquipmentList />} />
               <Route path="equipments/new" element={<EquipmentForm />} />
-              <Route path="equipments/:id" element={<EquipmentDetail />} />
+              <Route path="equipments/:code" element={<EquipmentDetail />} />
               <Route path="equipments/:id/edit" element={<EquipmentForm />} />
               <Route path="checklists" element={<ChecklistList />} />
               <Route path="checklists/new" element={<ChecklistForm />} />

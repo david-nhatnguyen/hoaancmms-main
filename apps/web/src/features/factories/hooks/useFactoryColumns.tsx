@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Pencil, Eye, MapPin, Settings2, Trash2 } from 'lucide-react';
+import { Pencil, Eye, MapPin, Settings2, Trash2, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import type { Column } from '@/components/shared/ResponsiveTable';
@@ -12,7 +12,7 @@ import type { Factory } from '@/api/types/factory.types';
 
 export interface UseFactoryColumnsOptions {
   onEdit?: (factory: Factory) => void;
-  onViewEquipments?: (factoryId: string) => void;
+  onViewEquipments?: (factoryCode: string) => void;
   onDelete?: (factory: Factory) => void;
 }
 
@@ -60,8 +60,8 @@ export function useFactoryColumns(
   // However, simplest fix for Lint is to make the dependency stable.
   
   const handleViewEquipments = useMemo(() => {
-    return onViewEquipments || ((id: string) => {
-       navigate(`/equipments?factory=${id}`);
+    return onViewEquipments || ((code: string) => {
+       navigate(`/equipments?factoryCode=${code}`);
     });
   }, [onViewEquipments, navigate]);
 
@@ -119,7 +119,6 @@ export function useFactoryColumns(
       ),
       mobileRender: (factory) => factory.equipmentCount,
     },
-
     // Status Column
     {
       key: 'status',
@@ -128,7 +127,6 @@ export function useFactoryColumns(
       render: (factory) => <StatusBadge status={factory.status} />,
       mobileRender: (factory) => <StatusBadge status={factory.status} />,
     },
-
     // Actions Column
     {
       key: 'actions',
@@ -136,6 +134,18 @@ export function useFactoryColumns(
       align: 'center',
       render: (factory) => (
         <div className="flex items-center justify-center gap-2">
+          <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleViewEquipments(factory.code);
+              }}
+              className="text-muted-foreground h-8 px-2 rounded-full"
+            >
+              <span className="text-xs font-medium mr-1.5">Xem thiết bị</span>
+              <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"
