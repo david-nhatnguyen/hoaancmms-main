@@ -127,7 +127,7 @@ export const EquipmentInfoCard = ({ equipment }: EquipmentInfoCardProps) => {
       {/* Notes (Full Width) */}
       {equipment.notes && (
         <Card className="bg-card border-border/50 shadow-sm lg:col-span-2">
-           <CardHeader className={cn("pb-3 border-b border-border/50 bg-secondary/20", isMobile && "p-4")}>
+           <CardHeader className={cn("pb-3", isMobile && "p-4")}>
             <CardTitle className={cn("flex items-center gap-2", isMobile ? "text-sm" : "text-base")}>
                <div className="p-1.5 rounded-md bg-orange-500/10 text-orange-500">
                 <Info className="h-4 w-4" />

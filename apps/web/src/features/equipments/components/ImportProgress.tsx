@@ -1,5 +1,5 @@
 import { env } from '@/config/env';
-import { Loader2, CheckCircle2, X, FileSpreadsheet, AlertCircle, Download, Smartphone } from 'lucide-react';
+import { Loader2, CheckCircle2, X, FileSpreadsheet, AlertCircle, Download, CheckCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
@@ -134,7 +134,7 @@ export function ImportProgress({ jobId, fileName: propFileName, onClose }: Impor
             isFailed ? "bg-status-critical text-white" :
             "bg-primary text-white"
           )}>
-            {isCompleted ? <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6" /> :
+            {isCompleted ? <CheckCircle className="h-5 w-5" />:
              isFailed ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> :
              <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin" />}
           </div>

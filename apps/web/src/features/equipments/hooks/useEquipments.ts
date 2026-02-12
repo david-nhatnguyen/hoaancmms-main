@@ -31,13 +31,24 @@ export function useEquipmentStats() {
 }
 
 /**
- * Hook to fetch a single equipment
+ * Hook to fetch a single equipment by ID
  */
 export function useEquipment(id: string) {
     return useQuery({
         queryKey: EQUIPMENT_KEYS.details(id),
         queryFn: () => equipmentsApi.getById(id),
         enabled: !!id,
+    });
+}
+
+/**
+ * Hook to fetch a single equipment by code
+ */
+export function useEquipmentByCode(code: string) {
+    return useQuery({
+        queryKey: [...EQUIPMENT_KEYS.all, 'by-code', code] as const,
+        queryFn: () => equipmentsApi.getByCode(code),
+        enabled: !!code,
     });
 }
 

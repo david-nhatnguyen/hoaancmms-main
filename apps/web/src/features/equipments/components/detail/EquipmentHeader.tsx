@@ -5,6 +5,7 @@ import {
   Layers,
   Maximize2,
   Image as ImageIcon,
+  QrCode,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -82,28 +83,6 @@ export const EquipmentHeader = ({ equipment }: { equipment: Equipment }) => {
                 )}
                 </button>
 
-                {/* QR Code Thumbnail - Next to Image */}
-                {equipment.qrCode && (
-                    <div 
-                        className={cn(
-                            "border border-border rounded-xl overflow-hidden shrink-0 cursor-pointer hover:border-primary/50 transition-colors bg-white p-0.5 relative group",
-                            isMobile ? "h-16 w-16" : "h-20 w-20"
-                        )}
-                        onClick={() => setIsQROpen(true)}
-                        role="button"
-                        title="Xem mã QR"
-                    >
-                        <img 
-                            src={qrCodeUrl} 
-                            alt="QR Code" 
-                            className="w-full h-full object-contain" 
-                        />
-                        <div className="absolute inset-0 bg-black/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                             <span className="text-[10px] font-bold text-black bg-white/90 px-1 rounded shadow-sm">QR</span>
-                        </div>
-                    </div>
-                )}
-
                 {/* Title & Meta */}
                 <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
@@ -128,8 +107,12 @@ export const EquipmentHeader = ({ equipment }: { equipment: Equipment }) => {
 
             {/* Actions */}
             <div className="flex flex-col sm:flex-row items-end gap-2 shrink-0">
+              <Button variant="outline" onClick={() => setIsQROpen(true)} className="action-btn-secondary">
+                <QrCode className="h-4 w-4" />
+                In QR
+              </Button>
                 <Button 
-                    onClick={() => navigate(`/equipments/${equipment.id}/edit`)} 
+                    onClick={() => navigate(`/equipments/${equipment.code}/edit`)} 
                     className="action-btn-primary"
                     size={isMobile ? "sm" : "default"}
                 >

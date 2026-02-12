@@ -163,7 +163,7 @@ export default function EquipmentList() {
 
   // Custom hook for table columns
   const { columns, previewDialog } = useEquipmentColumns({
-    onEdit: (eq) => navigate(`/equipments/${eq.id}/edit`),
+    onEdit: (eq) => navigate(`/equipments/${eq.code}/edit`),
     onViewDetails: (code) => navigate(`/equipments/${code}`),
     onDelete: (equipment) => setDeletingEquipment(equipment),
   });

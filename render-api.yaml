@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: hoaancmms-api
+    env: docker
+    dockerContext: .
+    dockerfilePath: apps/api/Dockerfile
+    plan: free
+    region: singapore
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hoaancmms-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: 1d
+      - key: STORAGE_TYPE
+        value: local
+      - key: REDIS_HOST
+        value: localhost # Thay thế bằng Upstash URL nếu dùng Redis thực
+      - key: REDIS_PORT
+        value: 6379
+
+databases:
+  - name: hoaancmms-db
+    plan: free
+    region: singapore

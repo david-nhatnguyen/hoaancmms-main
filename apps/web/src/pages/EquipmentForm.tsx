@@ -45,7 +45,7 @@ import { cn } from '@/lib/utils';
 import { factoriesApi } from '@/api/endpoints/factories.api';
 import { env } from '@/config/env';
 import {
-  useEquipment,
+  useEquipmentByCode,
   useCreateEquipment,
   useUpdateEquipment,
   STATUS_OPTIONS,
@@ -60,7 +60,7 @@ const equipmentFormSchema = z.object({
   origin: z.string().nullable().optional(),
   brand: z.string().nullable().optional(),
   modelYear: z.coerce.number().nullable().optional(),
-  image: z.string().url('Link ảnh không hợp lệ').nullable().optional().or(z.literal('')),
+  image: z.string().nullable().optional().or(z.literal('')),
   dimension: z.string().nullable().optional(),
   quantity: z.coerce.number().min(1, 'Số lượng tối thiểu là 1').default(1),
   status: z.enum(['ACTIVE', 'INACTIVE', 'MAINTENANCE']),
@@ -70,15 +70,15 @@ const equipmentFormSchema = z.object({
 type EquipmentFormData = z.infer<typeof equipmentFormSchema>;
 
 export default function EquipmentForm() {
-  const { id } = useParams();
+  const { code } = useParams();
   const navigate = useNavigate();
-  const isEditing = Boolean(id);
+  const isEditing = Boolean(code);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Queries & Mutations
-  const { data: equipmentData, isLoading: isLoadingEquipment } = useEquipment(id || '');
+  const { data: equipmentData, isLoading: isLoadingEquipment } = useEquipmentByCode(code || '');
   const equipment = equipmentData?.data;
   const createEquipment = useCreateEquipment();
   const updateEquipment = useUpdateEquipment();
@@ -182,9 +182,9 @@ export default function EquipmentForm() {
     } else if (data.image) {
       formData.append('image', data.image);
     }
-    if (isEditing && id) {
+    if (isEditing && equipment?.id) {
       updateEquipment.mutate(
-        { id, data: formData as any },
+        { id: equipment.id, data: formData as any },
         {
           onSuccess: () => {
              toast.success('Cập nhật thiết bị thành công');

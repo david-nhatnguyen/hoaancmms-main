@@ -47,7 +47,7 @@ const App = () => (
               <Route path="equipments" element={<EquipmentList />} />
               <Route path="equipments/new" element={<EquipmentForm />} />
               <Route path="equipments/:code" element={<EquipmentDetail />} />
-              <Route path="equipments/:id/edit" element={<EquipmentForm />} />
+              <Route path="equipments/:code/edit" element={<EquipmentForm />} />
               <Route path="checklists" element={<ChecklistList />} />
               <Route path="checklists/new" element={<ChecklistForm />} />
               <Route path="checklists/:id" element={<ChecklistDetail />} />
