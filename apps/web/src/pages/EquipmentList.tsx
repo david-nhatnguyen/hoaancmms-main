@@ -133,6 +133,15 @@ export default function EquipmentList() {
 
   const [searchParams] = useSearchParams();
   
+  // Fetch factories for filters (must be before URL sync useEffect)
+  const { data: factoriesData } = useQuery({
+    queryKey: ['factories-list'],
+    queryFn: () => factoriesApi.getAll({ limit: 100, page: 1 }),
+  });
+  
+  const factoriesList = useMemo(() => factoriesData?.data || [], [factoriesData?.data]);
+  const factoryOptions = useMemo(() => factoriesList.map(f => ({ value: f.id, label: f.name })), [factoriesList]);
+  
   // URL to State Sync
   useEffect(() => {
     const factoryIds = searchParams.getAll('factoryId');
@@ -150,6 +159,23 @@ export default function EquipmentList() {
           else nextFactoryCodes.push(gf);
         });
 
+        // Convert factoryCodes to factoryIds for dropdown selection
+        if (nextFactoryCodes.length > 0 && factoriesList.length > 0) {
+          const matchedFactoryIds = factoriesList
+            .filter(f => nextFactoryCodes.includes(f.code))
+            .map(f => f.id);
+          
+          // Merge with existing factory IDs and deduplicate
+          const allFactoryIds = [...new Set([...nextFactoryIds, ...matchedFactoryIds])];
+          
+          return {
+            ...prev,
+            factoryId: allFactoryIds.length > 0 ? allFactoryIds : undefined,
+            factoryCode: nextFactoryCodes.length > 0 ? nextFactoryCodes : undefined,
+            page: 1
+          };
+        }
+
         return {
           ...prev,
           factoryId: nextFactoryIds.length > 0 ? nextFactoryIds : undefined,
@@ -158,7 +184,7 @@ export default function EquipmentList() {
         };
       });
     }
-  }, [searchParams]);
+  }, [searchParams, factoriesList]);
 
 
   // Custom hook for table columns
@@ -176,14 +202,7 @@ export default function EquipmentList() {
   const deleteEquipment = useDeleteEquipment();
   const bulkDeleteEquipment = useBulkDeleteEquipment();
 
-  // Fetch factories for filters
-  const { data: factoriesData } = useQuery({
-    queryKey: ['factories-list'],
-    queryFn: () => factoriesApi.getAll({ limit: 100, page: 1 }),
-  });
-  
-  const factoriesList = factoriesData?.data || [];
-  const factoryOptions = factoriesList.map(f => ({ value: f.id, label: f.name }));
+
 
   // Delete State
   const [deletingEquipment, setDeletingEquipment] = useState<Equipment | null>(null);
@@ -217,6 +236,7 @@ export default function EquipmentList() {
       ...prev,
       status: undefined,
       factoryId: undefined,
+      factoryCode: undefined,
       search: '',
       page: 1
     }));
@@ -269,8 +289,12 @@ export default function EquipmentList() {
   // Active Filter Tags
   const renderActiveTags = () => {
       const tags: React.ReactNode[] = [];
+      const displayedFactoryIds = new Set<string>(); // Track displayed factories to avoid duplicates
+      
+      // First, show factoryId filters
       (params.factoryId || []).forEach(fid => {
           const label = factoryOptions.find(f => f.value === fid)?.label;
+          displayedFactoryIds.add(fid); // Mark this factory as displayed
           tags.push(
             <Badge key={`f-${fid}`} variant="secondary" className="gap-1 pl-2 pr-1 py-0.5">
                {label}
@@ -278,10 +302,22 @@ export default function EquipmentList() {
             </Badge>
           );
       });
+      
+      // Then, show factoryCode filters (skip if already displayed via factoryId)
       (params.factoryCode || []).forEach(code => {
+          // Lookup factory name from factoriesList using code
+          const factory = factoriesList.find(f => f.code === code);
+          
+          // Skip if this factory is already displayed (converted to ID)
+          if (factory && displayedFactoryIds.has(factory.id)) {
+            return;
+          }
+          
+          const label = factory?.name || code; // Fallback to code if not found
+          
           tags.push(
             <Badge key={`fc-${code}`} variant="secondary" className="gap-1 pl-2 pr-1 py-0.5">
-               {code}
+               {label}
                <button onClick={() => setParams(prev => ({ ...prev, factoryCode: prev.factoryCode?.filter(c => c !== code) }))} className="ml-1 hover:bg-muted rounded-full p-0.5" aria-label="Remove factory code filter"><X className="h-3 w-3" /></button>
             </Badge>
           );
