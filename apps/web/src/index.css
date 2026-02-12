@@ -21,6 +21,7 @@
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 20% 94%;
+    --secondary-hover: 210 20% 82%;
     --secondary-foreground: 220 20% 20%;
 
     --muted: 210 15% 92%;
@@ -165,16 +166,26 @@
   }
 
   .search-input {
-    @apply bg-secondary/50 border-none text-foreground placeholder:text-muted-foreground rounded-lg;
+    @apply bg-secondary/50 border border-transparent text-foreground placeholder:text-muted-foreground rounded-lg transition-all focus:bg-background focus:border-primary/50 focus:ring-2 focus:ring-primary/20;
   }
 
   /* Table styles - cleaner look */
-  .table-header-cell {
-    @apply bg-table-header text-muted-foreground font-medium text-xs uppercase tracking-wider py-3;
+  .table-row-interactive {
+    @apply transition-all duration-200 cursor-pointer border-b border-border/40 relative;
   }
 
-  .table-row-interactive {
-    @apply hover:bg-table-row-hover transition-colors cursor-pointer border-b border-border/50;
+  .table-row-interactive:hover {
+    @apply bg-table-row-hover/80;
+  }
+
+  /* Premium hover indicator for table rows */
+  .table-row-interactive::after {
+    content: '';
+    @apply absolute left-0 top-0 bottom-0 w-0.5 bg-primary opacity-0 transition-opacity;
+  }
+
+  .table-row-interactive:hover::after {
+    @apply opacity-100;
   }
 
   @media (max-width: 767px) {
@@ -251,7 +262,7 @@
 
   /* Cards - modern dark style */
   .stat-card {
-    @apply bg-card rounded-xl p-5 border border-border/50;
+    @apply bg-card rounded-xl p-5 border border-border/50 shadow-sm transition-all duration-200 hover:shadow-md hover:border-border/80 active:scale-[0.99];
   }
 
   @media (max-width: 767px) {
@@ -272,15 +283,29 @@
 
   /* Action buttons */
   .action-btn {
-    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors;
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-sm active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .action-btn-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 dark:hover:brightness-110 active:brightness-90;
   }
 
   .action-btn-secondary {
-    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border;
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary-hover active:bg-secondary/70 border border-border transition-colors;
+  }
+
+  .dark .action-btn-secondary:hover {
+    background-color: hsl(var(--secondary-hover));
+  }
+
+  /* Table Action Buttons (Icon only) */
+  .table-action-btn {
+    @apply h-8 w-8 rounded-md flex items-center justify-center transition-all hover:bg-muted active:scale-90 text-muted-foreground hover:text-foreground;
+  }
+
+  /* Table Header Cell Styling */
+  .table-header-cell {
+    @apply bg-table-header text-muted-foreground font-medium text-[10px] uppercase tracking-wider py-3 px-4 text-left;
   }
 
   /* Mobile-specific utilities */
@@ -292,9 +317,14 @@
     .mobile-touch-target {
       @apply min-h-[44px] flex items-center;
     }
+
+    .mobile-readable-text {
+      font-size: 14px;
+      line-height: 1.5;
+    }
   }
 
-  /* Safe area padding for mobile - webview support */
+  /* Safe area and Layout constraints */
   .safe-area-bottom {
     padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
   }
@@ -303,25 +333,20 @@
     padding-top: max(env(safe-area-inset-top, 0px), 0px);
   }
 
-  /* ===============================================
-     MOBILE LAYOUT CONSTRAINTS - NO HORIZONTAL SCROLL
-     =============================================== */
   @media (max-width: 767px) {
-    /* CRITICAL: Prevent horizontal overflow everywhere */
+    /* CRITICAL: Prevent horizontal overflow */
     html, body, #root {
       max-width: 100vw;
       overflow-x: hidden;
+      height: 100%;
     }
 
-    /* Consistent safe padding for all page content */
     .mobile-page-container {
       padding-left: 16px;
       padding-right: 16px;
       max-width: 100%;
-      overflow-x: hidden;
     }
 
-    /* Ensure all children respect container bounds */
     * {
       max-width: 100%;
       box-sizing: border-box;
@@ -334,66 +359,42 @@
       gap: 12px;
     }
 
-    /* Prevent text selection for app-like feel */
+    /* Fix charts/recharts and tables to not overflow */
+    .recharts-wrapper,
+    .recharts-surface,
+    table {
+      max-width: 100% !important;
+    }
+
     body {
       -webkit-user-select: none;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
-      -webkit-touch-callout: none;
-    }
-    
-    /* Allow text selection in inputs and textareas */
-    input, textarea, [contenteditable="true"] {
-      -webkit-user-select: text;
-      user-select: text;
-    }
-    
-    /* Smooth scrolling */
-    html {
-      scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch;
-    }
-    
-    /* Prevent overscroll bounce for app-like feel */
-    body {
       overscroll-behavior: none;
     }
     
-    /* Full height for mobile viewport */
-    html, body, #root {
-      height: 100%;
-      overflow-y: auto;
-    }
-    
-    #root {
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Fix charts/recharts to not overflow */
-    .recharts-wrapper,
-    .recharts-surface {
-      max-width: 100% !important;
-    }
-
-    /* Fix tables to not overflow */
-    table {
-      table-layout: fixed;
-      width: 100%;
+    input, textarea, [contenteditable="true"] {
+      -webkit-user-select: text;
+      user-select: text;
     }
   }
 
   /* Bottom nav active states */
   .bottom-nav-item {
-    @apply flex flex-col items-center justify-center flex-1 h-full py-1 px-2 transition-colors relative;
+    @apply flex flex-col items-center justify-center flex-1 h-full py-1 px-2 transition-all duration-200 relative scale-100 active:scale-90;
   }
 
   .bottom-nav-item.active {
-    @apply text-primary;
+    @apply text-primary font-medium;
+  }
+
+  .bottom-nav-item.active::after {
+    content: '';
+    @apply absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full;
   }
 
   .bottom-nav-item:not(.active) {
-    @apply text-muted-foreground;
+    @apply text-muted-foreground opacity-60 hover:opacity-100;
   }
 
   /* Mobile-optimized touch targets */
@@ -403,13 +404,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    @apply transition-transform active:scale-95;
   }
+}
 
-  /* Readable text on mobile */
-  @media (max-width: 767px) {
-    .mobile-readable-text {
-      font-size: 14px;
-      line-height: 1.5;
-    }
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }

@@ -95,7 +95,7 @@ export default function EquipmentForm() {
 
   // Form initialization
   const form = useForm<EquipmentFormData>({
-    resolver: zodResolver(equipmentFormSchema),
+    resolver: zodResolver(equipmentFormSchema) as any,
     defaultValues: {
       code: '',
       name: '',
@@ -543,7 +543,7 @@ export default function EquipmentForm() {
                             <FormField
                               control={form.control}
                               name="image"
-                              render={({ field }) => (
+                              render={({ field: _field }) => (
                                 <FormItem className="h-full">
                                   <FormLabel>Hình ảnh</FormLabel>
                                   <FormControl>

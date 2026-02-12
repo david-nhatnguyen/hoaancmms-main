@@ -127,6 +127,13 @@ export class EquipmentsController {
     return this.equipmentsService.findAll(query);
   }
 
+  @Get('search')
+  @ApiOperation({ summary: 'Search equipments for autocomplete' })
+  @ApiResponse({ status: 200, description: 'Search results retrieved successfully.' })
+  search(@Query('q') query: string) {
+    return this.equipmentsService.search(query);
+  }
+
   @Get('stats')
   @ApiOperation({ summary: 'Get equipment statistics' })
   @ApiResponse({ status: 200, description: 'Equipment statistics retrieved successfully.' })

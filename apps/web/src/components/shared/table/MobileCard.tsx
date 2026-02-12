@@ -126,7 +126,7 @@ export function MobileCard<T>({
              {metadataCols.map((col) => (
                <div key={col.key} className="flex flex-col min-w-0">
                  <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/60">
-                   {col.mobileLabel || col.header}
+                   {col.mobileLabel || (typeof col.header === 'function' ? col.key : (col.header || col.key))}
                  </span>
                  <div className="text-xs font-semibold text-foreground/80 truncate">
                    {col.mobileRender?.(item) ?? col.render(item)}

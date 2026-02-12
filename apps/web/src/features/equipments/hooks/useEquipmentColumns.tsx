@@ -1,17 +1,26 @@
 import { useState, useMemo } from 'react';
-import { Column } from '@/components/shared/ResponsiveTable';
+import { ColumnDef } from '@tanstack/react-table';
 import { Equipment } from '@/api/types/equipment.types';
 import { Button } from '@/components/ui/button';
-import { Eye, Pencil, Trash2, Cpu, X, Maximize2, QrCode as QrIcon, ImageIcon } from 'lucide-react';
+import { Eye, Pencil, Trash2, X, Maximize2, QrCode as QrIcon, ImageIcon, MoreHorizontal } from 'lucide-react';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { 
   Dialog, 
   DialogContent, 
   DialogClose 
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Checkbox } from "@/components/ui/checkbox"
 import { getImageUrl } from '@/lib/image-utils';
 import { QRPreviewDialog } from '../components/QRPreviewDialog';
-import { MobileCardActions } from '@/components/shared/table/MobileCardActions';
+import { DataTableColumnHeader } from '@/components/shared/table/DataTableColumnHeader';
 
 interface UseEquipmentColumnsProps {
   onEdit: (equipment: Equipment) => void;
@@ -19,16 +28,67 @@ interface UseEquipmentColumnsProps {
   onViewDetails: (code: string) => void;
 }
 
-export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEquipmentColumnsProps) {
+
+export interface UseEquipmentColumnsReturn {
+  columns: (ColumnDef<Equipment> & {
+    key: string;
+    render: (item: Equipment) => React.ReactNode;
+    mobilePriority?: 'primary' | 'secondary' | 'metadata';
+    width?: string;
+    align?: 'left' | 'center' | 'right';
+  })[];
+  previewDialog: React.ReactNode;
+}
+
+export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEquipmentColumnsProps): UseEquipmentColumnsReturn {
   const [previewImage, setPreviewImage] = useState<{ url: string; name: string } | null>(null);
   const [qrPreviewEquipment, setQrPreviewEquipment] = useState<Equipment | null>(null);
 
-  const columns = useMemo<Column<Equipment>[]>(() => [
+  const columns = useMemo<UseEquipmentColumnsReturn['columns']>(() => [
     {
-      key: 'code',
-      header: 'Mã số thiết bị',
-      width: 'w-[150px]',
-      mobilePriority: 'primary',
+      id: "select",
+      key: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      render: () => null, // Placeholder for select column
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "code",
+      key: "code",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Mã số thiết bị" />
+      ),
+      cell: ({ row }) => {
+        const eq = row.original
+        return (
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewDetails(eq.code);
+            }}
+            className="font-mono font-medium text-primary text-xs hover:underline text-left"
+          >
+            {eq.code}
+          </button>
+        )
+      },
       render: (eq) => (
         <button 
           onClick={(e) => {
@@ -39,14 +99,15 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
         >
           {eq.code}
         </button>
-      )
+      ),
+      mobilePriority: 'primary',
     },
     {
-      key: 'image',
-      header: 'Hình ảnh',
-      width: 'w-[120px]',
-      align: 'center',
-      render: (eq) => {
+      id: "image",
+      key: "image",
+      header: "Hình ảnh",
+      cell: ({ row }) => {
+        const eq = row.original
         const fullUrl = getImageUrl(eq.image);
         return (
           <div className="flex items-center justify-center">
@@ -56,191 +117,167 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
                   e.stopPropagation();
                   setPreviewImage({ url: fullUrl, name: eq.name });
                 }}
-                className="w-12 h-12 rounded-lg border border-border overflow-hidden shadow-sm bg-muted/30 group relative"
+                className="w-10 h-10 rounded-lg border border-border overflow-hidden shadow-sm bg-muted/30 group relative"
               >
                 <img 
                   src={fullUrl} 
                   alt={eq.name} 
                   className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = ''; 
-                  }}
                 />
                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Maximize2 className="h-4 w-4 text-white" />
+                  <Maximize2 className="h-3 w-3 text-white" />
                 </div>
               </button>
             ) : (
-              <div className="w-12 h-12 rounded-lg border border-border bg-muted/50 flex items-center justify-center text-muted-foreground/30">
-                <ImageIcon className="h-6 w-6" />
+              <div className="w-10 h-10 rounded-lg border border-border bg-muted/50 flex items-center justify-center text-muted-foreground/30">
+                <ImageIcon className="h-5 w-5" />
               </div>
             )}
           </div>
         );
       },
-      mobileRender: (eq) => {
+      render: (eq) => {
         const fullUrl = getImageUrl(eq.image);
         return (
-          <div className="w-full h-full">
+            <div className="flex items-center justify-center">
             {eq.image ? (
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setPreviewImage({ url: fullUrl, name: eq.name });
-                }}
-                className="w-full h-full active:outline-none focus:outline-none"
-              >
-                <img 
+                 <img 
                   src={fullUrl} 
                   alt={eq.name} 
-                  className="w-full h-full object-cover" 
+                  className="w-10 h-10 object-cover rounded"
                 />
-              </button>
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
-                <Cpu className="h-12 w-12" />
-              </div>
+                <ImageIcon className="h-5 w-5 text-muted-foreground/30" />
             )}
-          </div>
+            </div>
         );
       }
     },
     {
-      key: 'name',
-      header: 'Tên thiết bị',
+      accessorKey: "name",
+      key: "name",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Tên thiết bị" />
+      ),
+      cell: ({ row }) => <span className="font-medium text-sm">{row.getValue("name")}</span>,
+      render: (eq) => <span className="font-medium text-sm">{eq.name}</span>,
       mobilePriority: 'secondary',
-      width: 'min-w-[150px]',
-      render: (eq) => <span className="font-medium text-sm">{eq.name}</span>
     },
     {
-      key: 'factory',
-      header: 'Nhà máy',
-      mobilePriority: 'metadata',
-      mobileLabel: 'Nhà máy',
-      width: 'w-[150px]',
+      accessorKey: "factoryName",
+      key: "factoryName",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Nhà máy" />
+      ),
+      cell: ({ row }) => (
+        <span className="text-sm text-muted-foreground truncate max-w-[150px]">
+          {row.getValue("factoryName") || '-'}
+        </span>
+      ),
       render: (eq) => (
-        <span 
-          className="text-sm text-muted-foreground truncate max-w-[150px]" 
-          title={eq.factoryName}
-        >
+        <span className="text-sm text-muted-foreground truncate max-w-[150px]">
           {eq.factoryName || '-'}
         </span>
-      )
+      ),
     },
     {
-      key: 'quantity',
-      header: 'Số lượng',
-      mobilePriority: 'metadata',
-      mobileLabel: 'SL',
-      align: 'center',
-      width: 'w-[80px]',
-      render: (eq) => <span className="font-medium text-sm">{eq.quantity || 1}</span>
+      accessorKey: "quantity",
+      key: "quantity",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Số lượng" />
+      ),
+      cell: ({ row }) => <span className="font-medium text-sm">{row.getValue("quantity") || 1}</span>,
+      render: (eq) => <span className="font-medium text-sm">{eq.quantity || 1}</span>,
     },
     {
-      key: 'status',
-      header: 'Trạng thái',
-      align: 'center',
-      width: 'w-[120px]',
-      render: (eq) => <div className="scale-90 origin-center"><StatusBadge status={eq.status} /></div>
+      accessorKey: "status",
+      key: "status",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Trạng thái" />
+      ),
+      cell: ({ row }) => <div className="scale-90 origin-left"><StatusBadge status={row.getValue("status")} /></div>,
+      render: (eq) => <StatusBadge status={eq.status} />,
     },
     {
-      key: 'qrCode',
-      header: 'QR Code',
-      align: 'center',
-      width: 'w-[80px]',
+      id: "qrCode",
+      key: "qrCode",
+      header: "QR Code",
+      cell: ({ row }) => {
+        const eq = row.original
+        return (
+          <div className="flex items-center justify-center">
+            {eq.qrCode ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setQrPreviewEquipment(eq);
+                }}
+                className="w-8 h-8 p-1 rounded-md border border-border bg-white hover:border-primary/50 transition-colors shadow-sm group relative"
+                title="Xem mã QR"
+              >
+                <img 
+                  src={getImageUrl(eq.qrCode)} 
+                  alt="QR" 
+                  className="w-full h-full object-contain"
+                />
+                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+            ) : (
+              <div className="w-8 h-8 rounded-md border border-border border-dashed bg-muted/30 flex items-center justify-center text-muted-foreground/20">
+                <QrIcon className="h-4 w-4" />
+              </div>
+            )}
+          </div>
+        )
+      },
       render: (eq) => (
-        <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center">
           {eq.qrCode ? (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setQrPreviewEquipment(eq);
-              }}
-              className="w-10 h-10 p-1 rounded-md border border-border bg-white hover:border-primary/50 transition-colors shadow-sm group relative"
-              title="Xem mã QR"
-            >
-              <img 
+               <img 
                 src={getImageUrl(eq.qrCode)} 
                 alt="QR" 
-                className="w-full h-full object-contain"
+                className="w-8 h-8 object-contain"
               />
-              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </button>
           ) : (
-            <div className="w-10 h-10 rounded-md border border-border border-dashed bg-muted/30 flex items-center justify-center text-muted-foreground/20">
-              <QrIcon className="h-5 w-5" />
-            </div>
+              <QrIcon className="h-4 w-4 text-muted-foreground/20" />
           )}
-        </div>
-      ),
-      mobileRender: (eq) => (
-        <div className="w-full h-full flex items-center justify-center">
-          {eq.qrCode ? (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setQrPreviewEquipment(eq);
-              }}
-              className="w-full h-full active:scale-95 transition-transform"
-            >
-              <img 
-                src={getImageUrl(eq.qrCode)} 
-                alt="QR" 
-                className="w-full h-full object-contain"
-              />
-            </button>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground/20">
-              <QrIcon className="h-12 w-12" />
-            </div>
-          )}
-        </div>
+          </div>
       )
     },
     {
-      key: 'actions',
-      header: 'Thao tác',
-      align: 'center',
-      width: 'w-[140px]',
-      render: (eq) => (
-        <div className="flex items-center justify-center gap-2" onClick={e => e.stopPropagation()}>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onViewDetails(eq.code)}
-            className="h-8 w-8 text-muted-foreground hover:bg-primary/10 hover:text-primary rounded-full transition-colors"
-            title="Xem chi tiết"
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onEdit(eq)}
-            className="h-8 w-8 text-muted-foreground hover:bg-orange-500/10 hover:text-orange-500 rounded-full transition-colors"
-            title="Chỉnh sửa"
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onDelete(eq)}
-            className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-full transition-colors"
-            title="Xóa"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      ),
-      mobileRender: (eq) => (
-        <MobileCardActions 
-          onView={() => onViewDetails(eq.code)}
-          onEdit={() => onEdit(eq)}
-          onDelete={() => onDelete(eq)}
-        />
-      )
-    }
+      id: "actions",
+      key: "actions",
+      cell: ({ row }) => {
+        const eq = row.original
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => onViewDetails(eq.code)}>
+                <Eye className="mr-2 h-4 w-4" /> Chi tiết
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onEdit(eq)}>
+                <Pencil className="mr-2 h-4 w-4" /> Chỉnh sửa
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => onDelete(eq)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" /> Xóa
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
+      render: () => null,
+    },
   ], [onEdit, onViewDetails, onDelete]);
 
   const previewDialog = (
@@ -276,3 +313,4 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
 
   return { columns, previewDialog };
 }
+

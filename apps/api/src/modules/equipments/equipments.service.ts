@@ -319,6 +319,46 @@ export class EquipmentsService {
     };
   }
 
+  /**
+   * Search equipments for autocomplete (simpler, faster)
+   */
+  async search(query: string = '') {
+    if (!query || query.trim().length === 0) {
+      // Return recent equipments if no query  
+      return this.prisma.client.equipment.findMany({
+        where: { status: EquipmentStatus.ACTIVE },
+        select: {
+          id: true,
+          code: true,
+          name: true,
+          category: true,
+          status: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+      });
+    }
+
+    return this.prisma.client.equipment.findMany({
+      where: {
+        OR: [
+          { code: { contains: query, mode: 'insensitive' } },
+          { name: { contains: query, mode: 'insensitive' } },
+          { category: { contains: query, mode: 'insensitive' } },
+        ],
+      },
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        category: true,
+        status: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    });
+  }
+
   async findOne(id: string) {
     const equipment = await this.prisma.client.equipment.findUnique({
       where: { id },

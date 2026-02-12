@@ -1,21 +1,35 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  Save, 
-  CheckCircle2, 
-  Plus, 
-  Trash2, 
-  GripVertical,
-  Copy,
-  Eye
+import { useEffect } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {
+  ArrowLeft,
+  Save,
+  Plus,
+  Trash2,
+  MoveUp,
+  MoveDown,
+
+  Eye,
+  Calendar as CalendarIcon,
 } from 'lucide-react';
+import { format } from 'date-fns';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
+} from '@/components/ui/form';
 import {
   Select,
   SelectContent,
@@ -31,52 +45,83 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { 
-  checklistTemplates, 
-  CYCLE_LABELS, 
-  CHECKLIST_STATUS_LABELS,
-  ChecklistItem,
-  ChecklistTemplate,
-  createEmptyItem,
-  generateChecklistCode
-} from '@/data/checklistData';
-import { EQUIPMENT_GROUPS } from '@/data/mockData';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
-interface FormData {
-  code: string;
-  name: string;
-  equipmentGroupId: string;
-  machineType: string;
-  cycle: string;
-  version: number;
-  status: 'draft' | 'active' | 'inactive';
-  notes: string;
-  items: ChecklistItem[];
-}
+import { useCreateTemplate } from '@/features/checklists/hooks/useCreateTemplate';
+import { useChecklistTemplate } from '@/features/checklists/hooks/useChecklistTemplates';
+import {
+  ChecklistCycle,
+  ChecklistStatus,
+  CYCLE_LABELS,
+} from '@/features/checklists/types/checklist.types';
+import { EquipmentSearchInput, UserSearchInput } from '@/features/checklists/components';
+import { transformFormToDto } from '@/features/checklists/handlers/templateFormHandlers';
 
-const initialFormData: FormData = {
-  code: '',
+// ============================================================================
+// SCHEMA
+// ============================================================================
+
+const checklistItemSchema = z.object({
+  maintenanceTask: z.string().min(1, 'Nội dung bảo dưỡng không được để trống'),
+  judgmentStandard: z.string().default(''),
+  inspectionMethod: z.string().default(''),
+  maintenanceContent: z.string().default(''),
+  expectedResult: z.string().default(''),
+  isRequired: z.boolean().default(false),
+  requiresImage: z.boolean().default(false),
+  requiresNote: z.boolean().default(false),
+  order: z.number().default(0),
+});
+
+const checklistFormSchema = z.object({
+  name: z.string().min(1, 'Tên checklist không được để trống'),
+  description: z.string().optional(),
+  equipmentId: z.string().min(1, 'Vui lòng chọn thiết bị'),
+  // We keep the full object for display purposes in the UI
+  equipment: z.any().optional(),
+  assignedUserId: z.string().optional(),
+  assignedUser: z.any().optional(),
+  department: z.string().optional(),
+  maintenanceStartDate: z.string().optional(),
+  cycle: z.nativeEnum(ChecklistCycle),
+  status: z.nativeEnum(ChecklistStatus).default(ChecklistStatus.DRAFT),
+  notes: z.string().optional(),
+  items: z.array(checklistItemSchema).min(1, 'Checklist phải có ít nhất 1 hạng mục'),
+});
+
+type ChecklistFormValues = z.infer<typeof checklistFormSchema>;
+
+const defaultValues: ChecklistFormValues = {
   name: '',
-  equipmentGroupId: '',
-  machineType: '',
-  cycle: 'monthly',
-  version: 1,
-  status: 'draft',
+  description: '',
+  equipmentId: '',
+  equipment: null,
+  assignedUserId: '',
+  assignedUser: null,
+  department: '',
+  maintenanceStartDate: '',
+  cycle: ChecklistCycle.MONTHLY,
+  status: ChecklistStatus.DRAFT,
   notes: '',
-  items: [createEmptyItem(1)]
+  items: [
+    {
+      maintenanceTask: '',
+      judgmentStandard: '',
+      inspectionMethod: '',
+      maintenanceContent: '',
+      expectedResult: '',
+      isRequired: false,
+      requiresImage: false,
+      requiresNote: false,
+      order: 0,
+    },
+  ],
 };
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
 
 export default function ChecklistForm() {
   const { id } = useParams();
@@ -85,155 +130,100 @@ export default function ChecklistForm() {
   const isEditing = Boolean(id) && !searchParams.get('copy');
   const isCopying = Boolean(searchParams.get('copy'));
 
-  const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showVersionDialog, setShowVersionDialog] = useState(false);
-  const [originalStatus, setOriginalStatus] = useState<string>('draft');
+  // Hooks
+  const createTemplate = useCreateTemplate();
+  const { data: existingTemplate } = useChecklistTemplate(id || '');
 
-  // Get available machine types based on selected group
-  const availableMachineTypes = useMemo(() => {
-    if (!formData.equipmentGroupId) return [];
-    return EQUIPMENT_GROUPS[formData.equipmentGroupId as keyof typeof EQUIPMENT_GROUPS]?.machineTypes || [];
-  }, [formData.equipmentGroupId]);
+  // Form
+  const form = useForm<ChecklistFormValues>({
+    resolver: zodResolver(checklistFormSchema) as any,
+    defaultValues,
+    mode: 'onChange',
+  });
 
-  // Load checklist data
+  const { fields, append, remove, move } = useFieldArray({
+    control: form.control,
+    name: 'items',
+  });
+
+  // Load existing template data
   useEffect(() => {
-    const checklistId = id || searchParams.get('copy');
-    if (checklistId) {
-      const checklist = checklistTemplates.find(cl => cl.id === checklistId);
-      if (checklist) {
-        setFormData({
-          code: isCopying ? generateChecklistCode(checklist.equipmentGroupId) : checklist.code,
-          name: isCopying ? `${checklist.name} (Copy)` : checklist.name,
-          equipmentGroupId: checklist.equipmentGroupId,
-          machineType: checklist.machineType,
-          cycle: checklist.cycle,
-          version: isCopying ? 1 : checklist.version,
-          status: isCopying ? 'draft' : checklist.status,
-          notes: checklist.notes || '',
-          items: checklist.items.map(item => ({ ...item, id: isCopying ? `item-${Date.now()}-${item.order}` : item.id }))
-        });
-        setOriginalStatus(checklist.status);
+    if (existingTemplate) {
+      const formData: ChecklistFormValues = {
+        name: isCopying ? `${existingTemplate.name} (Copy)` : existingTemplate.name,
+        description: existingTemplate.description || '',
+        equipmentId: existingTemplate.equipmentId || '',
+        equipment: existingTemplate.equipment || null,
+        assignedUserId: existingTemplate.assignedUserId || '',
+        assignedUser: existingTemplate.assignedUser || null,
+        department: existingTemplate.department || '',
+        maintenanceStartDate: existingTemplate.maintenanceStartDate || '',
+        cycle: existingTemplate.cycle,
+        status: isCopying ? ChecklistStatus.DRAFT : existingTemplate.status,
+        notes: existingTemplate.notes || '',
+        items: existingTemplate.items.map((item) => ({
+          maintenanceTask: item.maintenanceTask,
+          judgmentStandard: item.judgmentStandard || '',
+          inspectionMethod: item.inspectionMethod || '',
+          maintenanceContent: item.maintenanceContent || '',
+          expectedResult: item.expectedResult || '',
+          isRequired: item.isRequired,
+          requiresImage: item.requiresImage,
+          requiresNote: item.requiresNote,
+          order: item.order || 0,
+        })),
+      };
+
+      if (!existingTemplate.items || existingTemplate.items.length === 0) {
+        formData.items = defaultValues.items;
       }
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        code: generateChecklistCode('injection')
-      }));
-    }
-  }, [id, searchParams, isCopying]);
 
-  // Reset machine type when group changes
-  useEffect(() => {
-    if (formData.equipmentGroupId && !availableMachineTypes.includes(formData.machineType)) {
-      setFormData(prev => ({ ...prev, machineType: '' }));
+      form.reset(formData);
     }
-    // Update code prefix when group changes
-    if (formData.equipmentGroupId && !isEditing) {
-      setFormData(prev => ({
-        ...prev,
-        code: generateChecklistCode(formData.equipmentGroupId)
-      }));
-    }
-  }, [formData.equipmentGroupId, availableMachineTypes, isEditing]);
+  }, [existingTemplate, isCopying, form]);
 
-  const handleChange = (field: keyof FormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+  const onSubmit = async (data: ChecklistFormValues) => {
+    try {
+      // Transform data to match API DTO
+      const dto = transformFormToDto(data as any); 
+      // Note: transformFormToDto expects strict TemplateFormData, but our zod schema is slightly looser (optional strings vs empty strings).
+      // We might need to ensure the transformation handles empty strings correctly.
+      // The validation is already done by Zod.
+      
+      await createTemplate.mutateAsync(dto);
+      toast.success(isEditing ? 'Cập nhật checklist thành công' : 'Tạo checklist thành công');
+      navigate('/checklists');
+    } catch (error) {
+      console.error('Failed to save template:', error);
+      toast.error('Có lỗi xảy ra khi lưu checklist');
     }
   };
 
-  const handleItemChange = (index: number, field: keyof ChecklistItem, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      items: prev.items.map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      )
-    }));
+  const handlePreview = () => {
+    toast.info('Tính năng xem trước đang được phát triển');
   };
 
-  const addItem = () => {
-    setFormData(prev => ({
-      ...prev,
-      items: [...prev.items, createEmptyItem(prev.items.length + 1)]
-    }));
-  };
-
-  const removeItem = (index: number) => {
-    if (formData.items.length <= 1) {
-      toast.error('Checklist phải có ít nhất 1 hạng mục');
-      return;
-    }
-    setFormData(prev => ({
-      ...prev,
-      items: prev.items.filter((_, i) => i !== index).map((item, i) => ({ ...item, order: i + 1 }))
-    }));
-  };
-
-  const duplicateItem = (index: number) => {
-    const itemToCopy = formData.items[index];
-    const newItem = {
-      ...itemToCopy,
-      id: `item-${Date.now()}`,
-      order: formData.items.length + 1
-    };
-    setFormData(prev => ({
-      ...prev,
-      items: [...prev.items, newItem]
-    }));
-    toast.success('Đã sao chép hạng mục');
-  };
-
-  const validate = (): boolean => {
-    const newErrors: Record<string, string> = {};
-    
-    if (!formData.name.trim()) newErrors.name = 'Tên checklist là bắt buộc';
-    if (!formData.equipmentGroupId) newErrors.equipmentGroupId = 'Vui lòng chọn nhóm thiết bị';
-    if (!formData.machineType) newErrors.machineType = 'Vui lòng chọn loại máy';
-    
-    // Validate items
-    const hasEmptyTasks = formData.items.some(item => !item.maintenanceTask.trim());
-    if (hasEmptyTasks) newErrors.items = 'Vui lòng nhập hạng mục bảo dưỡng cho tất cả các dòng';
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSave = (newStatus?: 'draft' | 'active') => {
-    if (!validate()) {
-      toast.error('Vui lòng kiểm tra lại thông tin');
-      return;
-    }
-
-    // Check if editing active checklist
-    if (isEditing && originalStatus === 'active' && !showVersionDialog) {
-      setShowVersionDialog(true);
-      return;
-    }
-
-    const statusToSave = newStatus || formData.status;
-    toast.success(
-      statusToSave === 'active' 
-        ? 'Checklist đã được áp dụng' 
-        : 'Đã lưu bản nháp'
-    );
-    navigate('/checklists');
-  };
-
-  const handleCreateNewVersion = () => {
-    setFormData(prev => ({ ...prev, version: prev.version + 1 }));
-    setShowVersionDialog(false);
-    toast.success(`Đã tạo phiên bản mới: v${formData.version + 1}`);
+  const handleAddItem = () => {
+    append({
+      maintenanceTask: '',
+      judgmentStandard: '',
+      inspectionMethod: '',
+      maintenanceContent: '',
+      expectedResult: '',
+      isRequired: false,
+      requiresImage: false,
+      requiresNote: false,
+      order: 0,
+    });
   };
 
   return (
-    <div className="p-6 animate-fade-in">
+    <div className="p-6 animate-fade-in max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => navigate('/checklists')}
           className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
         >
@@ -241,273 +231,445 @@ export default function ChecklistForm() {
           Quay lại
         </Button>
 
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <p className="page-subtitle">THƯ VIỆN CHECKLIST</p>
-            <div className="flex items-center gap-3">
-              <h1 className="page-title">
-                {isEditing ? 'Sửa Checklist' : isCopying ? 'Sao chép Checklist' : 'Tạo Checklist mới'}
-              </h1>
-              <span className="font-mono text-sm text-primary bg-primary/20 px-2.5 py-1 rounded-lg">
-                {formData.code}
-              </span>
-              <span className={cn(
-                'status-badge',
-                formData.status === 'active' && 'bg-status-active/20 text-status-active',
-                formData.status === 'draft' && 'bg-muted text-muted-foreground',
-                formData.status === 'inactive' && 'bg-status-inactive/20 text-status-inactive'
-              )}>
-                {CHECKLIST_STATUS_LABELS[formData.status]}
-              </span>
-              <span className="text-sm text-muted-foreground">v{formData.version}</span>
-            </div>
+            <p className="text-sm font-medium text-muted-foreground mb-1">THƯ VIỆN CHECKLIST</p>
+            <h1 className="text-2xl font-bold tracking-tight">
+              {isEditing
+                ? 'Chỉnh sửa Checklist'
+                : isCopying
+                ? 'Sao chép Checklist'
+                : 'Tạo Checklist mới'}
+            </h1>
           </div>
           <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => navigate(`/checklists/${id || 'preview'}/preview`)}
-              className="action-btn-secondary"
+            <Button
+              variant="outline"
+              onClick={handlePreview}
             >
-              <Eye className="h-4 w-4" />
+              <Eye className="h-4 w-4 mr-2" />
               Xem trước
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => handleSave('draft')}
-              className="action-btn-secondary"
+            <Button
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={createTemplate.isPending}
             >
-              <Save className="h-4 w-4" />
-              Lưu nháp
-            </Button>
-            <Button onClick={() => handleSave('active')} className="action-btn-primary">
-              <CheckCircle2 className="h-4 w-4" />
-              Áp dụng
+              <Save className="h-4 w-4 mr-2" />
+              {createTemplate.isPending ? 'Đang lưu...' : 'Lưu checklist'}
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Form */}
-      <div className="space-y-6">
-        {/* Section A - General Info */}
-        <Card className="bg-card border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">A. Thông tin chung</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="space-y-2 lg:col-span-2">
-              <Label>Tên checklist *</Label>
-              <Input
-                value={formData.name}
-                onChange={(e) => handleChange('name', e.target.value)}
-                placeholder="VD: Injection Machine – Bảo dưỡng tháng"
-                className={cn('bg-secondary border-border', errors.name && 'border-destructive')}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          {/* Basic Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Thông tin cơ bản</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Name */}
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Tên checklist <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="VD: Injection Machine – Bảo dưỡng 6 tháng" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
-            </div>
 
-            <div className="space-y-2">
-              <Label>Chu kỳ bảo dưỡng</Label>
-              <Select value={formData.cycle} onValueChange={(v) => handleChange('cycle', v)}>
-                <SelectTrigger className="bg-secondary border-border">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-border">
-                  {Object.entries(CYCLE_LABELS).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              {/* Description */}
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mô tả</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Mô tả chi tiết về checklist này..." 
+                        rows={2} 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-2">
-              <Label>Nhóm thiết bị *</Label>
-              <Select value={formData.equipmentGroupId} onValueChange={(v) => handleChange('equipmentGroupId', v)}>
-                <SelectTrigger className={cn('bg-secondary border-border', errors.equipmentGroupId && 'border-destructive')}>
-                  <SelectValue placeholder="Chọn nhóm thiết bị" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-border">
-                  {Object.values(EQUIPMENT_GROUPS).map(group => (
-                    <SelectItem key={group.id} value={group.id}>{group.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Equipment Search - REQUIRED */}
+                <FormField
+                  control={form.control}
+                  name="equipment"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Thiết bị áp dụng <span className="text-destructive">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <EquipmentSearchInput
+                          value={field.value}
+                          onChange={(equipment) => {
+                            field.onChange(equipment);
+                            form.setValue('equipmentId', equipment?.id || '');
+                            if (equipment?.id) {
+                              form.clearErrors('equipmentId');
+                            }
+                          }}
+                          required
+                          error={form.formState.errors.equipmentId?.message}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Tìm kiếm theo mã hoặc tên thiết bị
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <div className="space-y-2">
-              <Label>Loại máy *</Label>
-              <Select 
-                value={formData.machineType} 
-                onValueChange={(v) => handleChange('machineType', v)}
-                disabled={!formData.equipmentGroupId}
+                {/* Cycle */}
+                <FormField
+                  control={form.control}
+                  name="cycle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Chu kỳ bảo dưỡng <span className="text-destructive">*</span>
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn chu kỳ" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.values(ChecklistCycle).map((cycle) => (
+                            <SelectItem key={cycle} value={cycle}>
+                              {CYCLE_LABELS[cycle]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Assigned User - OPTIONAL */}
+                <FormField
+                  control={form.control}
+                  name="assignedUser"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Người phụ trách</FormLabel>
+                      <FormControl>
+                        <UserSearchInput
+                          value={field.value}
+                          onChange={(user) => {
+                            field.onChange(user);
+                            form.setValue('assignedUserId', user?.id || '');
+                          }}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Người chịu trách nhiệm thực hiện checklist này
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Department - OPTIONAL */}
+                <FormField
+                  control={form.control}
+                  name="department"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bộ phận sử dụng</FormLabel>
+                      <FormControl>
+                        <Input placeholder="VD: Bộ phận sản xuất" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Bộ phận hoặc phòng ban sử dụng checklist này
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Maintenance Start Date - OPTIONAL */}
+              <FormField
+                control={form.control}
+                name="maintenanceStartDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ngày bắt đầu bảo dưỡng</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="date" 
+                        value={field.value ? field.value.split('T')[0] : ''}
+                        onChange={(e) => {
+                          const dateValue = e.target.value;
+                          field.onChange(dateValue ? new Date(dateValue).toISOString() : '');
+                        }}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Ngày bắt đầu tính chu kỳ bảo dưỡng
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Notes */}
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ghi chú bổ sung</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Ghi chú khác..." 
+                        rows={2} 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Checklist Items */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <div className="space-y-1">
+                <CardTitle>Danh sách hạng mục kiểm tra</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Định nghĩa các bước kiểm tra cụ thể. Kéo thả để sắp xếp lại (tính năng sắp phát triển).
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAddItem}
               >
-                <SelectTrigger className={cn('bg-secondary border-border', errors.machineType && 'border-destructive')}>
-                  <SelectValue placeholder={formData.equipmentGroupId ? "Chọn loại máy" : "Chọn nhóm TB trước"} />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-border">
-                  {availableMachineTypes.map(type => (
-                    <SelectItem key={type} value={type}>{type}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2 lg:col-span-3">
-              <Label>Ghi chú</Label>
-              <Textarea
-                value={formData.notes}
-                onChange={(e) => handleChange('notes', e.target.value)}
-                placeholder="Ghi chú về checklist..."
-                rows={2}
-                className="bg-secondary border-border resize-none"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Section B - Checklist Items */}
-        <Card className="bg-card border-border/50">
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-base">B. Bảng Checklist</CardTitle>
-            <Button onClick={addItem} size="sm" className="action-btn-primary">
-              <Plus className="h-4 w-4" />
-              Thêm dòng
-            </Button>
-          </CardHeader>
-          <CardContent className="p-0">
-            {errors.items && (
-              <p className="text-xs text-destructive px-6 pb-2">{errors.items}</p>
-            )}
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent border-border/50">
-                    <TableHead className="table-header-cell w-[50px]">STT</TableHead>
-                    <TableHead className="table-header-cell min-w-[200px]">Hạng mục bảo dưỡng *</TableHead>
-                    <TableHead className="table-header-cell min-w-[180px]">Tiêu chuẩn phán định</TableHead>
-                    <TableHead className="table-header-cell min-w-[150px]">Phương pháp KT</TableHead>
-                    <TableHead className="table-header-cell min-w-[180px]">Nội dung bảo dưỡng</TableHead>
-                    <TableHead className="table-header-cell min-w-[120px]">Kết quả MĐ</TableHead>
-                    <TableHead className="table-header-cell text-center w-[80px]">Bắt buộc</TableHead>
-                    <TableHead className="table-header-cell text-center w-[80px]">Yêu cầu ảnh</TableHead>
-                    <TableHead className="table-header-cell w-[100px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {formData.items.map((item, index) => (
-                    <TableRow key={item.id} className="border-border/50">
-                      <TableCell className="text-center font-mono text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab" />
-                          {item.order}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          value={item.maintenanceTask}
-                          onChange={(e) => handleItemChange(index, 'maintenanceTask', e.target.value)}
-                          placeholder="Nhập hạng mục..."
-                          className="bg-secondary border-border h-8 text-sm"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          value={item.standard}
-                          onChange={(e) => handleItemChange(index, 'standard', e.target.value)}
-                          placeholder="Tiêu chuẩn..."
-                          className="bg-secondary border-border h-8 text-sm"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          value={item.method}
-                          onChange={(e) => handleItemChange(index, 'method', e.target.value)}
-                          placeholder="Phương pháp..."
-                          className="bg-secondary border-border h-8 text-sm"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          value={item.content}
-                          onChange={(e) => handleItemChange(index, 'content', e.target.value)}
-                          placeholder="Nội dung..."
-                          className="bg-secondary border-border h-8 text-sm"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          value={item.expectedResult}
-                          onChange={(e) => handleItemChange(index, 'expectedResult', e.target.value)}
-                          placeholder="OK / NG..."
-                          className="bg-secondary border-border h-8 text-sm"
-                        />
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Checkbox
-                          checked={item.isRequired}
-                          onCheckedChange={(checked) => handleItemChange(index, 'isRequired', checked)}
-                          className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                        />
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Checkbox
-                          checked={item.requiresImage}
-                          onCheckedChange={(checked) => handleItemChange(index, 'requiresImage', checked)}
-                          className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => duplicateItem(index)}
-                            className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                          >
-                            <Copy className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => removeItem(index)}
-                            className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-            <div className="p-4 border-t border-border/50">
-              <Button onClick={addItem} variant="outline" size="sm" className="action-btn-secondary">
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4 mr-2" />
                 Thêm hạng mục
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Version Dialog */}
-      <AlertDialog open={showVersionDialog} onOpenChange={setShowVersionDialog}>
-        <AlertDialogContent className="bg-card border-border">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Tạo phiên bản mới?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Checklist này đang được áp dụng. Bạn có muốn tạo phiên bản mới (v{formData.version + 1}) không?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="border-border">Hủy</AlertDialogCancel>
-            <AlertDialogAction onClick={handleCreateNewVersion} className="bg-primary">
-              Tạo phiên bản mới
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </CardHeader>
+            <CardContent>
+              {form.formState.errors.items?.root && (
+                 <div className="mb-4 p-3 bg-destructive/10 border border-destructive rounded-md text-sm text-destructive font-medium">
+                    {form.formState.errors.items.root.message}
+                 </div>
+              )}
+              
+              <div className="relative w-full overflow-auto rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[50px]">#</TableHead>
+                      <TableHead className="min-w-[200px]">Nội dung bảo dưỡng <span className="text-destructive">*</span></TableHead>
+                      <TableHead className="min-w-[150px]">Tiêu chuẩn</TableHead>
+                      <TableHead className="min-w-[150px]">Phương pháp</TableHead>
+                      <TableHead className="min-w-[150px]">Mô tả chi tiết</TableHead>
+                      <TableHead className="min-w-[100px]">Kết quả mong đợi</TableHead>
+                      <TableHead className="w-[80px] text-center">Bắt buộc</TableHead>
+                      <TableHead className="w-[80px] text-center">Ảnh</TableHead>
+                      <TableHead className="w-[80px] text-center">Ghi chú</TableHead>
+                      <TableHead className="w-[100px] text-right">Thao tác</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {fields.map((field, index) => (
+                      <TableRow key={field.id} className="group">
+                        <TableCell className="font-medium text-center text-muted-foreground">
+                          {index + 1}
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.maintenanceTask`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input placeholder="Nội dung" {...field} className={cn(form.formState.errors.items?.[index]?.maintenanceTask && "border-destructive")} />
+                                </FormControl>
+                                {/* We hide individual usage error messages to save space, but highlight the border */}
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.judgmentStandard`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input placeholder="Tiêu chuẩn" {...field} />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.inspectionMethod`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input placeholder="Phương pháp" {...field} />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.maintenanceContent`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input placeholder="Chi tiết" {...field} />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.expectedResult`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input placeholder="Kết quả" {...field} />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.isRequired`}
+                            render={({ field }) => (
+                              <FormItem className="flex items-center justify-center space-y-0">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.requiresImage`}
+                            render={({ field }) => (
+                              <FormItem className="flex items-center justify-center space-y-0">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.requiresNote`}
+                            render={({ field }) => (
+                              <FormItem className="flex items-center justify-center space-y-0">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                              onClick={() => move(index, index - 1)}
+                              disabled={index === 0}
+                            >
+                              <MoveUp className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                              onClick={() => move(index, index + 1)}
+                              disabled={index === fields.length - 1}
+                            >
+                              <MoveDown className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                              onClick={() => {
+                                if (fields.length > 1) {
+                                  remove(index);
+                                } else {
+                                  toast.error("Phải có ít nhất 1 hạng mục");
+                                }
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </form>
+      </Form>
     </div>
   );
 }

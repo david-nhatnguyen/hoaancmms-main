@@ -1,17 +1,18 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Plus, 
-  Pencil, 
-  Eye, 
-  FileSpreadsheet, 
-  Download, 
+import {
+  Plus,
+  Pencil,
+  Eye,
+  FileSpreadsheet,
+  Download,
   Search,
   ClipboardList,
   Copy,
   Ban,
   CheckCircle2,
-  MoreHorizontal
+  MoreHorizontal,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,76 +30,65 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChecklistFilters } from '@/features/filters/ChecklistFilters';
-import { 
-  checklistTemplates, 
-  CYCLE_LABELS, 
-  CHECKLIST_STATUS_LABELS,
-  ChecklistTemplate 
-} from '@/data/checklistData';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
+
+// New API imports
+import { useChecklistTemplates } from '@/features/checklists/hooks/useChecklistTemplates';
+import { useTemplateActions } from '@/features/checklists/hooks/useTemplateActions';
+import {
+  ChecklistCycle,
+  ChecklistStatus,
+  CYCLE_LABELS,
+  STATUS_LABELS,
+  type ChecklistTemplate,
+} from '@/features/checklists/types/checklist.types';
+import { buildQueryParams } from '@/features/checklists/handlers/templateFilterHandlers';
 
 interface FilterState {
-  machineTypes: string[];
-  cycle: string[];
-  status: string[];
+  categories: string[];
+  cycle: ChecklistCycle[];
+  status: ChecklistStatus[];
 }
 
 export default function ChecklistList() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<FilterState>({
-    machineTypes: [],
+    categories: [],
     cycle: [],
-    status: []
+    status: [],
   });
 
-  // Filter checklists
-  const filteredChecklists = useMemo(() => {
-    return checklistTemplates.filter(cl => {
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        const matches = 
-          cl.code.toLowerCase().includes(query) ||
-          cl.name.toLowerCase().includes(query) ||
-          cl.machineType.toLowerCase().includes(query);
-        if (!matches) return false;
-      }
+  // Build and fetch templates with current filters
+  const queryParams = buildQueryParams(filters, searchQuery, 1, 100);
+  const { data, isLoading, error } = useChecklistTemplates(queryParams);
+  const { duplicate, deactivate } = useTemplateActions();
 
-      if (filters.machineTypes.length && !filters.machineTypes.includes(cl.machineType)) return false;
-      if (filters.cycle.length && !filters.cycle.includes(cl.cycle)) return false;
-      if (filters.status.length && !filters.status.includes(cl.status)) return false;
+  // Extract templates and stats from API response
+  const templates = data?.data || [];
+  const activeCount = templates.filter((t) => t.status === ChecklistStatus.ACTIVE).length;
+  const draftCount = templates.filter((t) => t.status === ChecklistStatus.DRAFT).length;
 
-      return true;
-    });
-  }, [searchQuery, filters]);
-
-  const handleCopy = (checklist: ChecklistTemplate) => {
-    toast.success(`Đã sao chép checklist: ${checklist.name}`);
-    navigate(`/checklists/new?copy=${checklist.id}`);
+  const handleCopy = (template: ChecklistTemplate) => {
+    duplicate.mutate(template.id);
   };
 
-  const handleDeactivate = (checklist: ChecklistTemplate) => {
-    toast.success(`Đã ngừng sử dụng checklist: ${checklist.code}`);
+  const handleDeactivate = (template: ChecklistTemplate) => {
+    deactivate.mutate(template.id);
   };
 
-  const getStatusBadge = (status: ChecklistTemplate['status']) => {
+  const getStatusBadge = (status: ChecklistStatus) => {
     const styles = {
-      draft: 'bg-muted text-muted-foreground',
-      active: 'bg-status-active/20 text-[hsl(var(--status-active))]',
-      inactive: 'bg-status-inactive/20 text-[hsl(var(--status-inactive))]'
+      [ChecklistStatus.DRAFT]: 'bg-muted text-muted-foreground',
+      [ChecklistStatus.ACTIVE]: 'bg-status-active/20 text-[hsl(var(--status-active))]',
+      [ChecklistStatus.INACTIVE]: 'bg-status-inactive/20 text-[hsl(var(--status-inactive))]',
     };
     return (
       <span className={cn('status-badge', styles[status])}>
-        {CHECKLIST_STATUS_LABELS[status]}
+        {STATUS_LABELS[status]}
       </span>
     );
   };
-
-  // Stats
-  const activeCount = checklistTemplates.filter(c => c.status === 'active').length;
-  const draftCount = checklistTemplates.filter(c => c.status === 'draft').length;
 
   return (
     <div className="p-6 animate-fade-in">
@@ -129,7 +119,9 @@ export default function ChecklistList() {
         <div className="stat-card flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground mb-1">Tổng số checklist</p>
-            <p className="text-3xl font-bold">{checklistTemplates.length}</p>
+            <p className="text-3xl font-bold">
+              {isLoading ? '-' : templates.length}
+            </p>
           </div>
           <div className="stat-card-icon bg-primary/20">
             <ClipboardList className="h-5 w-5 text-primary" />
@@ -138,7 +130,9 @@ export default function ChecklistList() {
         <div className="stat-card flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground mb-1">Đang áp dụng</p>
-            <p className="text-3xl font-bold text-[hsl(var(--status-active))]">{activeCount}</p>
+            <p className="text-3xl font-bold text-[hsl(var(--status-active))]">
+              {isLoading ? '-' : activeCount}
+            </p>
           </div>
           <div className="stat-card-icon bg-status-active/20">
             <CheckCircle2 className="h-5 w-5 text-[hsl(var(--status-active))]" />
@@ -147,7 +141,9 @@ export default function ChecklistList() {
         <div className="stat-card flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground mb-1">Bản nháp</p>
-            <p className="text-3xl font-bold text-muted-foreground">{draftCount}</p>
+            <p className="text-3xl font-bold text-muted-foreground">
+              {isLoading ? '-' : draftCount}
+            </p>
           </div>
           <div className="stat-card-icon bg-muted">
             <ClipboardList className="h-5 w-5 text-muted-foreground" />
@@ -168,15 +164,12 @@ export default function ChecklistList() {
             />
           </div>
           <span className="text-sm text-muted-foreground">
-            {filteredChecklists.length} kết quả
+            {isLoading ? 'Đang tải...' : `${templates.length} kết quả`}
           </span>
         </div>
-        
-        {/* New Filter Bar */}
-        <ChecklistFilters 
-          filters={filters} 
-          onFiltersChange={setFilters} 
-        />
+
+        {/* TODO: Add ChecklistFilters component when ready */}
+        {/* <ChecklistFilters filters={filters} onFiltersChange={setFilters} /> */}
       </div>
 
       {/* Table */}
@@ -186,7 +179,7 @@ export default function ChecklistList() {
             <TableRow className="hover:bg-transparent border-border/50">
               <TableHead className="table-header-cell w-[120px]">Mã</TableHead>
               <TableHead className="table-header-cell">Tên checklist</TableHead>
-              <TableHead className="table-header-cell">Loại máy</TableHead>
+              <TableHead className="table-header-cell">Loại thiết bị</TableHead>
               <TableHead className="table-header-cell text-center">Chu kỳ</TableHead>
               <TableHead className="table-header-cell text-center">Phiên bản</TableHead>
               <TableHead className="table-header-cell text-center">Trạng thái</TableHead>
@@ -195,42 +188,60 @@ export default function ChecklistList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredChecklists.length === 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="h-32 text-center">
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    <span className="text-muted-foreground">Đang tải...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : error ? (
+              <TableRow>
+                <TableCell colSpan={8} className="h-32 text-center">
+                  <p className="text-destructive">Lỗi tải dữ liệu. Vui lòng thử lại.</p>
+                </TableCell>
+              </TableRow>
+            ) : templates.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="h-32 text-center text-muted-foreground">
                   Không tìm thấy checklist nào
                 </TableCell>
               </TableRow>
             ) : (
-              filteredChecklists.map((checklist) => (
-                <TableRow 
-                  key={checklist.id} 
+              templates.map((template) => (
+                <TableRow
+                  key={template.id}
                   className="table-row-interactive"
-                  onClick={() => navigate(`/checklists/${checklist.id}`)}
+                  onClick={() => navigate(`/checklists/${template.id}`)}
                 >
                   <TableCell className="font-mono font-medium text-primary">
-                    {checklist.code}
+                    {template.code}
                   </TableCell>
-                  <TableCell className="font-medium">{checklist.name}</TableCell>
+                  <TableCell className="font-medium">{template.name}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {checklist.machineType}
+                    {template.equipment?.category || '-'}
                   </TableCell>
                   <TableCell className="text-center">
                     <span className="px-2 py-1 rounded-md bg-secondary text-xs font-medium">
-                      {CYCLE_LABELS[checklist.cycle]}
+                      {CYCLE_LABELS[template.cycle]}
                     </span>
                   </TableCell>
                   <TableCell className="text-center font-mono">
-                    v{checklist.version}
+                    v{template.version}
                   </TableCell>
                   <TableCell className="text-center">
-                    {getStatusBadge(checklist.status)}
+                    {getStatusBadge(template.status)}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {checklist.updatedAt}
+                    {new Date(template.updatedAt).toLocaleDateString('vi-VN')}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end" onClick={e => e.stopPropagation()}>
+                    <div
+                      className="flex items-center justify-end"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -238,21 +249,23 @@ export default function ChecklistList() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-popover border-border">
-                          <DropdownMenuItem onClick={() => navigate(`/checklists/${checklist.id}`)}>
+                          <DropdownMenuItem onClick={() => navigate(`/checklists/${template.id}`)}>
                             <Eye className="h-4 w-4 mr-2" />
                             Xem
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => navigate(`/checklists/${checklist.id}/edit`)}>
+                          <DropdownMenuItem
+                            onClick={() => navigate(`/checklists/${template.id}/edit`)}
+                          >
                             <Pencil className="h-4 w-4 mr-2" />
-                            Sửa
+                            Sử
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleCopy(checklist)}>
+                          <DropdownMenuItem onClick={() => handleCopy(template)}>
                             <Copy className="h-4 w-4 mr-2" />
                             Sao chép
                           </DropdownMenuItem>
-                          {checklist.status === 'active' && (
-                            <DropdownMenuItem 
-                              onClick={() => handleDeactivate(checklist)}
+                          {template.status === ChecklistStatus.ACTIVE && (
+                            <DropdownMenuItem
+                              onClick={() => handleDeactivate(template)}
                               className="text-destructive"
                             >
                               <Ban className="h-4 w-4 mr-2" />

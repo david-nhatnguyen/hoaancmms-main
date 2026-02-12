@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Pencil, Eye, MapPin, Settings2, Trash2, ChevronRight } from 'lucide-react';
+import { Pencil, MapPin, Settings2, Trash2, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/shared/StatusBadge';
-import type { Column } from '@/components/shared/ResponsiveTable';
+import { ColumnDef } from '@tanstack/react-table';
+import { DataTableColumnHeader } from '@/components/shared/table/DataTableColumnHeader';
 import type { Factory } from '@/api/types/factory.types';
 
 // ============================================================================
@@ -17,7 +18,13 @@ export interface UseFactoryColumnsOptions {
 }
 
 export interface UseFactoryColumnsReturn {
-  columns: Column<Factory>[];
+  columns: (ColumnDef<Factory> & { 
+    key: string; 
+    render: (item: Factory) => React.ReactNode; 
+    mobilePriority?: 'primary' | 'secondary' | 'metadata';
+    width?: string;
+    align?: 'left' | 'center' | 'right';
+  })[];
 }
 
 // ============================================================================
@@ -69,71 +76,156 @@ export function useFactoryColumns(
   // COLUMN DEFINITIONS
   // ============================================================================
 
-  const columns = useMemo<Column<Factory>[]>(() => [
+  const columns = useMemo<UseFactoryColumnsReturn['columns']>(() => [
     // Code Column
     {
+      accessorKey: 'code',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Mã nhà máy" />
+      ),
+      cell: ({ row }) => (
+        <span className="font-mono font-medium text-primary">
+          {row.original.code}
+        </span>
+      ),
+      // For ResponsiveTable
       key: 'code',
-      header: 'Mã nhà máy',
-      mobilePriority: 'primary',
-      width: 'w-[120px]',
       render: (factory) => (
         <span className="font-mono font-medium text-primary">
           {factory.code}
         </span>
       ),
+      mobilePriority: 'primary',
+      width: 'w-[120px]',
     },
 
     // Name Column
     {
+      accessorKey: 'name',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Tên nhà máy" />
+      ),
+      cell: ({ row }) => (
+        <span className="font-medium">{row.original.name}</span>
+      ),
+      // For ResponsiveTable
       key: 'name',
-      header: 'Tên nhà máy',
-      mobilePriority: 'secondary',
       render: (factory) => (
         <span className="font-medium">{factory.name}</span>
       ),
+      mobilePriority: 'secondary',
     },
 
     // Location Column
     {
+      accessorKey: 'location',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Địa điểm" />
+      ),
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1.5 text-muted-foreground">
+          <MapPin className="h-4 w-4" />
+          {row.original.location || '-'}
+        </div>
+      ),
+      // For ResponsiveTable
       key: 'location',
-      header: 'Địa điểm',
       render: (factory) => (
         <div className="flex items-center gap-1.5 text-muted-foreground">
           <MapPin className="h-4 w-4" />
           {factory.location || '-'}
         </div>
       ),
-      mobileRender: (factory) => factory.location || '-',
     },
 
     // Equipment Count Column
     {
+      accessorKey: 'equipmentCount',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Số lượng TB" />
+      ),
+      cell: ({ row }) => (
+        <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+          <Settings2 className="h-4 w-4" />
+          {row.original.equipmentCount}
+        </span>
+      ),
+      // For ResponsiveTable
       key: 'equipmentCount',
-      header: 'Số lượng TB',
-      align: 'center',
       render: (factory) => (
         <span className="inline-flex items-center gap-1.5 text-muted-foreground">
           <Settings2 className="h-4 w-4" />
           {factory.equipmentCount}
         </span>
       ),
-      mobileRender: (factory) => factory.equipmentCount,
+      align: 'center',
     },
+
     // Status Column
     {
+      accessorKey: 'status',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Trạng thái" />
+      ),
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      // For ResponsiveTable
       key: 'status',
-      header: 'Trạng thái',
-      align: 'center',
       render: (factory) => <StatusBadge status={factory.status} />,
-      mobileRender: (factory) => <StatusBadge status={factory.status} />,
+      align: 'center',
     },
+
     // Actions Column
     {
-      key: 'actions',
+      id: 'actions',
       header: 'Thao tác',
-      align: 'center',
+      cell: ({ row }) => {
+        const factory = row.original;
+        return (
+          <div className="flex items-center justify-center gap-2">
+            <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleViewEquipments(factory.code);
+                }}
+                className="text-muted-foreground h-8 px-2 rounded-full"
+              >
+                <span className="text-xs font-medium mr-1.5">Xem thiết bị</span>
+                <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEdit(factory);
+              }}
+              className="h-8 w-8 hover:bg-orange-500/10 hover:text-orange-500 rounded-full transition-colors"
+              title="Sửa"
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(factory);
+              }}
+              className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-full transition-colors"
+              title="Xóa"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
+      // For ResponsiveTable
+      key: 'actions',
       render: (factory) => (
         <div className="flex items-center justify-center gap-2">
+          {/* Using same structure as cell for desktop view in ResponsiveTable */}
           <Button 
               variant="ghost" 
               size="sm"
@@ -146,72 +238,10 @@ export function useFactoryColumns(
               <span className="text-xs font-medium mr-1.5">Xem thiết bị</span>
               <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEdit(factory);
-            }}
-            className="h-8 w-8 hover:bg-orange-500/10 hover:text-orange-500 rounded-full transition-colors"
-            title="Sửa"
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(factory);
-            }}
-            className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-full transition-colors"
-            title="Xóa"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {/* ... mobile rendering is usually handled separately by mobileRender or in the page */}
         </div>
       ),
-      mobileRender: (factory) => (
-        <div className="grid grid-cols-3 gap-2 mt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleViewEquipments(factory.id);
-            }}
-            className="w-full flex items-center justify-center gap-2 border-primary/20 text-primary hover:bg-primary/5 dark:border-primary/30"
-          >
-            <Eye className="h-4 w-4" />
-            <span>Xem TB</span>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEdit(factory);
-            }}
-            className="w-full flex items-center justify-center gap-2 border-orange-500/20 text-orange-600 hover:bg-orange-500/5 dark:text-orange-400 dark:border-orange-500/30"
-          >
-            <Pencil className="h-4 w-4" />
-            <span>Sửa</span>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(factory);
-            }}
-            className="w-full flex items-center justify-center gap-2 border-destructive/20 text-destructive hover:bg-destructive/5 dark:border-destructive/30"
-          >
-            <Trash2 className="h-4 w-4" />
-            <span>Xóa</span>
-          </Button>
-        </div>
-      ),
+      align: 'center',
     },
   ], [handleEdit, handleViewEquipments, handleDelete]);
 

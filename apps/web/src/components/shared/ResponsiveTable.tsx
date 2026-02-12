@@ -16,7 +16,7 @@ import { MobileCard } from './table/MobileCard';
 
 export interface Column<T> {
   key: string;
-  header: string;
+  header?: ReactNode | ((props: any) => ReactNode);
   // For desktop table
   render: (item: T) => ReactNode;
   // For mobile card (optional - if not provided, uses render)
@@ -309,7 +309,7 @@ export function ResponsiveTable<T>({
                     col.align === 'right' && "text-right"
                   )}
                 >
-                  {col.header}
+                  {typeof col.header === 'function' ? (col.mobileLabel || col.key) : (col.header || col.mobileLabel || col.key)}
                 </TableHead>
               ))}
             </TableRow>

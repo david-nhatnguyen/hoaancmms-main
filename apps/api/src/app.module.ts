@@ -10,6 +10,7 @@ import { HealthModule } from './modules/health/health.module';
 import { QueueModule } from './modules/queue/queue.module';
 import { FactoriesModule } from './modules/factories/factories.module';
 import { EquipmentsModule } from './modules/equipments/equipments.module';
+import { ChecklistsModule } from './modules/checklists/checklists.module';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { EquipmentsModule } from './modules/equipments/equipments.module';
         JWT_EXPIRATION: Joi.string().default('1d'),
         CORS_ORIGIN: Joi.string().default('http://localhost:5173'),
 
-        // Redis Configuration (for BullMQ)
+        // Redis Conf iguration (for BullMQ)
         REDIS_HOST: Joi.string().default('localhost'),
         REDIS_PORT: Joi.number().default(6379),
       }),
@@ -36,6 +37,7 @@ import { EquipmentsModule } from './modules/equipments/equipments.module';
     HealthModule,
     FactoriesModule, // Factory CRUD API
     EquipmentsModule,
+    ChecklistsModule, // Checklist Library API
   ],
   controllers: [AppController],
   providers: [AppService],

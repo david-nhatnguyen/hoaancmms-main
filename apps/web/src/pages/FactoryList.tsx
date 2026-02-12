@@ -1,9 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Loader2, Building2, X, Filter, FileSpreadsheet, Download } from 'lucide-react';
+import { Plus, Loader2, Building2, Download, CircleCheck, CircleX, Filter } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import PullToRefresh from 'react-simple-pull-to-refresh';
 import { Drawer } from 'vaul';
+import { RowSelectionState } from '@tanstack/react-table';
 
 // UI Components
 import { Button } from '@/components/ui/button';
@@ -11,13 +12,14 @@ import { MobileButton } from '@/components/ui/mobile-button';
 import { Badge } from '@/components/ui/badge';
 import { MobileFilters } from '@/components/shared/MobileFilters';
 import { ChipFilter } from '@/components/shared/filters/ChipFilter';
-import { useDebounce } from '@/hooks/use-debounce';
 import { MobilePageHeader } from '@/components/shared/MobilePageHeader';
 import { ResponsiveTable } from '@/components/shared/ResponsiveTable';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { PageContainer } from '@/components/shared/PageContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useDataTableState } from '@/features/shared/table/hooks/use-table-state';
+import { DataTableFilterChips } from '@/components/shared/table/DataTableFilterChips';
 
 // Feature Components & Hooks
 import {
@@ -39,9 +41,9 @@ import {
 import { FactoryFormFields } from '@/features/factories/components/FactoryFormDialog/FactoryFormFields';
 import { BulkActionsToolbar } from '@/components/shared/table/BulkActionsToolbar';
 import { MobileCardActions } from '@/components/shared/table/MobileCardActions';
-import { TableToolbarFilters } from '@/components/shared/table/TableToolbarFilters';
+import { DataTable } from '@/components/shared/table/DataTable';
 
-import type { Factory, FactoryQueryParams } from '@/api/types/factory.types';
+import type { Factory, FactoryQueryParams, FactoryStatus } from '@/api/types/factory.types';
 
 /**
  * Factory List Page (Web-First Responsive Design)
@@ -58,8 +60,8 @@ import type { Factory, FactoryQueryParams } from '@/api/types/factory.types';
  */
 // Filter Options
 const STATUS_OPTIONS = [
-  { value: 'ACTIVE', label: 'Hoạt động', color: 'bg-status-active' },
-  { value: 'INACTIVE', label: 'Ngừng hoạt động', color: 'bg-status-inactive' }
+  { value: 'ACTIVE', label: 'Hoạt động', color: 'bg-status-active', icon: CircleCheck },
+  { value: 'INACTIVE', label: 'Ngừng hoạt động', color: 'bg-status-inactive', icon: CircleX }
 ];
 
 export default function FactoryList() {
@@ -71,27 +73,32 @@ export default function FactoryList() {
   // STATE & HOOKS
   // ============================================================================
 
-  // Search state
-  const [searchQuery, setSearchQuery] = useState('');
-  const debouncedSearch = useDebounce(searchQuery, 300);
-
-  // Query parameters
-  const [params, setParams] = useState<FactoryQueryParams>({
-    page: 1,
-    limit: 10,
-    sortBy: 'createdAt',
-    sortOrder: 'desc',
-    status: [], // Empty array = all statuses
+  // Integrated Table State management
+  const {
+    searchQuery,
+    setSearchQuery,
+    rowSelection,
+    setRowSelection,
+    selectedIds,
+    sorting,
+    setSorting,
+    pagination,
+    setPagination,
+    columnFilters,
+    setColumnFilters,
+    params,
+    activeFiltersCount,
+    resetFilters,
+    toggleColumnFilter,
+  } = useDataTableState<FactoryQueryParams>({
+    initialParams: {
+      page: 1,
+      limit: 10,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+      status: [] as FactoryStatus[],
+    }
   });
-
-  // Sync search with params
-  useMemo(() => {
-    setParams(prev => {
-      if (prev.search === debouncedSearch) return prev;
-      return { ...prev, search: debouncedSearch, page: 1 };
-    });
-  }, [debouncedSearch]);
-
 
   // Custom hooks for form management
   const form = useFactoryForm();
@@ -115,99 +122,27 @@ export default function FactoryList() {
   // Delete State
   const [deletingFactory, setDeletingFactory] = useState<Factory | null>(null);
 
-  // Selection State
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  // Selection
   const bulkDelete = useBulkDeleteFactories();
 
-  // ============================================================================
-  // FILTER LOGIC
-  // ============================================================================
-
-  const toggleStatus = (value: string) => {
-    setParams(prev => {
-      const current = Array.isArray(prev.status) ? prev.status : [];
-      // Use "as any" safely here because value comes from trusted options
-      const next = current.includes(value as any)
-        ? current.filter(s => s !== value)
-        : [...current, value as any];
-      return { ...prev, status: next, page: 1 };
-    });
-  };
-
-  const clearFilters = () => {
-    setParams(prev => ({
-      ...prev,
-      status: [],
-      search: '',
-      page: 1
-    }));
-    setSearchQuery('');
-  };
-
-  const removeStatus = (value: string) => {
-     setParams(prev => {
-      const current = Array.isArray(prev.status) ? prev.status : [];
-      return { ...prev, status: current.filter(s => s !== value), page: 1 };
-    });
-  };
-
-  const activeFiltersCount = (Array.isArray(params.status) ? params.status.length : 0);
-
-  // Desktop Filters Component
-  const desktopFilters = (
-    <TableToolbarFilters
-      searchQuery={searchQuery}
-      onSearchChange={setSearchQuery}
-      searchPlaceholder="Tìm kiếm nhà máy..."
-    >
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-muted-foreground">Trạng thái</span>
-        <ChipFilter 
-          options={STATUS_OPTIONS} 
-          selected={(params.status as string[]) || []} 
-          onToggle={toggleStatus} 
-        />
-      </div>
-    </TableToolbarFilters>
-  );
-
-  // Mobile Filter Sections
-  const filterSections = [
+  const facetedFilters = useMemo(() => [
     {
-      id: 'status',
-      label: 'Trạng thái',
-      activeCount: Array.isArray(params.status) ? params.status.length : 0,
-      content: (
-        <ChipFilter 
-          options={STATUS_OPTIONS} 
-          selected={(params.status as string[]) || []} 
-          onToggle={toggleStatus} 
-        />
-      )
+      column: "status",
+      title: "Trạng thái",
+      options: STATUS_OPTIONS,
     }
-  ];
+  ], []);
 
-  // Active Filter Tags
-  const activeFilterTags = (Array.isArray(params.status) ? params.status : []).map(s => {
-    const label = STATUS_OPTIONS.find(o => o.value === s)?.label || s;
-    return (
-      <Badge 
-        key={s} 
-        variant="secondary"
-        className="gap-1 pl-2 pr-1 py-0.5"
-      >
-        {label}
-        <button 
-          onClick={() => removeStatus(s)} 
-          className="ml-1 hover:bg-muted rounded-full p-0.5"
-          aria-label={`Xóa lọc ${label}`}
-          title={`Xóa lọc ${label}`}
-        >
-          <X className="h-3 w-3" />
-        </button>
-      </Badge>
-    );
-  });
+
+
+
+  // Active Filter Labels Mapping
+  const getFilterLabel = useCallback((id: string, value: any) => {
+    if (id === 'status') {
+      return STATUS_OPTIONS.find(opt => opt.value === value)?.label || value;
+    }
+    return value;
+  }, []);
 
   // ============================================================================
   // HANDLERS
@@ -312,9 +247,7 @@ export default function FactoryList() {
    * Render table content
    */
   const renderTableContent = () => {
-    if (isLoading) {
-      return <TableSkeleton rows={5} />;
-    }
+    if (isLoading) return <TableSkeleton rows={5} />;
 
     const factories = data?.data || [];
 
@@ -337,7 +270,7 @@ export default function FactoryList() {
                 }
               : {
                   label: 'Xóa bộ lọc',
-                  onClick: clearFilters,
+                  onClick: resetFilters,
                   icon: <Filter className="h-4 w-4" />,
               }
           }
@@ -345,27 +278,68 @@ export default function FactoryList() {
       );
     }
 
+    if (isMobile) {
+      return (
+        <ResponsiveTable<Factory>
+          columns={columns}
+          data={factories}
+          keyExtractor={(factory) => factory.id}
+          emptyMessage="Chưa có nhà máy nào"
+          pageCount={data?.meta?.totalPages}
+          currentPage={params.page}
+          showPagination={true}
+          onPageChange={(page) => setPagination(prev => ({ ...prev, pageIndex: page - 1 }))}
+          selectedIds={selectedIds}
+          onSelectionChange={(ids) => {
+             const newSelection: RowSelectionState = {};
+             ids.forEach(id => newSelection[id] = true);
+             setRowSelection(newSelection);
+          }}
+          mobileCardAction={(factory) => (
+            <MobileCardActions 
+              onView={() => navigate(`/equipments?factory=${factory.id}`)}
+              onEdit={() => form.openDialog(factory)}
+              onDelete={() => setDeletingFactory(factory)}
+              viewLabel="Xem TB"
+            />
+          )}
+        />
+      );
+    }
+
     return (
-      <ResponsiveTable<Factory>
-        columns={columns}
-        data={factories}
-        keyExtractor={(factory) => factory.id}
-        emptyMessage="Chưa có nhà máy nào"
-        pageCount={data?.meta?.totalPages}
-        currentPage={params.page}
-        showPagination={true}
-        onPageChange={(page) => setParams((prev) => ({ ...prev, page }))}
-        selectedIds={selectedIds}
-        onSelectionChange={setSelectedIds}
-        mobileCardAction={(factory) => (
-          <MobileCardActions 
-            onView={() => navigate(`/equipments?factory=${factory.id}`)}
-            onEdit={() => form.openDialog(factory)}
-            onDelete={() => setDeletingFactory(factory)}
-            viewLabel="Xem TB"
-          />
-        )}
-      />
+      <>
+        <DataTableFilterChips 
+          filters={columnFilters}
+          onRemove={toggleColumnFilter}
+          onClearAll={resetFilters}
+          getLabel={getFilterLabel}
+        />
+        <DataTable
+          columns={columns}
+          data={factories}
+          pageCount={data?.meta?.totalPages}
+          pageIndex={pagination.pageIndex}
+          pageSize={pagination.pageSize}
+          onPaginationChange={(pageIndex, pageSize) => {
+            setPagination({ pageIndex, pageSize });
+          }}
+          onSortingChange={setSorting}
+          sorting={sorting}
+          onRowSelectionChange={setRowSelection}
+          rowSelection={rowSelection}
+          getRowId={(row) => row.id}
+          // Integrated search and filters
+          searchColumn="name"
+          searchPlaceholder="Tìm kiếm nhà máy..."
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          facetedFilters={facetedFilters}
+          columnFilters={columnFilters}
+          onColumnFiltersChange={setColumnFilters}
+          onFilterReset={resetFilters}
+        />
+      </>
     );
   };
 
@@ -411,17 +385,39 @@ export default function FactoryList() {
       {/* Stats Cards */}
       <FactoryStatsCards stats={stats} loading={statsLoading} />
 
-      {/* Filters */}
-      <MobileFilters
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
-        searchPlaceholder="Tìm nhà máy..."
-        sections={filterSections}
-        activeFiltersCount={activeFiltersCount}
-        onClearAll={clearFilters}
-        activeFilterTags={activeFilterTags}
-        desktopFilters={desktopFilters}
-      />
+      {/* Filters (Mobile only since desktop integrated in DataTable) */}
+      {isMobile && (
+        <MobileFilters
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Tìm nhà máy..."
+          sections={[
+            {
+              id: 'status',
+              label: 'Trạng thái',
+              activeCount: (columnFilters.find(f => f.id === 'status')?.value as string[] || []).length,
+              content: (
+                <ChipFilter 
+                  options={STATUS_OPTIONS} 
+                  selected={(columnFilters.find(f => f.id === 'status')?.value as string[]) || []} 
+                  onToggle={(val) => toggleColumnFilter('status', val)} 
+                />
+              )
+            }
+          ]}
+          activeFiltersCount={activeFiltersCount}
+          onClearAll={resetFilters}
+          activeFilterTags={
+            <DataTableFilterChips 
+              filters={columnFilters}
+              onRemove={toggleColumnFilter}
+              onClearAll={resetFilters}
+              getLabel={getFilterLabel}
+            />
+          }
+          desktopFilters={null}
+        />
+      )}
 
       {/* Table with Pull-to-Refresh (Mobile) or Regular Table (Desktop) */}
       {isMobile ? (
@@ -451,11 +447,11 @@ export default function FactoryList() {
       {/* Bulk Actions */}
       <BulkActionsToolbar
         selectedCount={selectedIds.length}
-        onClear={() => setSelectedIds([])}
+        onClear={() => setRowSelection({})}
         onDelete={() => {
            if (window.confirm(`Bạn có chắc muốn xóa ${selectedIds.length} nhà máy đã chọn?`)) {
              bulkDelete.mutate(selectedIds, {
-               onSuccess: () => setSelectedIds([])
+               onSuccess: () => setRowSelection({})
              });
            }
         }}

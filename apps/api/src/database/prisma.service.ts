@@ -72,5 +72,36 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get factory() {
     return prisma.factory;
   }
-  // Add more models as needed
+  get equipment() {
+    return prisma.equipment;
+  }
+  get equipmentDocument() {
+    return prisma.equipmentDocument;
+  }
+  get importHistory() {
+    return prisma.importHistory;
+  }
+
+  // Checklist models
+  get checklistTemplate() {
+    return prisma.checklistTemplate;
+  }
+  get checklistTemplateItem() {
+    return prisma.checklistTemplateItem;
+  }
+  get equipmentChecklistAssignment() {
+    return prisma.equipmentChecklistAssignment;
+  }
+  get checklistExecution() {
+    return prisma.checklistExecution;
+  }
+  get checklistExecutionItem() {
+    return prisma.checklistExecutionItem;
+  }
+  get checklistExecutionItemImage() {
+    return prisma.checklistExecutionItemImage;
+  }
+  get checklistExecutionAttachment() {
+    return prisma.checklistExecutionAttachment;
+  }
 }

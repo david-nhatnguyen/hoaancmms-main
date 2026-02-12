@@ -3,7 +3,7 @@ import { z } from 'zod';
 const envSchema = z.object({
     VITE_API_URL: z.string().url(),
     VITE_APP_NAME: z.string().default('CMMS'),
-    VITE_ENABLE_MOCK: z.string().transform(val => val === 'true').default('false'),
+    VITE_ENABLE_MOCK: z.string().default('false').transform(val => val === 'true'),
 });
 
 const envVars = {

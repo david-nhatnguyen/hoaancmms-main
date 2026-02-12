@@ -29,6 +29,29 @@ enum EquipmentPriority {
   LOW
 }
 
+enum ChecklistCycle {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUALLY
+  YEARLY
+}
+
+enum ChecklistStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
+enum ChecklistExecutionStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+  FAILED
+}
+
 model User {
   id        String   @id @default(uuid())
   username  String   @unique
@@ -38,6 +61,9 @@ model User {
   avatarUrl String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relationships
+  assignedChecklists ChecklistTemplate[]
 
   @@map("users")
 }
@@ -81,6 +107,11 @@ model Factory {
   // Relationships
   factory      Factory?          @relation(fields: [factoryId], references: [id], onDelete: SetNull)
   documents    EquipmentDocument[]
+  
+  // Checklist relationships
+  checklistTemplates   ChecklistTemplate[]
+  checklistAssignments EquipmentChecklistAssignment[]
+  checklistExecutions  ChecklistExecution[]
 
   // Indexes for high performance querying
   @@index([category])
@@ -130,4 +161,212 @@ model ImportHistory {
   updatedAt        DateTime     @updatedAt
 
   @@map("import_histories")
+}
+
+// ==========================================
+// CHECKLIST LIBRARY MODELS
+// ==========================================
+
+model ChecklistTemplate {
+  id                String          @id @default(uuid())
+  code              String          @unique
+  name              String
+  description       String?
+  
+  // Equipment relationship (REQUIRED)
+  equipmentId       String
+  equipment         Equipment       @relation(fields: [equipmentId], references: [id])
+  
+  // Assigned User (OPTIONAL)
+  assignedUserId    String?
+  assignedUser      User?           @relation(fields: [assignedUserId], references: [id])
+  
+  // Department (OPTIONAL)
+  department        String?
+  
+  // Maintenance Start Date (OPTIONAL)
+  maintenanceStartDate DateTime?
+  
+  // Scheduling
+  cycle             ChecklistCycle @default(MONTHLY)
+  
+  // Versioning
+  version           Int            @default(1)
+  status            ChecklistStatus @default(DRAFT)
+  
+  // Metadata
+  notes             String?
+  createdBy         String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  // Relationships
+  items                ChecklistTemplateItem[]
+  equipmentAssignments EquipmentChecklistAssignment[]
+  executions           ChecklistExecution[]
+  
+  @@index([equipmentId])
+  @@index([assignedUserId])
+  @@index([status])
+  @@index([cycle])
+  @@map("checklist_templates")
+}
+
+model ChecklistTemplateItem {
+  id                   String              @id @default(uuid())
+  templateId           String
+  order                Int
+  
+  // Item content (from Excel)
+  maintenanceTask      String
+  judgmentStandard     String?
+  inspectionMethod     String?
+  maintenanceContent   String?
+  expectedResult       String?
+  
+  // Constraints
+  isRequired           Boolean @default(false)
+  requiresImage        Boolean @default(false)
+  requiresNote         Boolean @default(false)
+  
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  
+  // Relationships
+  template             ChecklistTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  
+  @@index([templateId])
+  @@map("checklist_template_items")
+}
+
+model EquipmentChecklistAssignment {
+  id                String              @id @default(uuid())
+  equipmentId       String
+  templateId        String
+  
+  // Scheduling
+  isActive          Boolean @default(true)
+  startDate         DateTime?
+  endDate           DateTime?
+  
+  // Assignment metadata
+  assignedBy        String?
+  assignedAt        DateTime @default(now())
+  notes             String?
+  
+  // Relationships
+  equipment         Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  template          ChecklistTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  
+  @@unique([equipmentId, templateId])
+  @@index([equipmentId])
+  @@index([templateId])
+  @@map("equipment_checklist_assignments")
+}
+
+model ChecklistExecution {
+  id                String                    @id @default(uuid())
+  templateId        String
+  equipmentId       String
+  workOrderId       String?
+  
+  // Execution info
+  scheduledDate     DateTime
+  actualStartDate   DateTime?
+  actualEndDate     DateTime?
+  status            ChecklistExecutionStatus @default(NOT_STARTED)
+  
+  // Personnel
+  assignedTo        String?
+  completedBy       String?
+  approvedBy        String?
+  approvedAt        DateTime?
+  
+  // Results
+  overallResult     String?
+  notes             String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relationships
+  template          ChecklistTemplate @relation(fields: [templateId], references: [id])
+  equipment         Equipment @relation(fields: [equipmentId], references: [id])
+  items             ChecklistExecutionItem[]
+  attachments       ChecklistExecutionAttachment[]
+  
+  @@index([equipmentId])
+  @@index([templateId])
+  @@index([status])
+  @@index([scheduledDate])
+  @@map("checklist_executions")
+}
+
+model ChecklistExecutionItem {
+  id                String                @id @default(uuid())
+  executionId       String
+  templateItemId    String?
+  order             Int
+  
+  // Content (copied from template)
+  maintenanceTask   String
+  judgmentStandard  String?
+  inspectionMethod  String?
+  maintenanceContent String?
+  expectedResult    String?
+  
+  // Execution results
+  actualResult      String?
+  equipmentStatus   String?
+  isPassed          Boolean?
+  notes             String?
+  
+  // Completion info
+  isCompleted       Boolean @default(false)
+  completedAt       DateTime?
+  completedBy       String?
+  
+  // Constraints
+  isRequired        Boolean @default(false)
+  requiresImage     Boolean @default(false)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relationships
+  execution         ChecklistExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  images            ChecklistExecutionItemImage[]
+  
+  @@index([executionId])
+  @@map("checklist_execution_items")
+}
+
+model ChecklistExecutionItemImage {
+  id            String                  @id @default(uuid())
+  itemId        String
+  path          String
+  description   String?
+  uploadedAt    DateTime @default(now())
+  uploadedBy    String?
+  
+  item          ChecklistExecutionItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  
+  @@index([itemId])
+  @@map("checklist_execution_item_images")
+}
+
+model ChecklistExecutionAttachment {
+  id            String              @id @default(uuid())
+  executionId   String
+  name          String
+  path          String
+  type          String?
+  size          Int?
+  uploadedAt    DateTime @default(now())
+  uploadedBy    String?
+  
+  execution     ChecklistExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  
+  @@index([executionId])
+  @@map("checklist_execution_attachments")
 }

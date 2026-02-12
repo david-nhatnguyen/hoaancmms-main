@@ -56,3 +56,5 @@ apps/api/prisma/generated
 /playwright/.cache/
 
 /apps/api/uploads/
+
+/shadcn-ui

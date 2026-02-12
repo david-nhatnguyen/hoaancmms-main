@@ -186,7 +186,7 @@ export function useFactoryForm(): UseFactoryFormReturn {
         } catch (error) {
             if (error instanceof z.ZodError) {
                 const newErrors: FactoryFormErrors = {};
-                error.errors.forEach(err => {
+                (error as any).errors.forEach((err: any) => {
                     const field = err.path[0] as keyof FactoryFormErrors;
                     newErrors[field] = err.message;
                 });
