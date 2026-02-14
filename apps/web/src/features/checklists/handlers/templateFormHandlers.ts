@@ -2,7 +2,7 @@ import {
   type CreateTemplateDto,
   type CreateTemplateItemDto,
   type Equipment,
-  type User,
+
   ChecklistCycle,
   ChecklistStatus,
 } from '../types/checklist.types';
@@ -18,15 +18,12 @@ export interface TemplateFormData {
   equipmentId: string;
   equipment?: Equipment | null;
   
-  // NEW: Assigned User (OPTIONAL)
-  assignedUserId?: string;
-  assignedUser?: User | null;
+
   
   // NEW: Department (OPTIONAL)
   department?: string;
   
-  // NEW: Maintenance Start Date (OPTIONAL)
-  maintenanceStartDate?: string; // ISO string
+
   
   cycle: ChecklistCycle;
   status?: ChecklistStatus;
@@ -99,9 +96,8 @@ export const transformFormToDto = (
     name: data.name.trim(),
     description: data.description?.trim() || undefined,
     equipmentId: data.equipmentId.trim(), // REQUIRED
-    assignedUserId: data.assignedUserId?.trim() || undefined,
     department: data.department?.trim() || undefined,
-    maintenanceStartDate: data.maintenanceStartDate || undefined,
+
     cycle: data.cycle,
     status: data.status || ChecklistStatus.DRAFT,
     notes: data.notes?.trim() || undefined,

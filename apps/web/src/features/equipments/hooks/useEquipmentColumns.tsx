@@ -20,8 +20,6 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { getImageUrl } from '@/lib/image-utils';
 import { QRPreviewDialog } from '../components/QRPreviewDialog';
-import { DataTableColumnHeader } from '@/components/shared/table/DataTableColumnHeader';
-
 interface UseEquipmentColumnsProps {
   onEdit: (equipment: Equipment) => void;
   onDelete: (equipment: Equipment) => void;
@@ -72,9 +70,7 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
     {
       accessorKey: "code",
       key: "code",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Mã số thiết bị" />
-      ),
+      header: "Mã số thiết bị",
       cell: ({ row }) => {
         const eq = row.original
         return (
@@ -156,9 +152,7 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
     {
       accessorKey: "name",
       key: "name",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Tên thiết bị" />
-      ),
+      header: "Tên thiết bị",
       cell: ({ row }) => <span className="font-medium text-sm">{row.getValue("name")}</span>,
       render: (eq) => <span className="font-medium text-sm">{eq.name}</span>,
       mobilePriority: 'secondary',
@@ -166,9 +160,7 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
     {
       accessorKey: "factoryName",
       key: "factoryName",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Nhà máy" />
-      ),
+      header: "Nhà máy",
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground truncate max-w-[150px]">
           {row.getValue("factoryName") || '-'}
@@ -183,18 +175,14 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
     {
       accessorKey: "quantity",
       key: "quantity",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Số lượng" />
-      ),
+      header: "Số lượng",
       cell: ({ row }) => <span className="font-medium text-sm">{row.getValue("quantity") || 1}</span>,
       render: (eq) => <span className="font-medium text-sm">{eq.quantity || 1}</span>,
     },
     {
       accessorKey: "status",
       key: "status",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Trạng thái" />
-      ),
+      header: "Trạng thái",
       cell: ({ row }) => <div className="scale-90 origin-left"><StatusBadge status={row.getValue("status")} /></div>,
       render: (eq) => <StatusBadge status={eq.status} />,
     },

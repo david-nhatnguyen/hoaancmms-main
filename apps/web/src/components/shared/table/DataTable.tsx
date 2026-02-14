@@ -14,6 +14,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
+import { cn } from "@/lib/utils"
+
 import {
   Table,
   TableBody,
@@ -64,6 +66,10 @@ interface DataTableProps<TData, TValue> {
   onRowClick?: (row: TData) => void
   // Row ID
   getRowId?: (row: TData) => string
+  // Display options
+  showToolbar?: boolean
+  showPagination?: boolean
+  className?: string
 }
 
 export function DataTable<TData, TValue>({
@@ -88,6 +94,9 @@ export function DataTable<TData, TValue>({
   toolbarActions,
   onRowClick,
   getRowId,
+  showToolbar = true,
+  showPagination = true,
+  className,
 }: DataTableProps<TData, TValue>) {
   const [internalRowSelection, setInternalRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -148,22 +157,25 @@ export function DataTable<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
     manualPagination: true,
     manualSorting: true,
+    manualFiltering: true,
     pageCount: pageCount,
     getRowId,
   })
 
   return (
-    <div className="flex flex-col gap-4">
-      <DataTableToolbar 
-        table={table} 
-        searchColumn={searchColumn}
-        searchPlaceholder={searchPlaceholder}
-        searchValue={searchValue}
-        onSearchChange={onSearchChange}
-        facetedFilters={facetedFilters}
-        onReset={onFilterReset}
-        actions={toolbarActions}
-      />
+    <div className={cn("flex flex-col gap-4", className)}>
+      {showToolbar && (
+        <DataTableToolbar 
+          table={table} 
+          searchColumn={searchColumn}
+          searchPlaceholder={searchPlaceholder}
+          searchValue={searchValue}
+          onSearchChange={onSearchChange}
+          facetedFilters={facetedFilters}
+          onReset={onFilterReset}
+          actions={toolbarActions}
+        />
+      )}
       <div className="rounded-md border bg-card overflow-hidden">
         <Table>
           <TableHeader>
@@ -207,16 +219,19 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-32 text-center"
                 >
-                  Không có dữ liệu.
+                  <div className="flex flex-col items-center justify-center gap-1">
+                    <p className="text-base font-medium">Không tìm thấy kết quả</p>
+                    <p className="text-sm text-muted-foreground">Vui lòng thử điều chỉnh lại bộ lọc hoặc từ khóa tìm kiếm</p>
+                  </div>
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      {showPagination && <DataTablePagination table={table} />}
     </div>
   )
 }

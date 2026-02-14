@@ -1,291 +1,295 @@
 // Mock data for Checklist Library module - Vietnamese language
+// Updated to match REAL API schema from Prisma
 
-export interface ChecklistItem {
-  id: string;
-  order: number;
-  maintenanceTask: string;
-  standard: string;
-  method: string;
-  content: string;
-  expectedResult: string;
-  isRequired: boolean;
-  requiresImage: boolean;
-}
+import { ChecklistCycle, ChecklistStatus } from '../features/checklists/types/checklist.types';
 
-export interface ChecklistTemplate {
-  id: string;
-  code: string;
-  name: string;
-  equipmentGroupId: 'injection' | 'mold-manufacturing';
-  machineType: string;
-  cycle: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
-  version: number;
-  status: 'draft' | 'active' | 'inactive';
-  notes?: string;
-  items: ChecklistItem[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export const CYCLE_LABELS = {
-  daily: 'Ngày',
-  weekly: 'Tuần',
-  monthly: 'Tháng',
-  quarterly: 'Quý',
-  yearly: 'Năm'
+// Mock Equipment data (matching API Equipment type)
+export const mockEquipments = {
+  'eq-001': {
+    id: 'eq-001',
+    code: 'INJ-001',
+    name: 'Injection Machine #1',
+    category: 'Injection Molding Machine',
+    status: 'ACTIVE',
+    brand: 'Haitian',
+    origin: 'China',
+  },
+  'eq-002': {
+    id: 'eq-002',
+    code: 'CNC-001',
+    name: 'CNC Machine #1',
+    category: 'CNC Machining Center',
+    status: 'ACTIVE',
+    brand: 'FANUC',
+    origin: 'Japan',
+  },
+  'eq-003': {
+    id: 'eq-003',
+    code: 'CMM-001',
+    name: 'CMM #1',
+    category: 'CMM (Coordinate Measuring Machine)',
+    status: 'ACTIVE',
+    brand: 'Zeiss',
+    origin: 'Germany',
+  },
 };
 
-export const CHECKLIST_STATUS_LABELS = {
-  draft: 'Nháp',
-  active: 'Áp dụng',
-  inactive: 'Ngừng sử dụng'
-};
-
-export const checklistTemplates: ChecklistTemplate[] = [
+// Mock data using REAL API field names
+export const checklistTemplates = [
   {
     id: 'cl-001',
     code: 'CL-INJ-001',
     name: 'Injection Machine – Bảo dưỡng tháng',
-    equipmentGroupId: 'injection',
-    machineType: 'Injection Molding Machine',
-    cycle: 'monthly',
+    description: 'Checklist bảo dưỡng định kỳ hàng tháng cho máy ép nhựa',
+    equipmentId: 'eq-001',
+    equipment: mockEquipments['eq-001'],
+    assignedUserId: null,
+    assignedUser: null,
+    department: 'Sản xuất',
+    maintenanceStartDate: null,
+    cycle: ChecklistCycle.MONTHLY,
     version: 1,
-    status: 'active',
+    status: ChecklistStatus.ACTIVE,
     notes: 'Checklist bảo dưỡng định kỳ cho máy ép nhựa',
-    createdAt: '2024-01-15',
-    updatedAt: '2024-01-15',
+    createdBy: null,
+    createdAt: '2024-01-15T00:00:00Z',
+    updatedAt: '2024-01-15T00:00:00Z',
     items: [
       {
         id: 'item-001',
+        templateId: 'cl-001',
         order: 1,
         maintenanceTask: 'Kiểm tra tổng thể máy',
-        standard: 'Không có tiếng ồn bất thường, rung động quá mức',
-        method: 'Quan sát và lắng nghe',
-        content: 'Kiểm tra bên ngoài máy, các bộ phận cơ khí',
+        judgmentStandard: 'Không có tiếng ồn bất thường, rung động quá mức',
+        inspectionMethod: 'Quan sát và lắng nghe',
+        maintenanceContent: 'Kiểm tra bên ngoài máy, các bộ phận cơ khí',
         expectedResult: 'OK',
         isRequired: true,
-        requiresImage: false
+        requiresImage: false,
+        requiresNote: false,
+        createdAt: '2024-01-15T00:00:00Z',
+        updatedAt: '2024-01-15T00:00:00Z',
       },
       {
         id: 'item-002',
+        templateId: 'cl-001',
         order: 2,
         maintenanceTask: 'Kiểm tra hệ thống điện',
-        standard: 'Không có dây điện hở, cháy, chập',
-        method: 'Quan sát trực quan',
-        content: 'Kiểm tra tủ điện, dây cáp, công tắc',
+        judgmentStandard: 'Không có dây điện hở, cháy, chập',
+        inspectionMethod: 'Quan sát trực quan',
+        maintenanceContent: 'Kiểm tra tủ điện, dây cáp, công tắc',
         expectedResult: 'OK',
         isRequired: true,
-        requiresImage: true
+        requiresImage: true,
+        requiresNote: false,
+        createdAt: '2024-01-15T00:00:00Z',
+        updatedAt: '2024-01-15T00:00:00Z',
       },
       {
         id: 'item-003',
+        templateId: 'cl-001',
         order: 3,
         maintenanceTask: 'Kiểm tra hệ thống bôi trơn',
-        standard: 'Mức dầu trong phạm vi cho phép',
-        method: 'Đo mức dầu bằng que thăm',
-        content: 'Kiểm tra mức dầu, thay dầu nếu cần',
+        judgmentStandard: 'Mức dầu trong phạm vi cho phép',
+        inspectionMethod: 'Đo mức dầu bằng que thăm',
+        maintenanceContent: 'Kiểm tra mức dầu, thay dầu nếu cần',
         expectedResult: 'Mức dầu ≥ 70%',
         isRequired: true,
-        requiresImage: false
+        requiresImage: false,
+        requiresNote: false,
+        createdAt: '2024-01-15T00:00:00Z',
+        updatedAt: '2024-01-15T00:00:00Z',
       },
       {
         id: 'item-004',
+        templateId: 'cl-001',
         order: 4,
         maintenanceTask: 'Kiểm tra an toàn vận hành',
-        standard: 'Các cơ cấu an toàn hoạt động bình thường',
-        method: 'Test từng cơ cấu an toàn',
-        content: 'Kiểm tra nút dừng khẩn cấp, cửa bảo vệ',
+        judgmentStandard: 'Các cơ cấu an toàn hoạt động bình thường',
+        inspectionMethod: 'Test từng cơ cấu an toàn',
+        maintenanceContent: 'Kiểm tra nút dừng khẩn cấp, cửa bảo vệ',
         expectedResult: 'OK',
         isRequired: true,
-        requiresImage: true
+        requiresImage: true,
+        requiresNote: false,
+        createdAt: '2024-01-15T00:00:00Z',
+        updatedAt: '2024-01-15T00:00:00Z',
       },
       {
         id: 'item-005',
+        templateId: 'cl-001',
         order: 5,
         maintenanceTask: 'Kiểm tra hệ thống làm mát',
-        standard: 'Nhiệt độ nước làm mát 20-25°C',
-        method: 'Đo nhiệt độ bằng nhiệt kế',
-        content: 'Kiểm tra bơm, đường ống, nhiệt độ nước',
+        judgmentStandard: 'Nhiệt độ nước làm mát 20-25°C',
+        inspectionMethod: 'Đo nhiệt độ bằng nhiệt kế',
+        maintenanceContent: 'Kiểm tra bơm, đường ống, nhiệt độ nước',
         expectedResult: '20-25°C',
         isRequired: false,
-        requiresImage: false
-      }
-    ]
+        requiresImage: false,
+        requiresNote: false,
+        createdAt: '2024-01-15T00:00:00Z',
+        updatedAt: '2024-01-15T00:00:00Z',
+      },
+    ],
   },
   {
     id: 'cl-002',
     code: 'CL-INJ-002',
     name: 'Injection Machine – Bảo dưỡng tuần',
-    equipmentGroupId: 'injection',
-    machineType: 'Injection Molding Machine',
-    cycle: 'weekly',
+    description: 'Checklist bảo dưỡng định kỳ hàng tuần',
+    equipmentId: 'eq-001',
+    equipment: mockEquipments['eq-001'],
+    assignedUserId: null,
+    assignedUser: null,
+    department: 'Sản xuất',
+    maintenanceStartDate: null,
+    cycle: ChecklistCycle.WEEKLY,
     version: 2,
-    status: 'active',
-    createdAt: '2024-01-10',
-    updatedAt: '2024-02-05',
+    status: ChecklistStatus.ACTIVE,
+    notes: null,
+    createdBy: null,
+    createdAt: '2024-01-10T00:00:00Z',
+    updatedAt: '2024-02-05T00:00:00Z',
     items: [
       {
         id: 'item-101',
+        templateId: 'cl-002',
         order: 1,
         maintenanceTask: 'Vệ sinh bề mặt máy',
-        standard: 'Sạch sẽ, không dính dầu mỡ',
-        method: 'Lau chùi bằng khăn',
-        content: 'Vệ sinh toàn bộ bề mặt máy',
+        judgmentStandard: 'Sạch sẽ, không dính dầu mỡ',
+        inspectionMethod: 'Lau chùi bằng khăn',
+        maintenanceContent: 'Vệ sinh toàn bộ bề mặt máy',
         expectedResult: 'OK',
         isRequired: true,
-        requiresImage: false
+        requiresImage: false,
+        requiresNote: false,
+        createdAt: '2024-01-10T00:00:00Z',
+        updatedAt: '2024-01-10T00:00:00Z',
       },
       {
         id: 'item-102',
+        templateId: 'cl-002',
         order: 2,
         maintenanceTask: 'Kiểm tra áp suất thủy lực',
-        standard: '100-150 bar',
-        method: 'Đọc đồng hồ áp suất',
-        content: 'Kiểm tra áp suất hệ thống thủy lực',
+        judgmentStandard: '100-150 bar',
+        inspectionMethod: 'Đọc đồng hồ áp suất',
+        maintenanceContent: 'Kiểm tra áp suất hệ thống thủy lực',
         expectedResult: '100-150 bar',
         isRequired: true,
-        requiresImage: false
-      }
-    ]
+        requiresImage: false,
+        requiresNote: false,
+        createdAt: '2024-01-10T00:00:00Z',
+        updatedAt: '2024-01-10T00:00:00Z',
+      },
+    ],
   },
   {
     id: 'cl-003',
     code: 'CL-CNC-001',
     name: 'CNC Machine – Bảo dưỡng tháng',
-    equipmentGroupId: 'mold-manufacturing',
-    machineType: 'CNC Machining Center',
-    cycle: 'monthly',
+    description: 'Checklist cho máy CNC gia công khuôn',
+    equipmentId: 'eq-002',
+    equipment: mockEquipments['eq-002'],
+    assignedUserId: null,
+    assignedUser: null,
+    department: 'Gia công khuôn',
+    maintenanceStartDate: null,
+    cycle: ChecklistCycle.MONTHLY,
     version: 1,
-    status: 'active',
+    status: ChecklistStatus.ACTIVE,
     notes: 'Checklist cho máy CNC gia công khuôn',
-    createdAt: '2024-01-20',
-    updatedAt: '2024-01-20',
+    createdBy: null,
+    createdAt: '2024-01-20T00:00:00Z',
+    updatedAt: '2024-01-20T00:00:00Z',
     items: [
       {
         id: 'item-201',
+        templateId: 'cl-003',
         order: 1,
         maintenanceTask: 'Vệ sinh khu vực làm việc',
-        standard: 'Không có phoi, dầu tràn',
-        method: 'Quan sát và vệ sinh',
-        content: 'Vệ sinh bàn máy, khu vực gia công',
+        judgmentStandard: 'Không có phoi, dầu tràn',
+        inspectionMethod: 'Quan sát và vệ sinh',
+        maintenanceContent: 'Vệ sinh bàn máy, khu vực gia công',
         expectedResult: 'OK',
         isRequired: true,
-        requiresImage: true
+        requiresImage: true,
+        requiresNote: false,
+        createdAt: '2024-01-20T00:00:00Z',
+        updatedAt: '2024-01-20T00:00:00Z',
       },
       {
         id: 'item-202',
+        templateId: 'cl-003',
         order: 2,
         maintenanceTask: 'Kiểm tra trục chính',
-        standard: 'Không rung, không có tiếng ồn',
-        method: 'Chạy thử và lắng nghe',
-        content: 'Kiểm tra ổ bi, độ đảo trục chính',
+        judgmentStandard: 'Không rung, không có tiếng ồn',
+        inspectionMethod: 'Chạy thử và lắng nghe',
+        maintenanceContent: 'Kiểm tra ổ bi, độ đảo trục chính',
         expectedResult: 'OK',
         isRequired: true,
-        requiresImage: false
+        requiresImage: false,
+        requiresNote: false,
+        createdAt: '2024-01-20T00:00:00Z',
+        updatedAt: '2024-01-20T00:00:00Z',
       },
-      {
-        id: 'item-203',
-        order: 3,
-        maintenanceTask: 'Kiểm tra hệ thống làm mát',
-        standard: 'Dung dịch làm mát đủ, không bị bẩn',
-        method: 'Kiểm tra bể chứa',
-        content: 'Kiểm tra mức dung dịch, bộ lọc',
-        expectedResult: 'Mức dung dịch ≥ 80%',
-        isRequired: true,
-        requiresImage: false
-      },
-      {
-        id: 'item-204',
-        order: 4,
-        maintenanceTask: 'Kiểm tra độ chính xác máy',
-        standard: 'Sai số ≤ 0.01mm',
-        method: 'Đo bằng đồng hồ so',
-        content: 'Kiểm tra độ song song, độ vuông góc',
-        expectedResult: '≤ 0.01mm',
-        isRequired: true,
-        requiresImage: true
-      }
-    ]
+    ],
   },
   {
     id: 'cl-004',
     code: 'CL-CMM-001',
     name: 'CMM – Bảo dưỡng tháng',
-    equipmentGroupId: 'mold-manufacturing',
-    machineType: 'CMM (Coordinate Measuring Machine)',
-    cycle: 'monthly',
+    description: null,
+    equipmentId: 'eq-003',
+    equipment: mockEquipments['eq-003'],
+    assignedUserId: null,
+    assignedUser: null,
+    department: 'QA',
+    maintenanceStartDate: null,
+    cycle: ChecklistCycle.MONTHLY,
     version: 1,
-    status: 'draft',
-    createdAt: '2024-02-01',
-    updatedAt: '2024-02-01',
+    status: ChecklistStatus.DRAFT,
+    notes: null,
+    createdBy: null,
+    createdAt: '2024-02-01T00:00:00Z',
+    updatedAt: '2024-02-01T00:00:00Z',
     items: [
       {
         id: 'item-301',
+        templateId: 'cl-004',
         order: 1,
         maintenanceTask: 'Vệ sinh bàn đá granite',
-        standard: 'Sạch, không có bụi bẩn',
-        method: 'Lau bằng khăn sạch',
-        content: 'Vệ sinh bề mặt bàn đo',
+        judgmentStandard: 'Sạch, không có bụi bẩn',
+        inspectionMethod: 'Lau bằng khăn sạch',
+        maintenanceContent: 'Vệ sinh bề mặt bàn đo',
         expectedResult: 'OK',
         isRequired: true,
-        requiresImage: false
+        requiresImage: false,
+        requiresNote: false,
+        createdAt: '2024-02-01T00:00:00Z',
+        updatedAt: '2024-02-01T00:00:00Z',
       },
-      {
-        id: 'item-302',
-        order: 2,
-        maintenanceTask: 'Kiểm tra đầu dò',
-        standard: 'Đầu dò không bị mòn, cong',
-        method: 'Quan sát trực quan',
-        content: 'Kiểm tra các đầu dò stylus',
-        expectedResult: 'OK',
-        isRequired: true,
-        requiresImage: true
-      }
-    ]
+    ],
   },
-  {
-    id: 'cl-005',
-    code: 'CL-EDM-001',
-    name: 'EDM Machine – Bảo dưỡng quý',
-    equipmentGroupId: 'mold-manufacturing',
-    machineType: 'EDM Machine',
-    cycle: 'quarterly',
-    version: 1,
-    status: 'inactive',
-    createdAt: '2023-11-15',
-    updatedAt: '2024-01-10',
-    items: [
-      {
-        id: 'item-401',
-        order: 1,
-        maintenanceTask: 'Thay dầu điện cực',
-        standard: 'Dầu mới, sạch',
-        method: 'Thay thế hoàn toàn',
-        content: 'Xả dầu cũ, thay dầu mới',
-        expectedResult: 'OK',
-        isRequired: true,
-        requiresImage: true
-      }
-    ]
-  }
 ];
 
 // Helper to generate new checklist code
-export const generateChecklistCode = (groupId: string): string => {
-  const prefix = groupId === 'injection' ? 'CL-INJ' : 'CL-MFG';
+export const generateChecklistCode = (equipmentCategory: string): string => {
+  const prefix = equipmentCategory.includes('Injection') ? 'CL-INJ' : 'CL-MFG';
   const num = String(Math.floor(Math.random() * 900) + 100);
   return `${prefix}-${num}`;
 };
 
-// Empty checklist item template
-export const createEmptyItem = (order: number): ChecklistItem => ({
-  id: `item-${Date.now()}-${order}`,
-  order,
-  maintenanceTask: '',
-  standard: '',
-  method: '',
-  content: '',
-  expectedResult: '',
-  isRequired: false,
-  requiresImage: false
-});
+// For backward compatibility with old code
+export const CYCLE_LABELS = {
+  daily: 'Ngày',
+  weekly: 'Tuần',
+  monthly: 'Tháng',
+  quarterly: 'Quý',
+  yearly: 'Năm',
+};
+
+export const CHECKLIST_STATUS_LABELS = {
+  draft: 'Nháp',
+  active: 'Áp dụng',
+  inactive: 'Ngừng sử dụng',
+};

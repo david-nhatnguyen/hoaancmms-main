@@ -1,6 +1,12 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Loader2, Cpu, Filter, X, FileSpreadsheet, Download } from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Plus, 
+  Download, 
+  FileSpreadsheet, 
+  Cpu, 
+  Loader2
+} from 'lucide-react';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import PullToRefresh from 'react-simple-pull-to-refresh';
 import { RowSelectionState } from '@tanstack/react-table';
@@ -20,11 +26,9 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { factoriesApi } from '@/api/endpoints/factories.api';
 import { DataTable } from '@/components/shared/table/DataTable';
 import { MobileCardActions } from '@/components/shared/table/MobileCardActions';
-import { useDataTableState } from '@/features/shared/table/hooks/use-table-state';
 import { DataTableFilterChips } from '@/components/shared/table/DataTableFilterChips';
-import { updateColumnFilters } from '@/features/shared/table/handlers/table-logic.handlers';
 
-// Feature Components & Hooks
+// Feature Components, Hooks & Handlers
 import {
   useEquipmentColumns,
   useEquipmentStats,
@@ -32,7 +36,9 @@ import {
   useDeleteEquipment,
   useBulkDeleteEquipment,
   STATUS_OPTIONS,
+  useEquipmentTableState,
 } from '@/features/equipments/hooks';
+import { getEquipmentFilterLabel } from '@/features/equipments/handlers/equipment-table.handlers';
 
 import {
   EquipmentStats,
@@ -42,7 +48,7 @@ import {
 } from '@/features/equipments/components';
 import { BulkActionsToolbar } from '@/components/shared/table/BulkActionsToolbar';
 
-import type { Equipment, EquipmentQueryParams, EquipmentStatus } from '@/api/types/equipment.types';
+import type { Equipment } from '@/api/types/equipment.types';
 
 /**
  * Equipment List Page
@@ -95,39 +101,6 @@ export default function EquipmentList() {
     }
   }, []);
 
-  // Integrated Table State management
-  const {
-    searchQuery,
-    setSearchQuery,
-    rowSelection,
-    setRowSelection,
-    selectedIds,
-    sorting,
-    setSorting,
-    pagination,
-    setPagination,
-    columnFilters,
-    setColumnFilters,
-    params,
-    activeFiltersCount,
-    resetFilters,
-    toggleColumnFilter,
-  } = useDataTableState<EquipmentQueryParams>({
-    initialParams: {
-      page: 1,
-      limit: 10,
-      sortBy: 'createdAt',
-      sortOrder: 'desc',
-      status: [] as EquipmentStatus[],
-      factoryId: [] as string[],
-    },
-    filterMapping: {
-      factoryName: 'factoryId'
-    }
-  });
-
-  const [searchParams] = useSearchParams();
-  
   // Fetch factories for filters
   const { data: factoriesData } = useQuery({
     queryKey: ['factories-list'],
@@ -137,26 +110,31 @@ export default function EquipmentList() {
   const factoryOptions = useMemo(() => {
     return (factoriesData?.data || []).map(f => ({
       label: f.name,
-      value: f.id,
+      value: f.id, // Reverted to ID as primary filter identifier
+      id: f.id,
+      code: f.code,
     }));
   }, [factoriesData]);
 
-  // URL Parameter Sync (for initial load)
-  useEffect(() => {
-    const factoryCode = searchParams.get('factoryCode');
-    if (factoryCode) {
-       // Search by factory code if provided in URL
-       setSearchQuery(factoryCode);
-    }
-    
-    const factoryId = searchParams.get('factoryId');
-    if (factoryId) {
-        setColumnFilters(prev => updateColumnFilters(prev, 'factoryName', [factoryId]));
-    }
-  }, []);
+  // Integrated Table State management with URL Sync
+  const {
+    searchQuery,
+    setSearchQuery,
+    rowSelection,
+    setRowSelection,
+    selectedIds,
+    pagination,
+    setPagination,
+    columnFilters,
+    setColumnFilters,
+    params,
+    activeFiltersCount,
+    resetFilters,
+    toggleColumnFilter,
+  } = useEquipmentTableState({ factoryOptions });
 
   // API Hooks
-  const { data, isLoading, refetch } = useEquipments(params);
+  const { data, isLoading } = useEquipments(params);
   const { data: statsData, isLoading: statsLoading } = useEquipmentStats();
   const deleteEquipment = useDeleteEquipment();
   const bulkDeleteEquipment = useBulkDeleteEquipment();
@@ -166,7 +144,7 @@ export default function EquipmentList() {
 
   // Column Hook
   const { columns, previewDialog } = useEquipmentColumns({
-    onEdit: (eq) => navigate(`/equipments/${eq.id}/edit`),
+    onEdit: (eq) => navigate(`/equipments/${eq.code}/edit`),
     onDelete: (eq) => setDeletingEquipment(eq),
     onViewDetails: (code) => navigate(`/equipments/${code}`),
   });
@@ -174,13 +152,7 @@ export default function EquipmentList() {
 
 
   const getFilterLabel = useCallback((id: string, value: any) => {
-    if (id === 'status') {
-      return STATUS_OPTIONS.find(opt => opt.value === value)?.label || value;
-    }
-    if (id === 'factoryName') {
-      return factoryOptions.find(opt => opt.value === value)?.label || value;
-    }
-    return value;
+    return getEquipmentFilterLabel(id, value, factoryOptions);
   }, [factoryOptions]);
 
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
@@ -202,30 +174,20 @@ export default function EquipmentList() {
     if (isLoading) return <TableSkeleton rows={5} />;
 
     const equipmentsList = data?.data || [];
+    const isFiltered = params.search || activeFiltersCount > 0;
 
-    if (equipmentsList.length === 0) {
+    // Show standalone EmptyState only when no data AND no filters are active
+    if (equipmentsList.length === 0 && !isFiltered) {
       return (
         <EmptyState
           icon={<Cpu className="h-12 w-12 text-muted-foreground/50" />}
-          title={params.search || activeFiltersCount > 0 ? 'Không tìm thấy kết quả' : 'Chưa có thiết bị nào'}
-          description={
-            params.search || activeFiltersCount > 0
-              ? `Không tìm thấy thiết bị phù hợp với bộ lọc`
-              : 'Bắt đầu bằng cách thêm thiết bị đầu tiên của bạn'
-          }
-          action={
-            !(params.search || activeFiltersCount > 0)
-              ? {
-                  label: 'Thêm thiết bị mới',
-                  onClick: () => navigate('/equipments/new'),
-                  icon: <Plus className="h-4 w-4" />,
-                }
-              : {
-                  label: 'Xóa bộ lọc',
-                  onClick: resetFilters,
-                  icon: <Filter className="h-4 w-4" />,
-              }
-          }
+          title="Chưa có thiết bị nào"
+          description="Bắt đầu bằng cách thêm thiết bị đầu tiên của bạn"
+          action={{
+            label: 'Thêm thiết bị mới',
+            onClick: () => navigate('/equipments/new'),
+            icon: <Plus className="h-4 w-4" />,
+          }}
         />
       );
     }
@@ -236,7 +198,7 @@ export default function EquipmentList() {
           columns={columns}
           data={equipmentsList}
           keyExtractor={(eq) => eq.id}
-          emptyMessage="Chưa có thiết bị nào"
+          emptyMessage={isFiltered ? "Không tìm thấy kết quả phù hợp" : "Chưa có thiết bị nào"}
           pageCount={data?.meta?.totalPages}
           currentPage={params.page}
           showPagination={true}
@@ -249,8 +211,8 @@ export default function EquipmentList() {
           }}
           mobileCardAction={(eq) => (
              <MobileCardActions 
-                 onView={() => navigate(`/equipments/${eq.id}`)}
-                 onEdit={() => navigate(`/equipments/${eq.id}/edit`)}
+                 onView={() => navigate(`/equipments/${eq.code}`)}
+                 onEdit={() => navigate(`/equipments/${eq.code}/edit`)}
                  onDelete={() => setDeletingEquipment(eq)}
              />
           )}
@@ -275,8 +237,6 @@ export default function EquipmentList() {
           onPaginationChange={(pageIndex, pageSize) => {
             setPagination({ pageIndex, pageSize });
           }}
-          onSortingChange={setSorting}
-          sorting={sorting}
           onRowSelectionChange={setRowSelection}
           rowSelection={rowSelection}
           getRowId={(row) => row.id}

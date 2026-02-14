@@ -4,7 +4,6 @@ import { Pencil, MapPin, Settings2, Trash2, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { ColumnDef } from '@tanstack/react-table';
-import { DataTableColumnHeader } from '@/components/shared/table/DataTableColumnHeader';
 import type { Factory } from '@/api/types/factory.types';
 
 // ============================================================================
@@ -13,7 +12,7 @@ import type { Factory } from '@/api/types/factory.types';
 
 export interface UseFactoryColumnsOptions {
   onEdit?: (factory: Factory) => void;
-  onViewEquipments?: (factoryCode: string) => void;
+  onViewEquipments?: (factoryId: string) => void;
   onDelete?: (factory: Factory) => void;
 }
 
@@ -67,8 +66,8 @@ export function useFactoryColumns(
   // However, simplest fix for Lint is to make the dependency stable.
   
   const handleViewEquipments = useMemo(() => {
-    return onViewEquipments || ((code: string) => {
-       navigate(`/equipments?factoryCode=${code}`);
+    return onViewEquipments || ((id: string) => {
+       navigate(`/equipments?factoryId=${id}`);
     });
   }, [onViewEquipments, navigate]);
 
@@ -80,9 +79,7 @@ export function useFactoryColumns(
     // Code Column
     {
       accessorKey: 'code',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Mã nhà máy" />
-      ),
+      header:"Mã nhà máy",
       cell: ({ row }) => (
         <span className="font-mono font-medium text-primary">
           {row.original.code}
@@ -102,9 +99,7 @@ export function useFactoryColumns(
     // Name Column
     {
       accessorKey: 'name',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Tên nhà máy" />
-      ),
+      header: "Tên nhà máy",
       cell: ({ row }) => (
         <span className="font-medium">{row.original.name}</span>
       ),
@@ -119,9 +114,7 @@ export function useFactoryColumns(
     // Location Column
     {
       accessorKey: 'location',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Địa điểm" />
-      ),
+      header: "Địa điểm",
       cell: ({ row }) => (
         <div className="flex items-center gap-1.5 text-muted-foreground">
           <MapPin className="h-4 w-4" />
@@ -141,9 +134,7 @@ export function useFactoryColumns(
     // Equipment Count Column
     {
       accessorKey: 'equipmentCount',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Số lượng TB" />
-      ),
+      header: "Số lượng TB",
       cell: ({ row }) => (
         <span className="inline-flex items-center gap-1.5 text-muted-foreground">
           <Settings2 className="h-4 w-4" />
@@ -164,9 +155,7 @@ export function useFactoryColumns(
     // Status Column
     {
       accessorKey: 'status',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Trạng thái" />
-      ),
+      header:"Trạng thái",
       cell: ({ row }) => <StatusBadge status={row.original.status} />,
       // For ResponsiveTable
       key: 'status',
@@ -187,7 +176,7 @@ export function useFactoryColumns(
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleViewEquipments(factory.code);
+                  handleViewEquipments(factory.id);
                 }}
                 className="text-muted-foreground h-8 px-2 rounded-full"
               >
@@ -231,7 +220,7 @@ export function useFactoryColumns(
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                handleViewEquipments(factory.code);
+                handleViewEquipments(factory.id);
               }}
               className="text-muted-foreground h-8 px-2 rounded-full"
             >

@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Loader2, Building2, Download, CircleCheck, CircleX, Filter } from 'lucide-react';
+import { Plus, Loader2, Building2, Download, CircleCheck, CircleX } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import PullToRefresh from 'react-simple-pull-to-refresh';
 import { Drawer } from 'vaul';
@@ -9,7 +9,6 @@ import { RowSelectionState } from '@tanstack/react-table';
 // UI Components
 import { Button } from '@/components/ui/button';
 import { MobileButton } from '@/components/ui/mobile-button';
-import { Badge } from '@/components/ui/badge';
 import { MobileFilters } from '@/components/shared/MobileFilters';
 import { ChipFilter } from '@/components/shared/filters/ChipFilter';
 import { MobilePageHeader } from '@/components/shared/MobilePageHeader';
@@ -60,8 +59,8 @@ import type { Factory, FactoryQueryParams, FactoryStatus } from '@/api/types/fac
  */
 // Filter Options
 const STATUS_OPTIONS = [
-  { value: 'ACTIVE', label: 'Hoạt động', color: 'bg-status-active', icon: CircleCheck },
-  { value: 'INACTIVE', label: 'Ngừng hoạt động', color: 'bg-status-inactive', icon: CircleX }
+  { value: 'ACTIVE', label: 'Hoạt động', color: 'bg-status-active' },
+  { value: 'INACTIVE', label: 'Ngừng hoạt động', color: 'bg-status-inactive' }
 ];
 
 export default function FactoryList() {
@@ -80,8 +79,6 @@ export default function FactoryList() {
     rowSelection,
     setRowSelection,
     selectedIds,
-    sorting,
-    setSorting,
     pagination,
     setPagination,
     columnFilters,
@@ -106,7 +103,7 @@ export default function FactoryList() {
   // Custom hook for table columns
   const { columns } = useFactoryColumns({
     onEdit: form.openDialog,
-    onViewEquipments: (code) => navigate(`/equipments?factoryCode=${code}`),
+    onViewEquipments: (id) => navigate(`/equipments?factoryId=${id}`),
     onDelete: (factory) => setDeletingFactory(factory),
   });
 
@@ -132,8 +129,6 @@ export default function FactoryList() {
       options: STATUS_OPTIONS,
     }
   ], []);
-
-
 
 
   // Active Filter Labels Mapping
@@ -250,30 +245,19 @@ export default function FactoryList() {
     if (isLoading) return <TableSkeleton rows={5} />;
 
     const factories = data?.data || [];
+    const isFiltered = params.search || activeFiltersCount > 0;
 
-    if (factories.length === 0) {
+    if (factories.length === 0 && !isFiltered) {
       return (
         <EmptyState
           icon={<Building2 className="h-12 w-12 text-muted-foreground/50" />}
-          title={params.search || params.status?.length ? 'Không tìm thấy kết quả' : 'Chưa có nhà máy nào'}
-          description={
-            params.search || params.status?.length
-              ? `Không tìm thấy nhà máy nào phù hợp với bộ lọc`
-              : 'Bắt đầu bằng cách thêm nhà máy đầu tiên của bạn vào hệ thống'
-          }
-          action={
-            !(params.search || params.status?.length)
-              ? {
-                  label: 'Thêm nhà máy đầu tiên',
-                  onClick: () => form.openDialog(),
-                  icon: <Plus className="h-4 w-4" />,
-                }
-              : {
-                  label: 'Xóa bộ lọc',
-                  onClick: resetFilters,
-                  icon: <Filter className="h-4 w-4" />,
-              }
-          }
+          title="Chưa có nhà máy nào"
+          description="Bắt đầu bằng cách thêm nhà máy đầu tiên của bạn vào hệ thống"
+          action={{
+            label: 'Thêm nhà máy đầu tiên',
+            onClick: () => form.openDialog(),
+            icon: <Plus className="h-4 w-4" />,
+          }}
         />
       );
     }
@@ -284,7 +268,7 @@ export default function FactoryList() {
           columns={columns}
           data={factories}
           keyExtractor={(factory) => factory.id}
-          emptyMessage="Chưa có nhà máy nào"
+          emptyMessage={isFiltered ? "Không tìm thấy kết quả phù hợp" : "Chưa có nhà máy nào"}
           pageCount={data?.meta?.totalPages}
           currentPage={params.page}
           showPagination={true}
@@ -324,8 +308,6 @@ export default function FactoryList() {
           onPaginationChange={(pageIndex, pageSize) => {
             setPagination({ pageIndex, pageSize });
           }}
-          onSortingChange={setSorting}
-          sorting={sorting}
           onRowSelectionChange={setRowSelection}
           rowSelection={rowSelection}
           getRowId={(row) => row.id}

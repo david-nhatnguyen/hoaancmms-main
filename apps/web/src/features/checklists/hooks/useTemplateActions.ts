@@ -10,7 +10,8 @@ export const useTemplateActions = () => {
 
   const activate = useMutation({
     mutationFn: (id: string) => checklistTemplatesApi.activate(id),
-    onSuccess: (template) => {
+    onSuccess: (response) => {
+      const template = response.data;
       queryClient.invalidateQueries({ queryKey: ['checklist-templates'] });
       queryClient.invalidateQueries({
         queryKey: ['checklist-template', template.id],
@@ -26,7 +27,8 @@ export const useTemplateActions = () => {
 
   const deactivate = useMutation({
     mutationFn: (id: string) => checklistTemplatesApi.deactivate(id),
-    onSuccess: (template) => {
+    onSuccess: (response) => {
+      const template = response.data;
       queryClient.invalidateQueries({ queryKey: ['checklist-templates'] });
       queryClient.invalidateQueries({
         queryKey: ['checklist-template', template.id],
@@ -42,7 +44,8 @@ export const useTemplateActions = () => {
 
   const duplicate = useMutation({
     mutationFn: (id: string) => checklistTemplatesApi.duplicate(id),
-    onSuccess: (newTemplate) => {
+    onSuccess: (response) => {
+      const newTemplate = response.data;
       queryClient.invalidateQueries({ queryKey: ['checklist-templates'] });
       toast.success('Đã sao chép checklist', {
         description: `Mã mới: ${newTemplate.code}`,

@@ -8,7 +8,6 @@ import {
   ValidateNested,
   IsBoolean,
   IsUUID,
-  IsDateString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -80,15 +79,6 @@ export class CreateTemplateDto {
   @IsNotEmpty({ message: 'Equipment ID không được để trống' })
   equipmentId: string;
 
-  // NEW: Assigned User (OPTIONAL)
-  @ApiPropertyOptional({
-    example: '123e4567-e89b-12d3-a456-426614174001',
-    description: 'ID của người phụ trách',
-  })
-  @IsUUID('4', { message: 'User ID không hợp lệ' })
-  @IsOptional()
-  assignedUserId?: string;
-
   // NEW: Department (OPTIONAL)
   @ApiPropertyOptional({
     example: 'Bộ phận sản xuất',
@@ -98,20 +88,11 @@ export class CreateTemplateDto {
   @IsOptional()
   department?: string;
 
-  // NEW: Maintenance Start Date (OPTIONAL)
-  @ApiPropertyOptional({
-    example: '2026-02-15T00:00:00.000Z',
-    description: 'Ngày bắt đầu bảo dưỡng',
-  })
-  @IsDateString({}, { message: 'Ngày bảo dưỡng không hợp lệ' })
-  @IsOptional()
-  maintenanceStartDate?: string;
-
   @ApiProperty({ enum: ChecklistCycle, example: ChecklistCycle.SEMI_ANNUALLY })
   @IsEnum(ChecklistCycle, { message: 'Chu kỳ không hợp lệ' })
   cycle: ChecklistCycle;
 
-  @ApiPropertyOptional({ enum: ChecklistStatus, default: ChecklistStatus.DRAFT })
+  @ApiPropertyOptional({ enum: ChecklistStatus, default: ChecklistStatus.ACTIVE })
   @IsEnum(ChecklistStatus, { message: 'Trạng thái không hợp lệ' })
   @IsOptional()
   status?: ChecklistStatus;

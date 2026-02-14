@@ -1,18 +1,28 @@
 import { IsOptional, IsEnum, IsString, IsInt, Min, IsUUID } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { ChecklistCycle, ChecklistStatus } from '@prisma/generated/prisma';
 
 export class QueryTemplateDto {
-  @ApiPropertyOptional({ enum: ChecklistStatus })
+  @ApiPropertyOptional({ enum: ChecklistStatus, isArray: true })
   @IsOptional()
-  @IsEnum(ChecklistStatus)
-  status?: ChecklistStatus;
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') return value.split(',');
+    return value;
+  })
+  @IsEnum(ChecklistStatus, { each: true })
+  status?: ChecklistStatus[];
 
-  @ApiPropertyOptional({ enum: ChecklistCycle })
+  @ApiPropertyOptional({ enum: ChecklistCycle, isArray: true })
   @IsOptional()
-  @IsEnum(ChecklistCycle)
-  cycle?: ChecklistCycle;
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') return value.split(',');
+    return value;
+  })
+  @IsEnum(ChecklistCycle, { each: true })
+  cycle?: ChecklistCycle[];
 
   @ApiPropertyOptional({
     example: '123e4567-e89b-12d3-a456-426614174000',
@@ -22,13 +32,7 @@ export class QueryTemplateDto {
   @IsUUID('4')
   equipmentId?: string;
 
-  @ApiPropertyOptional({
-    example: '123e4567-e89b-12d3-a456-426614174001',
-    description: 'Lọc theo người phụ trách',
-  })
-  @IsOptional()
-  @IsUUID('4')
-  assignedUserId?: string;
+
 
   @ApiPropertyOptional({ example: 'injection' })
   @IsOptional()
@@ -48,4 +52,14 @@ export class QueryTemplateDto {
   @Min(1)
   @Type(() => Number)
   limit?: number = 20;
+
+  @ApiPropertyOptional({ example: 'createdAt', description: 'Trường sắp xếp' })
+  @IsOptional()
+  @IsString()
+  sortBy?: string = 'createdAt';
+
+  @ApiPropertyOptional({ enum: ['asc', 'desc'], default: 'desc' })
+  @IsOptional()
+  @IsEnum(['asc', 'desc'])
+  sortOrder?: 'asc' | 'desc' = 'desc';
 }

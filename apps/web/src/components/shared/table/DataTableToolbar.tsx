@@ -67,20 +67,6 @@ export function DataTableToolbar<TData>({
             />
           )
         )}
-        {isFiltered && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              table.resetColumnFilters()
-              onReset?.()
-            }}
-            className="h-8 px-2 lg:px-3"
-          >
-            Reset
-            <X className="ml-2 h-4 w-4" />
-          </Button>
-        )}
       </div>
       <div className="flex items-center gap-2">
         {actions}

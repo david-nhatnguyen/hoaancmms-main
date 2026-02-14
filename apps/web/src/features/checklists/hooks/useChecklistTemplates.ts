@@ -24,5 +24,6 @@ export const useChecklistTemplate = (id: string) => {
     queryFn: () => checklistTemplatesApi.getById(id),
     enabled: !!id, // Only run query if ID is provided
     staleTime: 60000, // Individual templates can be cached longer
+    select: (response) => response.data,
   });
 };

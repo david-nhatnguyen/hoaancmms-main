@@ -25,17 +25,6 @@ export class TemplatesService {
       throw new NotFoundException(`Không tìm thấy thiết bị với ID: ${dto.equipmentId}`);
     }
 
-    // Validate assigned user if provided
-    if (dto.assignedUserId) {
-      const user = await this.prisma.user.findUnique({
-        where: { id: dto.assignedUserId },
-      });
-
-      if (!user) {
-        throw new NotFoundException(`Không tìm thấy người dùng với ID: ${dto.assignedUserId}`);
-      }
-    }
-
     // Generate unique code based on equipment code
     const code = await this.generateCode(equipment.code);
 
@@ -60,11 +49,10 @@ export class TemplatesService {
         name: dto.name,
         description: dto.description,
         equipmentId: dto.equipmentId,
-        assignedUserId: dto.assignedUserId,
         department: dto.department,
-        maintenanceStartDate: dto.maintenanceStartDate ? new Date(dto.maintenanceStartDate) : null,
+
         cycle: dto.cycle,
-        status: dto.status || ChecklistStatus.DRAFT,
+        status: ChecklistStatus.ACTIVE,
         notes: dto.notes,
         items: {
           create: dto.items,
@@ -81,13 +69,11 @@ export class TemplatesService {
             name: true,
             category: true,
             status: true,
-          },
-        },
-        assignedUser: {
-          select: {
-            id: true,
-            username: true,
-            fullName: true,
+            factory: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },
@@ -98,21 +84,44 @@ export class TemplatesService {
    * Find all templates with filtering and pagination
    */
   async findAll(query: QueryTemplateDto) {
-    const { status, cycle, equipmentId, assignedUserId, search, page = 1, limit = 20 } = query;
+    const {
+      status,
+      cycle,
+      equipmentId,
+
+      search,
+      page = 1,
+      limit = 20,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = query;
 
     const where: any = {};
 
-    if (status) where.status = status;
-    if (cycle) where.cycle = cycle;
+    if (status && status.length > 0) {
+      where.status = { in: status };
+    }
+    if (cycle && cycle.length > 0) {
+      where.cycle = { in: cycle };
+    }
     if (equipmentId) where.equipmentId = equipmentId;
-    if (assignedUserId) where.assignedUserId = assignedUserId;
+
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
         { code: { contains: search, mode: 'insensitive' } },
         { equipment: { name: { contains: search, mode: 'insensitive' } } },
         { equipment: { code: { contains: search, mode: 'insensitive' } } },
+        { equipment: { factory: { name: { contains: search, mode: 'insensitive' } } } },
       ];
+    }
+
+    // Handle sorting
+    let orderBy: any = { [sortBy]: sortOrder };
+
+    // Handle nested sorting if needed (e.g., equipmentCategory)
+    if (sortBy === 'equipmentCategory') {
+      orderBy = { equipment: { category: sortOrder } };
     }
 
     const [data, total] = await Promise.all([
@@ -129,15 +138,14 @@ export class TemplatesService {
               name: true,
               category: true,
               status: true,
+              factory: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
-          assignedUser: {
-            select: {
-              id: true,
-              username: true,
-              fullName: true,
-            },
-          },
+
           _count: {
             select: {
               equipmentAssignments: true,
@@ -147,7 +155,7 @@ export class TemplatesService {
         },
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy,
       }),
       this.prisma.checklistTemplate.count({ where }),
     ]);
@@ -183,16 +191,14 @@ export class TemplatesService {
             brand: true,
             origin: true,
             factoryId: true,
+            factory: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
-        assignedUser: {
-          select: {
-            id: true,
-            username: true,
-            fullName: true,
-            role: true,
-          },
-        },
+
         _count: {
           select: {
             equipmentAssignments: true,
@@ -232,17 +238,6 @@ export class TemplatesService {
       }
     }
 
-    // Validate assigned user if changing
-    if (dto.assignedUserId && dto.assignedUserId !== existing.assignedUserId) {
-      const user = await this.prisma.user.findUnique({
-        where: { id: dto.assignedUserId },
-      });
-
-      if (!user) {
-        throw new NotFoundException(`Không tìm thấy người dùng với ID: ${dto.assignedUserId}`);
-      }
-    }
-
     // Validate items if provided
     if (dto.items && dto.items.length === 0) {
       throw new BadRequestException('Checklist phải có ít nhất 1 hạng mục');
@@ -261,13 +256,8 @@ export class TemplatesService {
         ...(dto.name && { name: dto.name }),
         ...(dto.description !== undefined && { description: dto.description }),
         ...(dto.equipmentId && { equipmentId: dto.equipmentId }),
-        ...(dto.assignedUserId !== undefined && { assignedUserId: dto.assignedUserId }),
         ...(dto.department !== undefined && { department: dto.department }),
-        ...(dto.maintenanceStartDate !== undefined && {
-          maintenanceStartDate: dto.maintenanceStartDate
-            ? new Date(dto.maintenanceStartDate)
-            : null,
-        }),
+
         ...(dto.cycle && { cycle: dto.cycle }),
         ...(dto.status && { status: dto.status }),
         ...(dto.notes !== undefined && { notes: dto.notes }),
@@ -288,13 +278,11 @@ export class TemplatesService {
             name: true,
             category: true,
             status: true,
-          },
-        },
-        assignedUser: {
-          select: {
-            id: true,
-            username: true,
-            fullName: true,
+            factory: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },
@@ -354,13 +342,11 @@ export class TemplatesService {
             name: true,
             category: true,
             status: true,
-          },
-        },
-        assignedUser: {
-          select: {
-            id: true,
-            username: true,
-            fullName: true,
+            factory: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },
@@ -391,13 +377,11 @@ export class TemplatesService {
             name: true,
             category: true,
             status: true,
-          },
-        },
-        assignedUser: {
-          select: {
-            id: true,
-            username: true,
-            fullName: true,
+            factory: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },
@@ -417,11 +401,10 @@ export class TemplatesService {
         name: `${original.name} (Copy)`,
         description: original.description,
         equipmentId: original.equipmentId,
-        assignedUserId: original.assignedUserId,
         department: original.department,
-        maintenanceStartDate: original.maintenanceStartDate,
+
         cycle: original.cycle,
-        status: ChecklistStatus.DRAFT,
+        status: ChecklistStatus.ACTIVE,
         notes: original.notes,
         version: 1,
         items: {
@@ -449,13 +432,11 @@ export class TemplatesService {
             name: true,
             category: true,
             status: true,
-          },
-        },
-        assignedUser: {
-          select: {
-            id: true,
-            username: true,
-            fullName: true,
+            factory: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },
@@ -480,17 +461,10 @@ export class TemplatesService {
         name: dto.name || original.name,
         description: dto.description !== undefined ? dto.description : original.description,
         equipmentId: dto.equipmentId || original.equipmentId,
-        assignedUserId:
-          dto.assignedUserId !== undefined ? dto.assignedUserId : original.assignedUserId,
         department: dto.department !== undefined ? dto.department : original.department,
-        maintenanceStartDate:
-          dto.maintenanceStartDate !== undefined
-            ? dto.maintenanceStartDate
-              ? new Date(dto.maintenanceStartDate)
-              : null
-            : original.maintenanceStartDate,
+
         cycle: dto.cycle || original.cycle,
-        status: ChecklistStatus.DRAFT,
+        status: ChecklistStatus.ACTIVE,
         notes: dto.notes !== undefined ? dto.notes : original.notes,
         version: original.version + 1,
         items: {
@@ -520,13 +494,11 @@ export class TemplatesService {
             name: true,
             category: true,
             status: true,
-          },
-        },
-        assignedUser: {
-          select: {
-            id: true,
-            username: true,
-            fullName: true,
+            factory: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },

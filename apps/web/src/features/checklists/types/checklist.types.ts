@@ -32,16 +32,15 @@ export interface Equipment {
   status: string;
   brand?: string | null;
   origin?: string | null;
-  factoryId?: string | null;
+  factoryName?: string | null;
+  factory?: {
+    name: string;
+  };
+  image?: string | null;
+  modelYear?: number | null;
 }
 
-// User (simplified for templates)
-export interface User {
-  id: string;
-  username: string;
-  fullName: string;
-  role?: string;
-}
+
 
 // Template Item
 export interface ChecklistTemplateItem {
@@ -76,15 +75,12 @@ export interface ChecklistTemplate {
   equipmentId: string;
   equipment?: Equipment;
 
-  // Assigned User (OPTIONAL)
-  assignedUserId?: string | null;
-  assignedUser?: User | null;
+
 
   // Department (OPTIONAL)
   department?: string | null;
 
-  // Maintenance Start Date (OPTIONAL)
-  maintenanceStartDate?: string | null;
+
 
   // Scheduling
   cycle: ChecklistCycle;
@@ -124,24 +120,25 @@ export interface CreateTemplateDto {
   name: string;
   description?: string;
   equipmentId: string; // REQUIRED
-  assignedUserId?: string; // OPTIONAL
   department?: string; // OPTIONAL
-  maintenanceStartDate?: string; // OPTIONAL (ISO string)
+
   cycle: ChecklistCycle;
   status?: ChecklistStatus;
   notes?: string;
   items: CreateTemplateItemDto[];
 }
 
-export interface UpdateTemplateDto extends Partial<CreateTemplateDto> {}
+export type UpdateTemplateDto = Partial<CreateTemplateDto>;
 
 // Query parameters
 export interface QueryTemplateParams {
-  status?: ChecklistStatus;
-  cycle?: ChecklistCycle;
+  status?: ChecklistStatus[];
+  cycle?: ChecklistCycle[];
   equipmentId?: string; // NEW: filter by equipment
-  assignedUserId?: string; // NEW: filter by assigned user
+
   search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
   page?: number;
   limit?: number;
 }
@@ -157,8 +154,13 @@ export interface PaginatedResponse<T> {
   };
 }
 
+// Wrapper for single item responses
+export interface ApiResponse<T> {
+  data: T;
+}
+
 export type ChecklistTemplateListResponse = PaginatedResponse<ChecklistTemplate>;
-export type ChecklistTemplateResponse = ChecklistTemplate;
+export type ChecklistTemplateResponse = ApiResponse<ChecklistTemplate>;
 
 // Cycle labels for UI
 export const CYCLE_LABELS: Record<ChecklistCycle, string> = {

@@ -3,17 +3,15 @@ import { useSearchParams } from 'react-router-dom';
 import { useDebounce } from '@/hooks/use-debounce';
 import type { EquipmentQueryParams, EquipmentStatus } from '@/api/types/equipment.types';
 
-import { CircleCheck, CircleHelp, CircleX } from 'lucide-react';
-
 export interface Filters {
   factory: string[];
   status: EquipmentStatus[];
 }
 
 export const STATUS_OPTIONS = [
-  { value: 'ACTIVE', label: 'Hoạt động', color: 'bg-status-active', icon: CircleCheck },
-  { value: 'MAINTENANCE', label: 'Bảo trì', color: 'bg-status-maintenance', icon: CircleHelp },
-  { value: 'INACTIVE', label: 'Ngừng hoạt động', color: 'bg-status-inactive', icon: CircleX }
+  { value: 'ACTIVE', label: 'Hoạt động', color: 'bg-status-active'},
+  { value: 'MAINTENANCE', label: 'Bảo trì', color: 'bg-status-maintenance'},
+  { value: 'INACTIVE', label: 'Ngừng hoạt động', color: 'bg-status-inactive'}
 ];
 
 export function useEquipmentFilters() {

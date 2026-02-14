@@ -69,7 +69,7 @@ const equipmentFormSchema = z.object({
 
 type EquipmentFormData = z.infer<typeof equipmentFormSchema>;
 
-export default function EquipmentForm() {
+export default function UI() {
   const { code } = useParams();
   const navigate = useNavigate();
   const isEditing = Boolean(code);
@@ -223,7 +223,7 @@ export default function EquipmentForm() {
 
   return (
     <div className="min-h-screen bg-muted/40 pb-20">
-      <div className="max-w-5xl mx-auto p-4 md:p-8 animate-in fade-in duration-500">
+      <div className="mx-auto p-4 md:p-8 animate-in fade-in duration-500">
         
         {/* Breadcrumb & Header */}
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">

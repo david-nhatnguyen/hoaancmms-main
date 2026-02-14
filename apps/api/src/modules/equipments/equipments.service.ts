@@ -323,40 +323,36 @@ export class EquipmentsService {
    * Search equipments for autocomplete (simpler, faster)
    */
   async search(query: string = '') {
-    if (!query || query.trim().length === 0) {
-      // Return recent equipments if no query  
-      return this.prisma.client.equipment.findMany({
-        where: { status: EquipmentStatus.ACTIVE },
-        select: {
-          id: true,
-          code: true,
-          name: true,
-          category: true,
-          status: true,
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 20,
-      });
+    const where: Prisma.EquipmentWhereInput = {
+      status: EquipmentStatus.ACTIVE,
+    };
+
+    if (query && query.trim().length > 0) {
+      where.OR = [
+        { code: { contains: query, mode: 'insensitive' } },
+        { name: { contains: query, mode: 'insensitive' } },
+        { category: { contains: query, mode: 'insensitive' } },
+      ];
     }
 
-    return this.prisma.client.equipment.findMany({
-      where: {
-        OR: [
-          { code: { contains: query, mode: 'insensitive' } },
-          { name: { contains: query, mode: 'insensitive' } },
-          { category: { contains: query, mode: 'insensitive' } },
-        ],
-      },
-      select: {
-        id: true,
-        code: true,
-        name: true,
-        category: true,
-        status: true,
+    const data = await this.prisma.client.equipment.findMany({
+      where,
+      include: {
+        factory: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
       take: 20,
     });
+
+    return data.map((item) => ({
+      ...item,
+      factoryName: item.factory?.name,
+    }));
   }
 
   async findOne(id: string) {

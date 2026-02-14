@@ -228,8 +228,13 @@ export function ResponsiveTable<T>({
   if (isMobile) {
     if (data.length === 0) {
       return (
-        <div className="bg-card rounded-xl border border-border/50 p-8 text-center text-muted-foreground">
-          {emptyMessage}
+        <div className="bg-card rounded-xl border border-border/50 p-12 text-center">
+          <div className="flex flex-col items-center justify-center gap-2">
+            <p className="text-base font-medium">{emptyMessage}</p>
+            {emptyMessage.includes('kết quả') && (
+              <p className="text-sm text-muted-foreground">Vui lòng điều chỉnh lại bộ lọc</p>
+            )}
+          </div>
         </div>
       );
     }
