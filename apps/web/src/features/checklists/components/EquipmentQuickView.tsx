@@ -29,8 +29,8 @@ export const EquipmentQuickView: React.FC<EquipmentQuickViewProps> = ({
       {/* Image / Icon Section */}
       {showImage && (
         <div className={cn(
-          "rounded-xl border border-border/50 bg-primary/10 overflow-hidden shrink-0 shadow-sm flex items-center justify-center transition-all",
-          isCompact ? "h-12 w-12" : "h-16 w-16"
+          "rounded-lg border border-border/50 bg-muted overflow-hidden shrink-0 shadow-sm flex items-center justify-center transition-all",
+          isCompact ? "h-14 w-14" : "h-24 w-24"
         )}>
           {equipment.image ? (
             <img 
@@ -39,13 +39,12 @@ export const EquipmentQuickView: React.FC<EquipmentQuickViewProps> = ({
               className="w-full h-full object-cover" 
             />
           ) : (
-            <ImageIcon className={cn("text-primary/40", isCompact ? "h-6 w-6" : "h-8 w-8")} />
+            <ImageIcon className={cn("text-muted-foreground/30", isCompact ? "h-6 w-6" : "h-10 w-10")} />
           )}
         </div>
       )}
 
       {/* Content Section */}
-
       <div className="flex-1 min-w-0 overflow-hidden flex flex-col gap-1">
         {/* Row 1: Name */}
         <h4 className={cn(

@@ -144,6 +144,7 @@ export function useChecklistColumns({
         if (!t.equipment) return <span className="text-muted-foreground">—</span>;
         return <EquipmentQuickView equipment={t.equipment} isCompact showImage={false} />;
       },
+      mobilePriority: 'metadata',
     },
 
     {
@@ -163,6 +164,7 @@ export function useChecklistColumns({
           {t.department || '—'}
         </span>
       ),
+      mobilePriority: 'metadata',
     },
     {
       accessorKey: 'cycle',
@@ -183,6 +185,7 @@ export function useChecklistColumns({
           {CYCLE_LABELS[t.cycle]}
         </span>
       ),
+      mobilePriority: 'metadata',
     },
     {
       accessorKey: 'version',
@@ -198,6 +201,7 @@ export function useChecklistColumns({
           v{t.version}
         </span>
       ),
+      mobilePriority: 'metadata',
     },
     {
       accessorKey: 'status',
@@ -211,7 +215,7 @@ export function useChecklistColumns({
           [ChecklistStatus.INACTIVE]: 'bg-status-inactive/20 text-[hsl(var(--status-inactive))]',
         };
         return (
-          <div className="flex justify-center min-w-[80px]">
+          <div className="flex justify-center min-w-[100px]">
             <span className={cn('status-badge text-[10px]', styles[status])}>
               {STATUS_LABELS[status]}
             </span>

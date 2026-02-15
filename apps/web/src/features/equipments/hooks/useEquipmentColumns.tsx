@@ -171,6 +171,7 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
           {eq.factoryName || '-'}
         </span>
       ),
+      mobilePriority: 'metadata',
     },
     {
       accessorKey: "quantity",
@@ -178,6 +179,7 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
       header: "Số lượng",
       cell: ({ row }) => <span className="font-medium text-sm">{row.getValue("quantity") || 1}</span>,
       render: (eq) => <span className="font-medium text-sm">{eq.quantity || 1}</span>,
+      mobilePriority: 'metadata',
     },
     {
       accessorKey: "status",

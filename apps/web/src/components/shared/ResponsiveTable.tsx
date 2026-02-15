@@ -38,7 +38,7 @@ interface ResponsiveTableProps<T> {
   onRowClick?: (item: T) => void;
   emptyMessage?: string;
   // Mobile Card Styling
-  renderMobileCard?: (item: T, columns: Column<T>[]) => ReactNode;
+  renderMobileCard?: (item: T, columns: Column<T>[], isSelected: boolean, toggleSelection: () => void) => ReactNode;
   mobileCardAction?: (item: T) => ReactNode;
   // Pagination Settings
   pageSize?: number;
@@ -50,6 +50,7 @@ interface ResponsiveTableProps<T> {
   // Selection
   selectedIds?: string[];
   onSelectionChange?: (ids: string[]) => void;
+  isLoading?: boolean;
 }
 
 // Pagination Component (Shared)
@@ -163,7 +164,8 @@ export function ResponsiveTable<T>({
   onPageChange,
   selectedIds,
   onSelectionChange,
-  mobileCardAction
+  mobileCardAction,
+  isLoading = false
 }: ResponsiveTableProps<T>) {
   const isMobile = useIsMobile();
   const [internalPage, setInternalPage] = useState(1);
@@ -226,11 +228,42 @@ export function ResponsiveTable<T>({
 
   // Mobile Card View
   if (isMobile) {
+    if (isLoading) {
+      return (
+        <div className="space-y-4 pt-1 pb-4">
+          {[1, 2, 3].map((i) => (
+            <div key={`mob-skel-${i}`} className="bg-card rounded-xl border border-border/50 p-5 space-y-4 animate-pulse">
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex-1 space-y-2">
+                  <div className="h-5 bg-muted rounded w-3/4" />
+                  <div className="h-4 bg-muted rounded w-1/2" />
+                </div>
+                <div className="h-12 w-12 bg-muted rounded-lg" />
+              </div>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-3 pt-2">
+                {[1, 2, 3, 4].map(j => (
+                  <div key={j} className="space-y-1">
+                    <div className="h-3 bg-muted rounded w-1/3" />
+                    <div className="h-4 bg-muted rounded w-2/3" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
     if (data.length === 0) {
       return (
-        <div className="bg-card rounded-xl border border-border/50 p-12 text-center">
-          <div className="flex flex-col items-center justify-center gap-2">
-            <p className="text-base font-medium">{emptyMessage}</p>
+        <div className="bg-card rounded-xl border border-border/50 p-16 text-center h-[400px] flex items-center justify-center animate-in fade-in zoom-in-95 duration-500">
+          <div className="flex flex-col items-center justify-center gap-3">
+            <div className="p-4 rounded-full bg-muted/30">
+               <svg className="h-10 w-10 text-muted-foreground opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+               </svg>
+            </div>
+            <p className="text-base font-semibold text-foreground/80">{emptyMessage}</p>
             {emptyMessage.includes('kết quả') && (
               <p className="text-sm text-muted-foreground">Vui lòng điều chỉnh lại bộ lọc</p>
             )}
@@ -256,22 +289,50 @@ export function ResponsiveTable<T>({
             if (renderMobileCard) {
               return (
                 <div key={keyExtractor(item)} className="max-w-full overflow-hidden">
-                  {renderMobileCard(item, columns)}
+                  {renderMobileCard(item, columns, selectedIdsSet.has(keyExtractor(item)), () => toggleSelectItem(keyExtractor(item)))}
                 </div>
               );
             }
 
+            // Default configuration if renderMobileCard is not provided
+            const primaryCol = columns.find(c => c.mobilePriority === 'primary') || columns.find(c => c.key !== 'select') || columns[0];
+            const secondaryCol = columns.find(c => c.mobilePriority === 'secondary');
+            // Cast strictly to align with previous flexible behavior
+            const imageCol = columns.find(c => c.key === 'image' || c.mobilePriority === 'image' as any);
+            const qrCol = columns.find(c => c.key === 'qrCode' || c.mobilePriority === 'qr' as any);
+            const statusCol = columns.find(c => c.key === 'status' || c.mobilePriority === 'status' as any);
+            
+            const metadataCols = columns.filter(c => 
+              (c.mobilePriority === 'metadata' || (!c.mobilePriority && !c.hiddenOnMobile)) &&
+              c !== primaryCol && 
+              c !== secondaryCol && 
+              c !== imageCol && 
+              c !== qrCol && 
+              c !== statusCol && 
+              c.key !== 'actions' && 
+              c.key !== 'select'
+            );
+
             return (
-              <MobileCard<T>
-                key={keyExtractor(item)}
-                item={item}
-                columns={columns}
+              <div key={keyExtractor(item)} className="animate-in fade-in slide-in-from-top-1 duration-300">
+                <MobileCard
+                  key={keyExtractor(item)}
+                title={primaryCol?.mobileRender?.(item) ?? primaryCol?.render(item)}
+                subtitle={secondaryCol ? (secondaryCol.mobileRender?.(item) ?? secondaryCol.render(item)) : undefined}
+                status={statusCol?.render(item)}
+                image={imageCol?.mobileRender?.(item) ?? imageCol?.render(item)}
+                data={metadataCols.map(col => ({
+                  label: typeof col.header === 'string' ? col.header : (col.mobileLabel || col.key),
+                  value: col.mobileRender?.(item) ?? col.render(item)
+                }))}
+                actionSlot={qrCol ? (qrCol.mobileRender?.(item) ?? qrCol.render(item)) : undefined}
+                footerActions={mobileCardAction?.(item)}
                 isSelected={selectedIdsSet.has(keyExtractor(item))}
                 onToggleSelection={() => toggleSelectItem(keyExtractor(item))}
                 onClick={() => onRowClick?.(item)}
                 renderSelection={isSelectable}
-                action={mobileCardAction}
               />
+              </div>
             );
           })}
         </div>
@@ -320,10 +381,32 @@ export function ResponsiveTable<T>({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.length === 0 ? (
+            {isLoading ? (
+               // Loading Skeletons for Desktop
+               Array.from({ length: pageSize }).map((_, i) => (
+                <TableRow key={`esk-${i}`} className="border-border/40 h-16">
+                  {isSelectable && <TableCell className="w-[40px] px-4"><div className="h-4 w-4 bg-muted rounded animate-pulse" /></TableCell>}
+                  {columns.map((_, j) => (
+                    <TableCell key={`ecell-${i}-${j}`}>
+                      <div className="h-5 bg-muted rounded w-3/4 animate-pulse" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-32 text-center text-muted-foreground">
-                  {emptyMessage}
+                <TableCell colSpan={columns.length + (isSelectable ? 1 : 0)} className="h-[400px] text-center text-muted-foreground">
+                  <div className="flex flex-col items-center justify-center gap-4 animate-in fade-in zoom-in-95 duration-500">
+                    <div className="p-4 rounded-full bg-muted/40 border border-border/10">
+                      <svg className="h-10 w-10 text-muted-foreground opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-lg font-semibold text-foreground/80">{emptyMessage}</p>
+                      <p className="text-sm text-muted-foreground">Vui lòng điều chỉnh lại bộ lọc</p>
+                    </div>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
@@ -332,7 +415,7 @@ export function ResponsiveTable<T>({
                   key={keyExtractor(item)}
                   onClick={() => onRowClick?.(item)}
                   className={cn(
-                    "table-row-interactive",
+                    "table-row-interactive h-16 group border-border/40 animate-in fade-in slide-in-from-top-1 duration-300",
                     onRowClick && "cursor-pointer",
                     selectedIdsSet.has(keyExtractor(item)) && "bg-primary/[0.03] dark:bg-primary/[0.05]"
                   )}

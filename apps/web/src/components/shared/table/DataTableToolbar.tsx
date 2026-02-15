@@ -67,6 +67,22 @@ export function DataTableToolbar<TData>({
             />
           )
         )}
+        {isFiltered && (
+          <Button
+          variant="ghost" 
+          size="sm"
+          className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 px-2"
+            onClick={() => {
+              if (onReset) {
+                onReset()
+              } else {
+                table.reset()
+              }
+            }}
+          >
+            Xóa tất cả
+          </Button>
+        )}
       </div>
       <div className="flex items-center gap-2">
         {actions}

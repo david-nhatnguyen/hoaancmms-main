@@ -1,6 +1,4 @@
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -8,7 +6,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useIsMobile } from '@/hooks/use-mobile';
 import type { UseFactoryFormReturn } from '../../hooks/useFactoryForm';
+import { FactoryFormField } from './FactoryFormField';
+import { FactoryFormActions } from './FactoryFormActions';
 
 export interface FactoryFormFieldsProps {
   form: UseFactoryFormReturn;
@@ -21,10 +22,17 @@ export interface FactoryFormFieldsProps {
 /**
  * Factory Form Fields Component
  * 
- * Reusable form fields for factory creation/editing
- * Can be used in Dialog, Drawer, or standalone
+ * Reusable form fields for factory creation/editing.
+ * Split into smaller components following Atomic Design.
  */
-export function FactoryFormFields({ form, onSave, isSaving = false, onCancel, hideActions = false }: FactoryFormFieldsProps) {
+export function FactoryFormFields({ 
+  form, 
+  onSave, 
+  isSaving = false, 
+  onCancel, 
+  hideActions = false 
+}: FactoryFormFieldsProps) {
+  const isMobile = useIsMobile();
 
   const {
     isEditMode,
@@ -39,87 +47,79 @@ export function FactoryFormFields({ form, onSave, isSaving = false, onCancel, hi
     onSave();
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && canSubmit && !isSaving) {
-      e.preventDefault();
-      handleSave();
-    }
-  };
-
   return (
-    <>
-      {/* Form Fields */}
-      <div className="grid gap-4">
+    <div className="flex flex-col h-full">
+      <form 
+        className="grid gap-5 py-2 pb-10"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSave();
+        }}
+      >
         {/* Code Field */}
-        <div className="grid gap-2">
-          <Label htmlFor="code" className="text-sm font-medium">
-            Mã nhà máy <span className="text-destructive">*</span>
-          </Label>
+        <FactoryFormField
+          id="code"
+          label="Mã nhà máy"
+          error={errors.code}
+          required
+        >
           <Input
             id="code"
             placeholder="VD: F01, F02..."
             value={formData.code}
             onChange={(e) => updateField('code', e.target.value)}
-            onKeyDown={handleKeyDown}
             disabled={isSaving}
-            className={errors.code ? 'border-destructive' : ''}
-            autoFocus
+            autoFocus={!isMobile}
+            className={isMobile ? "h-12 text-base" : ""}
           />
-          {errors.code && (
-            <p className="text-sm text-destructive">{errors.code}</p>
-          )}
-        </div>
+        </FactoryFormField>
 
         {/* Name Field */}
-        <div className="grid gap-2">
-          <Label htmlFor="name" className="text-sm font-medium">
-            Tên nhà máy <span className="text-destructive">*</span>
-          </Label>
+        <FactoryFormField
+          id="name"
+          label="Tên nhà máy"
+          error={errors.name}
+          required
+        >
           <Input
             id="name"
             placeholder="Nhập tên nhà máy"
             value={formData.name}
             onChange={(e) => updateField('name', e.target.value)}
-            onKeyDown={handleKeyDown}
             disabled={isSaving}
-            className={errors.name ? 'border-destructive' : ''}
+            className={isMobile ? "h-12 text-base" : ""}
           />
-          {errors.name && (
-            <p className="text-sm text-destructive">{errors.name}</p>
-          )}
-        </div>
+        </FactoryFormField>
 
         {/* Location Field */}
-        <div className="grid gap-2">
-          <Label htmlFor="location" className="text-sm font-medium">
-            Địa điểm
-          </Label>
+        <FactoryFormField
+          id="location"
+          label="Địa điểm"
+          error={errors.location}
+        >
           <Input
             id="location"
             placeholder="Nhập địa điểm (không bắt buộc)"
             value={formData.location}
             onChange={(e) => updateField('location', e.target.value)}
-            onKeyDown={handleKeyDown}
             disabled={isSaving}
-            className={errors.location ? 'border-destructive' : ''}
+            className={isMobile ? "h-12 text-base" : ""}
           />
-          {errors.location && (
-            <p className="text-sm text-destructive">{errors.location}</p>
-          )}
-        </div>
+        </FactoryFormField>
 
         {/* Status Field (Only in Edit Mode) */}
         {isEditMode && (
-          <div className="grid gap-2">
-            <Label className="text-sm font-medium">
-              Trạng thái
-            </Label>
+          <FactoryFormField
+            id="status"
+            label="Trạng thái"
+            error={errors.status}
+          >
             <Select
               value={formData.status?.toUpperCase()}
               onValueChange={(value) => updateField('status', value)}
               disabled={isSaving}
             >
-              <SelectTrigger>
+              <SelectTrigger className={isMobile ? "h-12 text-base" : ""}>
                 <SelectValue placeholder="Chọn trạng thái" />
               </SelectTrigger>
               <SelectContent className="z-[70]">
@@ -127,38 +127,21 @@ export function FactoryFormFields({ form, onSave, isSaving = false, onCancel, hi
                 <SelectItem value="INACTIVE">Ngừng hoạt động</SelectItem>
               </SelectContent>
             </Select>
-            {errors.status && (
-              <p className="text-sm text-destructive">{errors.status}</p>
-            )}
-          </div>
+          </FactoryFormField>
         )}
-      </div>
 
-
-      {!hideActions && (
-        <div className="flex gap-2 mt-6">
-          {onCancel && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isSaving}
-              className="flex-1"
-            >
-              Hủy
-            </Button>
-          )}
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={!canSubmit || isSaving}
-            className="flex-1"
-          >
-            {isSaving && <span className="mr-2">⏳</span>}
-            {isEditMode ? 'Lưu' : 'Thêm mới'}
-          </Button>
-        </div>
-      )}
-    </>
+        {/* Action Buttons */}
+        {!hideActions && (
+          <FactoryFormActions
+            onSave={handleSave}
+            onCancel={onCancel}
+            isSaving={isSaving}
+            canSubmit={canSubmit}
+            isEditMode={isEditMode}
+            isMobile={isMobile}
+          />
+        )}
+      </form>
+    </div>
   );
 }

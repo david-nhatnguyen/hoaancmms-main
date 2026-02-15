@@ -47,13 +47,25 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(buttonVariants({ variant, size, className }), 
+          loading && "text-transparent pointer-events-none relative transition-none"
+        )}
         ref={ref}
         disabled={props.disabled || loading}
         {...props}
       >
-        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {children}
+        <span className={cn(
+          "flex items-center gap-2", 
+          loading ? "opacity-0" : "opacity-100"
+        )}>
+          {children}
+        </span>
+        
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Loader2 className="h-4 w-4 animate-spin text-current" />
+          </div>
+        )}
       </Comp>
     )
   }

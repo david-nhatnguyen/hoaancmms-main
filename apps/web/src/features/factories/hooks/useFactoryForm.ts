@@ -1,34 +1,15 @@
 import { useState, useCallback } from 'react';
-import { z } from 'zod';
 import type { Factory, FactoryStatus } from '@/api/types/factory.types';
-
-// ============================================================================
-// VALIDATION SCHEMA
-// ============================================================================
-
-export const factoryFormSchema = z.object({
-    code: z.string()
-        .min(1, 'Mã nhà máy không được để trống')
-        .max(50, 'Mã nhà máy không được quá 50 ký tự'),
-    name: z.string()
-        .min(1, 'Tên nhà máy không được để trống')
-        .max(255, 'Tên nhà máy không được quá 255 ký tự'),
-    location: z.string().optional(),
-    status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
-});
-
-export type FactoryFormData = z.infer<typeof factoryFormSchema>;
+import { 
+    type FactoryFormData, 
+    type FactoryFormErrors, 
+    validateFactoryForm, 
+    sanitizeFactoryData 
+} from '../handlers/factory-form.handlers';
 
 // ============================================================================
 // TYPES
 // ============================================================================
-
-export interface FactoryFormErrors {
-    code?: string;
-    name?: string;
-    location?: string;
-    status?: string;
-}
 
 export interface UseFactoryFormOptions {
     onSuccess?: () => void;
@@ -50,6 +31,7 @@ export interface UseFactoryFormReturn {
     resetForm: () => void;
     validate: () => boolean;
     setIsSubmitting: (isSubmitting: boolean) => void;
+    getSanitizedData: () => FactoryFormData;
 
     // Computed
     isEditMode: boolean;
@@ -74,28 +56,6 @@ const INITIAL_FORM_DATA: FactoryFormData = {
 
 /**
  * Custom hook for managing factory form state and validation
- * 
- * @param options - Optional callbacks for success/error handling
- * @returns Form state and actions
- * 
- * @example
- * ```tsx
- * const form = useFactoryForm();
- * 
- * // Open for create
- * form.openDialog();
- * 
- * // Open for edit
- * form.openDialog(factory);
- * 
- * // Update field
- * form.updateField('name', 'New Name');
- * 
- * // Validate
- * if (form.validate()) {
- *   // Submit
- * }
- * ```
  */
 export function useFactoryForm(): UseFactoryFormReturn {
     // ============================================================================
@@ -112,13 +72,8 @@ export function useFactoryForm(): UseFactoryFormReturn {
     // ACTIONS
     // ============================================================================
 
-    /**
-     * Open dialog for create or edit
-     * @param factory - Factory to edit (undefined for create mode)
-     */
     const openDialog = useCallback((factory?: Factory) => {
         if (factory) {
-            // Edit mode
             setEditingFactory(factory);
             setFormData({
                 code: factory.code,
@@ -127,7 +82,6 @@ export function useFactoryForm(): UseFactoryFormReturn {
                 status: factory.status?.toUpperCase() as FactoryStatus,
             });
         } else {
-            // Create mode
             setEditingFactory(null);
             setFormData(INITIAL_FORM_DATA);
         }
@@ -135,9 +89,6 @@ export function useFactoryForm(): UseFactoryFormReturn {
         setIsOpen(true);
     }, []);
 
-    /**
-     * Close dialog and reset all state
-     */
     const closeDialog = useCallback(() => {
         setIsOpen(false);
         setEditingFactory(null);
@@ -146,20 +97,11 @@ export function useFactoryForm(): UseFactoryFormReturn {
         setIsSubmitting(false);
     }, []);
 
-    /**
-     * Update a single form field
-     * @param field - Field name to update
-     * @param value - New value
-     */
     const updateField = useCallback((field: keyof FactoryFormData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
-        // Clear error for this field when user starts typing
         setErrors(prev => ({ ...prev, [field]: undefined }));
     }, []);
 
-    /**
-     * Reset form to initial state (create mode) or original factory data (edit mode)
-     */
     const resetForm = useCallback(() => {
         if (editingFactory) {
             setFormData({
@@ -174,26 +116,14 @@ export function useFactoryForm(): UseFactoryFormReturn {
         setErrors({});
     }, [editingFactory]);
 
-    /**
-     * Validate form data using Zod schema
-     * @returns true if valid, false otherwise (sets errors)
-     */
     const validate = useCallback((): boolean => {
-        try {
-            factoryFormSchema.parse(formData);
-            setErrors({});
-            return true;
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                const newErrors: FactoryFormErrors = {};
-                (error as any).errors.forEach((err: any) => {
-                    const field = err.path[0] as keyof FactoryFormErrors;
-                    newErrors[field] = err.message;
-                });
-                setErrors(newErrors);
-            }
-            return false;
-        }
+        const validationErrors = validateFactoryForm(formData);
+        setErrors(validationErrors);
+        return Object.keys(validationErrors).length === 0;
+    }, [formData]);
+
+    const getSanitizedData = useCallback(() => {
+        return sanitizeFactoryData(formData);
     }, [formData]);
 
     // ============================================================================
@@ -215,27 +145,19 @@ export function useFactoryForm(): UseFactoryFormReturn {
 
     const canSubmit = !isSubmitting && formData.code.trim() !== '' && formData.name.trim() !== '';
 
-    // ============================================================================
-    // RETURN
-    // ============================================================================
-
     return {
-        // State
         isOpen,
         editingFactory,
         formData,
         errors,
         isSubmitting,
-
-        // Actions
         openDialog,
         closeDialog,
         updateField,
         resetForm,
         validate,
         setIsSubmitting,
-
-        // Computed
+        getSanitizedData,
         isEditMode,
         hasChanges,
         canSubmit,

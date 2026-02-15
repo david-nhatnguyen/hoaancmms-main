@@ -1,7 +1,16 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Pencil, MapPin, Settings2, Trash2, ChevronRight } from 'lucide-react';
+import { Pencil, MapPin, Settings2, Trash2, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { ColumnDef } from '@tanstack/react-table';
 import type { Factory } from '@/api/types/factory.types';
@@ -76,10 +85,38 @@ export function useFactoryColumns(
   // ============================================================================
 
   const columns = useMemo<UseFactoryColumnsReturn['columns']>(() => [
+    // Select Column
+    {
+      id: "select",
+      key: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+          className="translate-y-[2px]"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+          className="translate-y-[2px]"
+        />
+      ),
+      render: () => null,
+      enableSorting: false,
+      enableHiding: false,
+      width: 'w-[40px]',
+    },
     // Code Column
     {
       accessorKey: 'code',
-      header:"Mã nhà máy",
+      header: "Mã nhà máy",
       cell: ({ row }) => (
         <span className="font-mono font-medium text-primary">
           {row.original.code}
@@ -101,7 +138,9 @@ export function useFactoryColumns(
       accessorKey: 'name',
       header: "Tên nhà máy",
       cell: ({ row }) => (
-        <span className="font-medium">{row.original.name}</span>
+        <span className="font-medium truncate max-w-[200px]" title={row.original.name}>
+          {row.original.name}
+        </span>
       ),
       // For ResponsiveTable
       key: 'name',
@@ -116,9 +155,9 @@ export function useFactoryColumns(
       accessorKey: 'location',
       header: "Địa điểm",
       cell: ({ row }) => (
-        <div className="flex items-center gap-1.5 text-muted-foreground">
-          <MapPin className="h-4 w-4" />
-          {row.original.location || '-'}
+        <div className="flex items-center gap-1.5 text-muted-foreground max-w-[200px]" title={row.original.location || ''}>
+          <MapPin className="h-4 w-4 shrink-0" />
+          <span className="truncate">{row.original.location || '-'}</span>
         </div>
       ),
       // For ResponsiveTable
@@ -129,6 +168,7 @@ export function useFactoryColumns(
           {factory.location || '-'}
         </div>
       ),
+      mobilePriority: 'metadata',
     },
 
     // Equipment Count Column
@@ -149,13 +189,14 @@ export function useFactoryColumns(
           {factory.equipmentCount}
         </span>
       ),
+      mobilePriority: 'metadata',
       align: 'center',
     },
 
     // Status Column
     {
       accessorKey: 'status',
-      header:"Trạng thái",
+      header: "Trạng thái",
       cell: ({ row }) => <StatusBadge status={row.original.status} />,
       // For ResponsiveTable
       key: 'status',
@@ -163,74 +204,39 @@ export function useFactoryColumns(
       align: 'center',
     },
 
-    // Actions Column
     {
       id: 'actions',
-      header: 'Thao tác',
+      key: 'actions',
       cell: ({ row }) => {
         const factory = row.original;
         return (
-          <div className="flex items-center justify-center gap-2">
-            <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleViewEquipments(factory.id);
-                }}
-                className="text-muted-foreground h-8 px-2 rounded-full"
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => handleViewEquipments(factory.id)}>
+                <Settings2 className="mr-2 h-4 w-4" /> Xem thiết bị
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleEdit(factory)}>
+                <Pencil className="mr-2 h-4 w-4" /> Chỉnh sửa
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => handleDelete(factory)}
+                className="text-destructive focus:text-destructive"
               >
-                <span className="text-xs font-medium mr-1.5">Xem thiết bị</span>
-                <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEdit(factory);
-              }}
-              className="h-8 w-8 hover:bg-orange-500/10 hover:text-orange-500 rounded-full transition-colors"
-              title="Sửa"
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(factory);
-              }}
-              className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-full transition-colors"
-              title="Xóa"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+                <Trash2 className="mr-2 h-4 w-4" /> Xóa
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       },
-      // For ResponsiveTable
-      key: 'actions',
-      render: (factory) => (
-        <div className="flex items-center justify-center gap-2">
-          {/* Using same structure as cell for desktop view in ResponsiveTable */}
-          <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleViewEquipments(factory.id);
-              }}
-              className="text-muted-foreground h-8 px-2 rounded-full"
-            >
-              <span className="text-xs font-medium mr-1.5">Xem thiết bị</span>
-              <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-          {/* ... mobile rendering is usually handled separately by mobileRender or in the page */}
-        </div>
-      ),
-      align: 'center',
+      render: () => null,
     },
   ], [handleEdit, handleViewEquipments, handleDelete]);
 

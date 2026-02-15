@@ -1,148 +1,238 @@
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
-import { Column } from '../ResponsiveTable';
+import {
+  MoreHorizontal,
+  MoreVertical
+} from 'lucide-react';
+import { useMobileCard } from './hooks/use-mobile-card';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 
-export interface MobileCardProps<T> {
-  item: T;
-  columns: Column<T>[];
+export interface MobileCardProps {
+  // 1. Identity & Status (Header)
+  title: ReactNode;         // e.g., Code (Primary)
+  subtitle?: ReactNode;     // e.g., Name (Secondary)
+  status?: ReactNode;       // e.g., Badge
+
+  // 2. Visuals (Header/Body)
+  image?: string | ReactNode;
+
+  // 3. Content (Body Grid)
+  // Generic key-value pairs for flexible layout
+  data: Array<{
+    label: string;
+    value: ReactNode;
+    colSpan?: number
+  }>;
+
+  // 4. Attachments/Extras
+  actionSlot?: ReactNode; // e.g., QR Code area
+
+  // 5. Interaction (Footer)
+  footerActions?: ReactNode;
+
+  // 6. State
+  onClick?: () => void;
   isSelected?: boolean;
   onToggleSelection?: () => void;
-  onClick?: () => void;
   renderSelection?: boolean;
-  action?: (item: T) => ReactNode;
+  className?: string;
 }
 
-export function MobileCard<T>({
-  item,
-  columns,
-  isSelected,
-  onToggleSelection,
+export function MobileCard({
+  title,
+  subtitle,
+  status,
+  image,
+  data,
+  actionSlot,
+  footerActions,
   onClick,
+  isSelected = false,
+  onToggleSelection,
   renderSelection,
-  action
-}: MobileCardProps<T>) {
-  const primaryCol = columns.find(c => c.mobilePriority === 'primary') || columns[0];
-  const secondaryCol = columns.find(c => c.mobilePriority === 'secondary');
-  const imageCol = columns.find(c => c.key === 'image');
-  const qrCol = columns.find(c => c.key === 'qrCode');
-  const statusCol = columns.find(c => c.key === 'status');
+  className
+}: MobileCardProps) {
+  const { isSheetOpen, openSheet, closeSheet, handleSelection } = useMobileCard({
+    onToggleSelection
+  });
 
-  const metadataCols = columns.filter(c => 
-    (c.mobilePriority === 'metadata' || (!c.mobilePriority && !c.hiddenOnMobile && c !== primaryCol && c !== secondaryCol)) &&
-    c.key !== 'actions' && 
-    c.key !== 'status' &&
-    c.key !== 'image' &&
-    c.key !== 'qrCode'
-  );
+  // Helper to render the image prop which can be a URL string or a ReactNode
+  const renderImage = () => {
+    if (!image) return null;
+
+    if (typeof image === 'string') {
+      return (
+        <div className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 overflow-hidden rounded-xl border border-border/40 bg-muted/20 shadow-sm self-start group-hover:scale-[1.02] transition-transform duration-500">
+          <img
+            src={image}
+            alt="Thumbnail"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 overflow-hidden rounded-xl border border-border/40 bg-muted/20 shadow-sm self-start flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
+        {image}
+      </div>
+    );
+  };
 
   return (
-    <div
-      onClick={onClick}
-      className={cn(
-        "group relative flex flex-col gap-0 overflow-hidden rounded-2xl border transition-all duration-300",
-        "bg-card hover:bg-accent/[0.02] active:scale-[0.98]",
-        isSelected 
-          ? "border-primary shadow-lg shadow-primary/10 ring-1 ring-primary/20" 
-          : "border-border/50 hover:border-primary/30 shadow-sm",
-        onClick && "cursor-pointer"
-      )}
-    >
-      {/* Interactive Selection Area (Top Right) */}
-      {renderSelection && (
-        <div 
-          className="absolute top-2 right-2 z-30" 
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleSelection?.();
-          }}
-        >
-          <div className={cn(
-            "h-7 w-7 rounded-full border-2 transition-all flex items-center justify-center shadow-md backdrop-blur-md",
-            isSelected 
-              ? "bg-primary border-primary text-primary-foreground scale-110" 
-              : "border-white/80 bg-black/10 hover:border-primary/50"
-          )}>
-            {isSelected ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            ) : (
-              <div className="h-4 w-4 rounded-full border border-white/40" />
+    <>
+      <div
+        onClick={onClick}
+        className={cn(
+          "group relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-300",
+          "bg-card/40 backdrop-blur-sm hover:bg-card active:bg-accent/5",
+          isSelected
+            ? "border-primary/40 shadow-lg shadow-primary/5 ring-1 ring-primary/20 bg-primary/[0.03]"
+            : "border-border/50 hover:border-border shadow-sm hover:shadow-lg hover:-translate-y-0.5",
+          onClick && "cursor-pointer",
+          className
+        )}
+      >
+
+        {/* Dedicated Selection Header Section - Optimized for Right-Side touch */}
+        {renderSelection && (
+          <div
+            className={cn(
+              "px-2 py-2 flex items-center justify-between border-border/30 transition-all cursor-pointer",
+              isSelected ? "bg-primary/[0.04]" : "bg-muted/10 hover:bg-muted/20"
             )}
-          </div>
-        </div>
-      )}
-
-      {/* Visual Selection Highlight (Bg glow) */}
-      {isSelected && (
-        <div className="absolute inset-0 bg-primary/[0.04] pointer-events-none" />
-      )}
-
-      <div className="p-4 flex flex-col gap-4">
-        {/* Header Section: Assets + Primary Info */}
-        <div className="flex gap-5">
-          {/* Main Image Asset */}
-          {imageCol && (
-            <div className="shrink-0 w-20 h-20 overflow-hidden rounded-2xl border border-border/50 shadow-sm bg-muted/20">
-              {imageCol.mobileRender?.(item) ?? imageCol.render(item)}
-            </div>
-          )}
-
-          <div className="flex-1 min-w-0 flex flex-col justify-center">
-            <div className="flex items-center justify-between gap-2 mb-1">
-              <div className="font-mono text-primary font-bold text-xs tracking-wider uppercase opacity-80">
-                {primaryCol.mobileRender?.(item) ?? primaryCol.render(item)}
-              </div>
-              {statusCol && (
-                <div className={cn(
-                  "shrink-0 scale-100 origin-right transition-all",
-                  renderSelection && "mr-8" // Adjusted for smaller selection button
-                )}>
-                  {statusCol.render(item)}
+            onClick={handleSelection}
+          >
+            <div className={cn(
+              "flex items-start gap-2"
+            )}>
+              {status && (
+                <div className="shrink-0 transition-all transform origin-right">
+                  {status}
                 </div>
               )}
             </div>
-            
-            {secondaryCol && (
-              <div className="text-lg font-bold text-foreground leading-tight line-clamp-2">
-                {secondaryCol.mobileRender?.(item) ?? secondaryCol.render(item)}
-              </div>
-            )}
+            <div className={cn(
+              "h-5 w-5 rounded-full border transition-all duration-300 flex items-center justify-center shadow-sm",
+              isSelected
+                ? "bg-primary border-primary text-primary-foreground scale-100 rotate-0"
+                : "border-muted-foreground/20 bg-background rotate-12 scale-90"
+            )}>
+              {isSelected && (
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="animate-in zoom-in-50 duration-200">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              )}
+            </div>
+
           </div>
-        </div>
+        )}
 
-        {/* Body Section: QR + Metadata Grid */}
-        <div className="flex gap-4 pt-3 border-t border-border/40">
-           {/* QR Asset Area */}
-           {qrCol && (
-             <div className="shrink-0 w-20 h-20 bg-white p-2 rounded-2xl border border-border/50 shadow-sm flex items-center justify-center">
-                {qrCol.mobileRender?.(item) ?? qrCol.render(item)}
-             </div>
-           )}
+        <div className="p-2 flex flex-col gap-4">
+          {/* Header Section: Primary Info + Image */}
+          <div className="flex gap-4">
+            {/* Main Image Asset */}
+            {renderImage()}
 
-           {/* Grid of Metadata */}
-           <div className={cn(
-             "grid gap-x-4 gap-y-2 flex-1",
-             metadataCols.length > 2 ? "grid-cols-2" : "grid-cols-1"
-           )}>
-             {metadataCols.map((col) => (
-               <div key={col.key} className="flex flex-col min-w-0">
-                 <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/60">
-                   {col.mobileLabel || (typeof col.header === 'function' ? col.key : (col.header || col.key))}
-                 </span>
-                 <div className="text-xs font-semibold text-foreground/80 truncate">
-                   {col.mobileRender?.(item) ?? col.render(item)}
-                 </div>
-               </div>
-             ))}
-           </div>
+            <div className="flex-1 min-w-0 flex flex-col gap-1.5 pt-0.5">
+              {/* Top Row: Title */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="font-bold text-[12px] text-muted-foreground/80 uppercase tracking-[0.1em] truncate">
+                  {title}
+                </div>
+              </div>
+
+              {/* Subtitle: Main Content Headings */}
+              {subtitle && (
+                <div className="text-base font-bold text-card-foreground leading-tight line-clamp-2 pr-6 tracking-tight">
+                  {subtitle}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Metadata + Action Slot Grid */}
+          {(data.length > 0 || actionSlot) && (
+            <div className="grid grid-cols-[1fr_auto] gap-4 pt-4 border-t border-border/40 border-dashed">
+
+              {/* Key-Value Metadata Grid */}
+              {data.length > 0 && (
+                <div className={cn(
+                  "grid gap-x-6 gap-y-4 min-w-0",
+                  data.length > 1 ? "grid-cols-2" : "grid-cols-1"
+                )}>
+                  {data.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className={cn(
+                        "flex flex-col gap-1 min-w-0",
+                        item.colSpan && `col-span-${item.colSpan}`
+                      )}
+                    >
+                      <span className="text-[9px] uppercase font-bold text-muted-foreground/60 tracking-wider truncate">
+                        {item.label}
+                      </span>
+                      <div className="text-xs font-semibold text-foreground/90 truncate">
+                        {item.value || '—'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Action Slot (Right side alignment) */}
+              {actionSlot && (
+                <div className="shrink-0 flex items-end justify-end pl-2">
+                  <div className="w-16 h-16 bg-white p-1.5 rounded-xl border border-border shadow-sm group-hover:shadow-md transition-shadow">
+                    {actionSlot}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
+        {/* Refined Native-like Action Trigger (Bottom Right) */}
+        {footerActions && (
+          <div className="absolute bottom-1 right-1 z-30">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                openSheet(e as any);
+              }}
+              aria-label="Tùy chọn thao tác"
+              className={cn(
+                "p-2 rounded-full flex items-center justify-center transition-all",
+                "active:scale-90 text-muted-foreground/40 hover:text-primary bg-transparent border-none"
+              )}
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Action Area - Full Width */}
-      {action && (
-        <div className="mt-auto bg-muted/30 border-t border-border/40 p-3">
-          {action(item)}
-        </div>
-      )}
-    </div>
+      {/* Logic-Driven Native Action Sheet */}
+      <Drawer open={isSheetOpen} onOpenChange={closeSheet}>
+        <DrawerContent className="p-0 border-none outline-none max-w-lg mx-auto overflow-hidden rounded-t-[32px]">
+          <div className="mx-auto w-12 h-1.5 rounded-full bg-muted/60 mt-4 mb-2" />
+          <DrawerHeader className="pb-2 border-b border-border/40 mb-2">
+            <DrawerTitle className="text-sm font-bold opacity-60 uppercase tracking-widest text-center">
+              Tùy chọn thao tác
+            </DrawerTitle>
+          </DrawerHeader>
+          <div
+            className="px-4 pb-12 pt-4"
+            onClick={closeSheet} // Auto-close on any action click
+          >
+            {footerActions}
+          </div>
+        </DrawerContent>
+      </Drawer>
+    </>
   );
 }

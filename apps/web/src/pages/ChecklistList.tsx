@@ -1,15 +1,16 @@
-import { useCallback, useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getImageUrl } from '@/lib/image-utils';
+import { Eye, Pencil, Trash2, Copy, Power } from 'lucide-react';
+
 import {
   Plus,
   FileSpreadsheet,
   Download,
   ClipboardList,
   CheckCircle2,
-  Loader2,
 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import PullToRefresh from 'react-simple-pull-to-refresh';
 import { RowSelectionState } from '@tanstack/react-table';
 
 // UI Components
@@ -17,15 +18,14 @@ import { Button } from '@/components/ui/button';
 import { MobileButton } from '@/components/ui/mobile-button';
 import { MobileFilters } from '@/components/shared/MobileFilters';
 import { ChipFilter } from '@/components/shared/filters/ChipFilter';
-import { MobilePageHeader } from '@/components/shared/MobilePageHeader';
 import { ResponsiveTable } from '@/components/shared/ResponsiveTable';
-import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { PageContainer } from '@/components/shared/PageContainer';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { ResponsivePageHeader } from '@/components/shared/layout/ResponsivePageHeader';
+import { ResponsiveDataView } from '@/components/shared/layout/ResponsiveDataView';
 import { DataTable } from '@/components/shared/table/DataTable';
 import { MobileCardActions } from '@/components/shared/table/MobileCardActions';
-import { DataTableFilterChips } from '@/components/shared/table/DataTableFilterChips';
+import { MobileCard } from '@/components/shared/table/MobileCard';
 import { BulkActionsToolbar } from '@/components/shared/table/BulkActionsToolbar';
 
 // Feature Components, Hooks & Handlers
@@ -63,7 +63,6 @@ const CYCLE_OPTIONS = [
 
 export default function ChecklistList() {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const queryClient = useQueryClient();
 
   // ============================================================================
@@ -98,6 +97,19 @@ export default function ChecklistList() {
   const [deletingTemplate, setDeletingTemplate] = useState<ChecklistTemplate | null>(null);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
 
+  const facetedFilters = useMemo(() => [
+    {
+      column: "cycle",
+      title: "Chu kỳ",
+      options: CYCLE_OPTIONS,
+    },
+    {
+      column: "status",
+      title: "Trạng thái",
+      options: STATUS_OPTIONS,
+    }
+  ], []);
+
   // Handlers
   const handleBulkDelete = () => {
     if (selectedIds.length === 0) return;
@@ -114,19 +126,6 @@ export default function ChecklistList() {
     onDelete: (t) => setDeletingTemplate(t),
   });
 
-  const getFilterLabel = useCallback((id: string, value: any) => {
-    if (id === 'status') {
-      return Array.isArray(value) 
-        ? value.map(v => STATUS_OPTIONS.find(o => o.value === v)?.label).join(', ')
-        : STATUS_OPTIONS.find(o => o.value === value)?.label || value;
-    }
-    if (id === 'cycle') {
-      return Array.isArray(value) 
-        ? value.map(v => CYCLE_OPTIONS.find(o => o.value === v)?.label).join(', ')
-        : CYCLE_OPTIONS.find(o => o.value === value)?.label || value;
-    }
-    return value;
-  }, []);
 
   const handleRefresh = async () => {
     await queryClient.invalidateQueries({ queryKey: ['checklist-templates'] });
@@ -139,136 +138,39 @@ export default function ChecklistList() {
   const activeCount = templates.filter((t) => t.status === ChecklistStatus.ACTIVE).length;
   const draftCount = templates.filter((t) => t.status === ChecklistStatus.DRAFT).length;
 
-  const renderTableContent = () => {
-    if (isLoading) return <TableSkeleton rows={5} />;
+  const items = data?.data || [];
+  const isFiltered = params.search || activeFiltersCount > 0;
 
-    const items = data?.data || [];
-    const isFiltered = params.search || activeFiltersCount > 0;
 
-    if (items.length === 0 && !isFiltered) {
-      return (
-        <EmptyState
-          icon={<ClipboardList className="h-12 w-12 text-muted-foreground/50" />}
-          title="Chưa có checklist nào"
-          description="Bắt đầu bằng cách tạo checklist bảo dưỡng đầu tiên của bạn"
-          action={{
-            label: 'Tạo checklist',
-            onClick: () => navigate('/checklists/new'),
-            icon: <Plus className="h-4 w-4" />,
-          }}
-        />
-      );
-    }
-
-    if (isMobile) {
-      return (
-        <ResponsiveTable<ChecklistTemplate>
-          columns={columns}
-          data={items}
-          keyExtractor={(t) => t.id}
-          emptyMessage={isFiltered ? "Không tìm thấy kết quả phù hợp" : "Chưa có checklist nào"}
-          pageCount={data?.meta?.totalPages}
-          currentPage={params.page}
-          showPagination={true}
-          onPageChange={(page) => setPagination(prev => ({ ...prev, pageIndex: page - 1 }))}
-          selectedIds={selectedIds}
-          onSelectionChange={(ids) => {
-            const nextSelection: RowSelectionState = {};
-            ids.forEach(id => nextSelection[id] = true);
-            setRowSelection(nextSelection);
-          }}
-          mobileCardAction={(t) => (
-             <MobileCardActions 
-                 onView={() => navigate(`/checklists/${t.id}`)}
-                 onEdit={() => navigate(`/checklists/${t.id}/edit`)}
-                 onDelete={() => setDeletingTemplate(t)}
-             />
-          )}
-        />
-      );
-    }
-
-    return (
-      <>
-        <DataTableFilterChips 
-          filters={columnFilters}
-          onRemove={toggleColumnFilter}
-          onClearAll={resetFilters}
-          getLabel={getFilterLabel}
-        />
-        <DataTable
-          columns={columns}
-          data={items}
-          pageCount={data?.meta?.totalPages}
-          pageIndex={pagination.pageIndex}
-          pageSize={pagination.pageSize}
-          onPaginationChange={(pageIndex, pageSize) => {
-            setPagination({ pageIndex, pageSize });
-          }}
-          onSortingChange={setSorting}
-          sorting={sorting}
-          onRowSelectionChange={setRowSelection}
-          rowSelection={rowSelection}
-          getRowId={(row) => row.id}
-          searchColumn="name"
-          searchPlaceholder="Tìm kiếm checklist..."
-          searchValue={searchQuery}
-          onSearchChange={setSearchQuery}
-          facetedFilters={[
-            {
-              column: "cycle",
-              title: "Chu kỳ",
-              options: CYCLE_OPTIONS,
-            },
-            {
-              column: "status",
-              title: "Trạng thái",
-              options: STATUS_OPTIONS,
-            }
-          ]}
-          columnFilters={columnFilters}
-          onColumnFiltersChange={setColumnFilters}
-          onFilterReset={resetFilters}
-        />
-      </>
-    );
-  };
 
   return (
     <PageContainer>
-      {/* Page Header */}
-      {isMobile ? (
-        <MobilePageHeader
-          title="Thư viện Checklist"
-          actions={
-            <MobileButton size="sm" onClick={() => navigate('/checklists/new')}>
-              <Plus className="h-5 w-5 mr-1.5" />
-              Thêm
-            </MobileButton>
-          }
-        />
-      ) : (
-        <div className="mb-6">
-          <p className="page-subtitle">THƯ VIỆN CHECKLIST</p>
-          <div className="flex items-center justify-between">
-            <h1 className="page-title">Danh sách Checklist Bảo dưỡng</h1>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="action-btn-secondary">
-                <FileSpreadsheet className="h-4 w-4" />
-                Import
-              </Button>
-              <Button variant="outline" size="sm" className="action-btn-secondary">
-                <Download className="h-4 w-4" />
-                Xuất
-              </Button>
-              <Button onClick={() => navigate('/checklists/new')} className="action-btn-primary">
-                <Plus className="h-4 w-4" />
-                Tạo checklist
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ResponsivePageHeader
+        title="Danh sách Checklist Bảo dưỡng"
+        subtitle="THƯ VIỆN CHECKLIST"
+        mobileActions={
+          <MobileButton size="sm" onClick={() => navigate('/checklists/new')}>
+            <Plus className="h-5 w-5 mr-1.5" />
+            Thêm
+          </MobileButton>
+        }
+        desktopActions={
+          <>
+            <Button variant="outline" size="sm" className="action-btn-secondary">
+              <FileSpreadsheet className="h-4 w-4" />
+              Import
+            </Button>
+            <Button variant="outline" size="sm" className="action-btn-secondary">
+              <Download className="h-4 w-4" />
+              Xuất
+            </Button>
+            <Button onClick={() => navigate('/checklists/new')} className="action-btn-primary">
+              <Plus className="h-4 w-4" />
+              Tạo checklist
+            </Button>
+          </>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
@@ -307,84 +209,178 @@ export default function ChecklistList() {
         </div>
       </div>
 
-      {/* Mobile Filters */}
-      {isMobile && (
-        <MobileFilters
-          searchValue={searchQuery}
-          onSearchChange={setSearchQuery}
-          searchPlaceholder="Tìm checklist..."
-          sections={[
-            {
-              id: 'cycle',
-              label: 'Chu kỳ',
-              activeCount: (columnFilters.find(f => f.id === 'cycle')?.value as string[] || []).length,
-              content: (
-                <ChipFilter 
-                  options={CYCLE_OPTIONS} 
-                  selected={(columnFilters.find(f => f.id === 'cycle')?.value as string[]) || []} 
-                  onToggle={(val) => toggleColumnFilter('cycle', val)} 
-                />
-              )
-            },
-            {
-               id: 'status',
-               label: 'Trạng thái',
-               activeCount: (columnFilters.find(f => f.id === 'status')?.value as string[] || []).length,
-               content: (
-                 <ChipFilter 
-                   options={STATUS_OPTIONS} 
-                   selected={(columnFilters.find(f => f.id === 'status')?.value as string[]) || []} 
-                   onToggle={(val) => toggleColumnFilter('status', val)} 
-                 />
-               )
-             },
-          ]}
-          activeFiltersCount={activeFiltersCount}
-          onClearAll={resetFilters}
-          activeFilterTags={
-            <DataTableFilterChips 
-               filters={columnFilters}
-               onRemove={toggleColumnFilter}
-               onClearAll={resetFilters}
-               getLabel={getFilterLabel}
-            />
-          }
-          desktopFilters={null}
-        />
-      )}
+      <ResponsiveDataView
+        isLoading={isLoading}
+        isEmpty={items.length === 0 && !isFiltered}
+        emptyState={
+          <EmptyState
+            icon={<ClipboardList className="h-12 w-12 text-muted-foreground/50" />}
+            title="Chưa có checklist nào"
+            description="Bắt đầu bằng cách tạo checklist bảo dưỡng đầu tiên của bạn"
+            action={{
+              label: 'Tạo checklist',
+              onClick: () => navigate('/checklists/new'),
+              icon: <Plus className="h-4 w-4" />,
+            }}
+          />
+        }
+        onRefresh={handleRefresh}
+        mobileFilters={
+          <MobileFilters
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Tìm checklist..."
+            sections={[
+              {
+                id: 'cycle',
+                label: 'Chu kỳ',
+                activeCount: (columnFilters.find(f => f.id === 'cycle')?.value as string[] || []).length,
+                content: (
+                  <ChipFilter 
+                    options={CYCLE_OPTIONS} 
+                    selected={(columnFilters.find(f => f.id === 'cycle')?.value as string[]) || []} 
+                    onToggle={(val) => toggleColumnFilter('cycle', val)} 
+                  />
+                )
+              },
+              {
+                 id: 'status',
+                 label: 'Trạng thái',
+                 activeCount: (columnFilters.find(f => f.id === 'status')?.value as string[] || []).length,
+                 content: (
+                   <ChipFilter 
+                     options={STATUS_OPTIONS} 
+                     selected={(columnFilters.find(f => f.id === 'status')?.value as string[]) || []} 
+                     onToggle={(val) => toggleColumnFilter('status', val)} 
+                   />
+                 )
+               },
+            ]}
+            activeFiltersCount={activeFiltersCount}
+            onClearAll={resetFilters}
+            activeFilterTags={null}
 
-      {/* Bulk Actions */}
+            desktopFilters={null}
+          />
+        }
+        desktopFilters={null}
+
+        mobileContent={
+          <ResponsiveTable<ChecklistTemplate>
+            columns={columns}
+            data={items}
+            keyExtractor={(t) => t.id}
+            emptyMessage={isFiltered ? "Không tìm thấy kết quả phù hợp" : "Chưa có checklist nào"}
+            pageCount={data?.meta?.totalPages}
+            currentPage={params.page}
+            showPagination={true}
+            onPageChange={(page) => setPagination(prev => ({ ...prev, pageIndex: page - 1 }))}
+            selectedIds={selectedIds}
+            onSelectionChange={(ids) => {
+              const nextSelection: RowSelectionState = {};
+              ids.forEach(id => nextSelection[id] = true);
+              setRowSelection(nextSelection);
+            }}
+            renderMobileCard={(t, cols, isSelected, toggleSelection) => {
+               const codeCol = cols.find(c => c.key === 'code');
+               const statusCol = cols.find(c => c.key === 'status');
+               const cycleCol = cols.find(c => c.key === 'cycle');
+               const versionCol = cols.find(c => c.key === 'version');
+               
+               return (
+                 <MobileCard
+                   title={codeCol?.render(t)}
+                   subtitle={t.name}
+                   status={statusCol?.render(t)}
+                   image={getImageUrl(t.equipment?.image ?? undefined)}
+                   data={[
+                     { label: 'Thiết bị', value: t.equipment?.name },
+                     { label: 'Chu kỳ', value: cycleCol?.render(t) },
+                     { label: 'Phiên bản', value: versionCol?.render(t) },
+                     { label: 'Bộ phận', value: t.department }
+                   ]}
+                   footerActions={
+                     <MobileCardActions actions={[
+                       {
+                         key: 'view',
+                         label: 'Xem chi tiết',
+                         variant: 'primary',
+                         icon: <Eye className="h-4 w-4" />,
+                         onClick: () => navigate(`/checklists/${t.id}`)
+                       },
+                       {
+                         key: 'edit',
+                         label: 'Chỉnh sửa',
+                         variant: 'warning',
+                         icon: <Pencil className="h-4 w-4" />,
+                         onClick: () => navigate(`/checklists/${t.id}/edit`)
+                       },
+                       {
+                         key: 'copy',
+                         label: 'Nhân bản',
+                         variant: 'default',
+                         icon: <Copy className="h-4 w-4" />,
+                         onClick: () => duplicate.mutate(t.id)
+                       },
+                       {
+                         key: 'deactivate',
+                         label: t.status === ChecklistStatus.ACTIVE ? 'Tạm ngưng' : 'Kích hoạt',
+                         variant: 'secondary',
+                         icon: <Power className="h-4 w-4" />,
+                         onClick: () => deactivate.mutate(t.id)
+                       },
+                       {
+                         key: 'delete',
+                         label: 'Xóa',
+                         variant: 'destructive',
+                         icon: <Trash2 className="h-4 w-4" />,
+                         onClick: () => setDeletingTemplate(t)
+                       }
+                     ]} />
+                   }
+                   onClick={() => navigate(`/checklists/${t.id}`)}
+                   isSelected={isSelected}
+                   onToggleSelection={toggleSelection}
+                   renderSelection={true}
+                 />
+               );
+            }}
+            isLoading={isLoading}
+          />
+        }
+        desktopContent={
+          <DataTable
+            columns={columns}
+            data={items}
+            pageCount={data?.meta?.totalPages}
+            pageIndex={pagination.pageIndex}
+            pageSize={pagination.pageSize}
+            onPaginationChange={(pageIndex, pageSize) => {
+              setPagination({ pageIndex, pageSize });
+            }}
+            onSortingChange={setSorting}
+            sorting={sorting}
+            onRowSelectionChange={setRowSelection}
+            rowSelection={rowSelection}
+            getRowId={(row) => row.id}
+            searchColumn="name"
+            searchPlaceholder="Tìm kiếm checklist..."
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            facetedFilters={facetedFilters}
+            columnFilters={columnFilters}
+            onColumnFiltersChange={setColumnFilters}
+            onFilterReset={resetFilters}
+            isLoading={isLoading}
+          />
+        }
+      />
       <BulkActionsToolbar
         selectedCount={selectedIds.length}
         onClear={() => setRowSelection({})}
         onDelete={handleBulkDelete}
         isDeleting={bulkDeleteTemplate.isPending}
       />
-
-      {/* Main Content */}
-      {isMobile ? (
-        <PullToRefresh
-          onRefresh={handleRefresh}
-          isPullable={!isLoading}
-          pullingContent={
-            <div className="text-center py-4">
-              <p className="text-sm text-muted-foreground">⬇️ Kéo để làm mới</p>
-            </div>
-          }
-          refreshingContent={
-            <div className="text-center py-4">
-              <Loader2 className="h-5 w-5 animate-spin mx-auto text-primary" />
-              <p className="text-sm text-muted-foreground mt-2">Đang làm mới...</p>
-            </div>
-          }
-        >
-          <div className="pb-20">
-            {renderTableContent()}
-          </div>
-        </PullToRefresh>
-      ) : (
-        renderTableContent()
-      )}
 
       {/* Deleting Dialog */}
       <DeleteChecklistDialog

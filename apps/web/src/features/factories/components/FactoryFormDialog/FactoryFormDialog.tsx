@@ -1,5 +1,4 @@
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { ResponsiveFormSheet } from '@/components/shared/layout/ResponsiveFormSheet';
 import type { UseFactoryFormReturn } from '../../hooks/useFactoryForm';
 import { FactoryFormFields } from './FactoryFormFields';
 
@@ -60,48 +59,21 @@ export function FactoryFormDialog({ form, onSave, isSaving = false }: FactoryFor
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && closeDialog()}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>
-            {isEditMode ? 'Chỉnh sửa Nhà máy' : 'Thêm Nhà máy mới'}
-          </DialogTitle>
-          <DialogDescription>
-            {isEditMode 
-              ? 'Cập nhật thông tin nhà máy. Nhấn lưu khi hoàn tất.'
-              : 'Nhập thông tin nhà máy mới. Nhấn thêm mới khi hoàn tất.'
-            }
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="py-4">
-          <FactoryFormFields 
-            form={form} 
-            onSave={handleSave} 
-            isSaving={isSaving} 
-            hideActions={true} 
-          />
-        </div>
-
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={closeDialog}
-            disabled={isSaving}
-          >
-            Hủy
-          </Button>
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={!canSubmit || isSaving}
-            loading={isSaving}
-          >
-            {isEditMode ? 'Lưu' : 'Thêm mới'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <ResponsiveFormSheet
+      isOpen={isOpen}
+      onOpenChange={(open) => !open && closeDialog()}
+      title={isEditMode ? 'Chỉnh sửa Nhà máy' : 'Thêm Nhà máy mới'}
+      description={isEditMode 
+        ? 'Cập nhật thông tin nhà máy. Nhấn lưu khi hoàn tất.'
+        : 'Nhập thông tin nhà máy mới. Nhấn thêm mới khi hoàn tất.'
+      }
+    >
+      <FactoryFormFields 
+        form={form} 
+        onSave={handleSave} 
+        isSaving={isSaving} 
+        onCancel={closeDialog}
+      />
+    </ResponsiveFormSheet>
   );
 }

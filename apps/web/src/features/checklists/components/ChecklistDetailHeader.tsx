@@ -1,8 +1,9 @@
 import React from 'react';
-import { ArrowLeft, Copy, Pencil, ClipboardList } from 'lucide-react';
+import { Copy, Pencil, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ChecklistTemplate, CYCLE_LABELS, STATUS_LABELS } from '../types/checklist.types';
 import { cn } from '@/lib/utils';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 interface ChecklistDetailHeaderProps {
   checklist: ChecklistTemplate;
@@ -22,57 +23,44 @@ export const ChecklistDetailHeader: React.FC<ChecklistDetailHeaderProps> = ({
   onEdit,
 }) => {
   return (
-    <div className="mb-6">
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        onClick={onGoBack}
-        className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Quay lại
-      </Button>
-
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-4">
-          <div className="h-14 w-14 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-            <ClipboardList className="h-7 w-7 text-primary" />
-          </div>
-          <div>
-            <p className="page-subtitle">THƯ VIỆN CHECKLIST</p>
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-xl font-bold">{checklist.name}</h1>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="font-mono text-sm text-primary bg-primary/20 px-2.5 py-1 rounded-lg">
-                {checklist.code}
-              </span>
-              <span className={cn(
-                'status-badge',
-                checklist.status === 'ACTIVE' && 'bg-status-active/20 text-status-active',
-                checklist.status === 'DRAFT' && 'bg-muted text-muted-foreground',
-                checklist.status === 'INACTIVE' && 'bg-status-inactive/20 text-status-inactive'
-              )}>
-                {STATUS_LABELS[checklist.status]}
-              </span>
-              <span className="text-sm text-muted-foreground">v{checklist.version}</span>
-              <span className="px-2 py-1 rounded-md bg-secondary text-xs font-medium">
-                {CYCLE_LABELS[checklist.cycle]}
-              </span>
-            </div>
-          </div>
+    <PageHeader
+      title={checklist.name}
+      subtitle="THƯ VIỆN CHECKLIST"
+      onGoBack={onGoBack}
+      icon={<ClipboardList className="h-6 w-6 text-primary" />}
+      badges={
+        <div className="flex items-center gap-2 flex-wrap animate-in fade-in zoom-in-95 duration-300 delay-200">
+          <span className="font-mono text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">
+            {checklist.code}
+          </span>
+          <span className={cn(
+            'text-xs font-medium px-2 py-1 rounded-full border',
+            checklist.status === 'ACTIVE' && 'bg-status-active/10 text-status-active border-status-active/20',
+            checklist.status === 'DRAFT' && 'bg-muted text-muted-foreground border-border',
+            checklist.status === 'INACTIVE' && 'bg-status-inactive/10 text-status-inactive border-status-inactive/20'
+          )}>
+            {STATUS_LABELS[checklist.status]}
+          </span>
+          <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">v{checklist.version}</span>
+          <span className="text-xs font-medium bg-secondary text-secondary-foreground px-2 py-1 rounded border border-border/50">
+            {CYCLE_LABELS[checklist.cycle]}
+          </span>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={onCopy} className="action-btn-secondary">
+      }
+      actions={
+        <div className="flex items-center gap-2 w-full sm:w-auto mt-4 sm:mt-0 animate-in fade-in slide-in-from-right-4 duration-500 delay-300">
+          <Button variant="outline" onClick={onCopy} className="flex-1 sm:flex-none gap-2">
             <Copy className="h-4 w-4" />
-            Sao chép
+            <span className="hidden sm:inline">Sao chép</span>
+            <span className="sm:hidden">Sao chép</span>
           </Button>
-          <Button onClick={onEdit} className="action-btn-primary">
+          <Button onClick={onEdit} className="flex-1 sm:flex-none gap-2 min-w-[100px]">
             <Pencil className="h-4 w-4" />
-            Sửa
+            <span className="hidden sm:inline">Chỉnh sửa</span>
+            <span className="sm:hidden">Sửa</span>
           </Button>
         </div>
-      </div>
-    </div>
+      }
+    />
   );
 };

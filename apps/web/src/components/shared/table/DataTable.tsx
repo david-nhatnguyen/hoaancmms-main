@@ -69,6 +69,7 @@ interface DataTableProps<TData, TValue> {
   // Display options
   showToolbar?: boolean
   showPagination?: boolean
+  isLoading?: boolean
   className?: string
 }
 
@@ -96,6 +97,7 @@ export function DataTable<TData, TValue>({
   getRowId,
   showToolbar = true,
   showPagination = true,
+  isLoading = false,
   className,
 }: DataTableProps<TData, TValue>) {
   const [internalRowSelection, setInternalRowSelection] = React.useState({})
@@ -162,6 +164,9 @@ export function DataTable<TData, TValue>({
     getRowId,
   })
 
+  // Skeleton Count based on pageSize
+  const skeletonRows = React.useMemo(() => Array.from({ length: pageSize }), [pageSize])
+
   return (
     <div className={cn("flex flex-col gap-4", className)}>
       {showToolbar && (
@@ -176,14 +181,14 @@ export function DataTable<TData, TValue>({
           actions={toolbarActions}
         />
       )}
-      <div className="rounded-md border bg-card overflow-hidden">
-        <Table>
-          <TableHeader>
+      <div className="rounded-xl border bg-card overflow-hidden shadow-sm transition-all duration-300 ring-1 ring-border/5">
+        <Table className="relative">
+          <TableHeader className="bg-muted/30">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="hover:bg-transparent border-border/50">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
+                    <TableHead key={header.id} colSpan={header.colSpan} className="h-11 font-semibold text-foreground/70">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -197,16 +202,32 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+              // Loading State: Skeletons
+              skeletonRows.map((_, i) => (
+                <TableRow key={`skeleton-${i}`} className="border-border/40 h-16">
+                  {columns.map((_, j) => (
+                    <TableCell key={`cell-${i}-${j}`} className="py-4">
+                      <div className="h-5 animate-pulse rounded-md bg-muted/60" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows?.length ? (
+              // Data State
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={() => onRowClick?.(row.original)}
-                  className={onRowClick ? "cursor-pointer" : ""}
+                  className={cn(
+                    "group transition-colors h-16 border-border/40",
+                    onRowClick ? "cursor-pointer hover:bg-muted/30" : "hover:bg-muted/10",
+                    "animate-in fade-in slide-in-from-top-1 duration-300"
+                  )}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="py-3">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -216,14 +237,22 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))
             ) : (
+              // Empty State
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-32 text-center"
+                  className="h-[400px] text-center"
                 >
-                  <div className="flex flex-col items-center justify-center gap-1">
-                    <p className="text-base font-medium">Không tìm thấy kết quả</p>
-                    <p className="text-sm text-muted-foreground">Vui lòng thử điều chỉnh lại bộ lọc hoặc từ khóa tìm kiếm</p>
+                  <div className="flex flex-col items-center justify-center gap-4 animate-in fade-in zoom-in-95 duration-500">
+                    <div className="p-4 rounded-full bg-muted/40 border border-border/10 shadow-inner">
+                      <svg className="h-10 w-10 text-muted-foreground opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-lg font-semibold text-foreground/80">Không tìm thấy kết quả</p>
+                      <p className="text-sm text-muted-foreground max-w-[300px] mx-auto">Vui lòng thử điều chỉnh lại bộ lọc hoặc từ khóa tìm kiếm để thu hẹp kết quả</p>
+                    </div>
                   </div>
                 </TableCell>
               </TableRow>

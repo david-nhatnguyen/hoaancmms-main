@@ -1,71 +1,86 @@
-import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { ReactNode } from 'react';
+import { triggerHapticFeedback } from './handlers/mobile-card.handler';
 
-interface MobileCardActionsProps {
-  onView?: (e: React.MouseEvent) => void;
-  onEdit?: (e: React.MouseEvent) => void;
-  onDelete?: (e: React.MouseEvent) => void;
-  viewLabel?: string;
-  editLabel?: string;
-  deleteLabel?: string;
+export type ActionVariant = 'default' | 'primary' | 'warning' | 'destructive' | 'outline' | 'ghost' | 'secondary';
+
+export interface MobileAction {
+  key: string;               // Unique identifier
+  label: string;             // Button text
+  icon?: ReactNode;          // Button icon
+  onClick: (e: React.MouseEvent) => void;
+  variant?: ActionVariant;   // Styling preset
+  disabled?: boolean;
+}
+
+export interface MobileCardActionsProps {
+  actions: MobileAction[];
   className?: string;
 }
 
 export function MobileCardActions({
-  onView,
-  onEdit,
-  onDelete,
-  viewLabel = 'Xem',
-  editLabel = 'Sửa',
-  deleteLabel = 'Xóa',
+  actions,
   className
 }: MobileCardActionsProps) {
-  const handleAction = (e: React.MouseEvent, action?: (e: React.MouseEvent) => void, vibrateMs = 5) => {
+
+  const handleAction = (e: React.MouseEvent, onClick: (e: React.MouseEvent) => void, variant?: ActionVariant) => {
     e.stopPropagation();
-    if (action) {
-      if (window.navigator.vibrate) window.navigator.vibrate(vibrateMs);
-      action(e);
+    
+    // Coordination with centralized haptic logic
+    const intensity = variant === 'destructive' ? 'medium' : 'light';
+    triggerHapticFeedback(intensity);
+    
+    onClick(e);
+  };
+
+  const getVariantStyles = (variant: ActionVariant = 'default') => {
+    switch (variant) {
+      case 'primary':
+        return "text-primary bg-primary/5 hover:bg-primary/10 active:bg-primary/20";
+      case 'warning':
+        return "text-orange-600 bg-orange-500/5 hover:bg-orange-500/10 active:bg-orange-500/20";
+      case 'destructive':
+        return "text-destructive bg-destructive/5 hover:bg-destructive/10 active:bg-destructive/20";
+      case 'secondary':
+        return "text-muted-foreground bg-muted/30 hover:bg-muted/50 active:bg-muted/70";
+      default:
+        return "text-foreground hover:bg-muted active:bg-muted/80";
     }
   };
 
   return (
-    <div className={cn("grid grid-cols-3 gap-3", className)}>
-      {onView && (
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={(e) => handleAction(e, onView, 5)}
-          className="h-11 w-full flex items-center justify-center gap-2 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary active:scale-95 transition-all font-bold rounded-xl"
-        >
-          <Eye className="h-4 w-4" />
-          <span className="truncate">{viewLabel}</span>
-        </Button>
+    <div 
+      className={cn(
+        "flex flex-col gap-1 w-full", 
+        className
       )}
-      
-      {onEdit && (
+    >
+      {actions.map((action) => (
         <Button
+          key={action.key}
           size="sm"
-          variant="ghost"
-          onClick={(e) => handleAction(e, onEdit, 5)}
-          className="h-11 w-full flex items-center justify-center gap-2 bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 hover:text-orange-700 active:scale-95 transition-all font-bold rounded-xl"
+          variant="ghost" 
+          disabled={action.disabled}
+          onClick={(e) => handleAction(e, action.onClick, action.variant)}
+          className={cn(
+            "h-14 w-full flex items-center justify-start gap-4 px-4 transition-all font-bold text-sm rounded-2xl active:scale-[0.98]",
+            getVariantStyles(action.variant)
+          )}
         >
-          <Pencil className="h-4 w-4" />
-          <span className="truncate">{editLabel}</span>
+          {action.icon && (
+            <div className={cn(
+              "shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-background shadow-sm border border-border/20",
+              action.variant === 'destructive' && "text-destructive",
+              action.variant === 'primary' && "text-primary",
+              action.variant === 'warning' && "text-orange-500"
+            )}>
+              {action.icon}
+            </div>
+          )}
+          <span className="truncate flex-1 text-left">{action.label}</span>
         </Button>
-      )}
-      
-      {onDelete && (
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={(e) => handleAction(e, onDelete, 10)}
-          className="h-11 w-full flex items-center justify-center gap-2 bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive active:scale-95 transition-all font-bold rounded-xl"
-        >
-          <Trash2 className="h-4 w-4" />
-          <span className="truncate">{deleteLabel}</span>
-        </Button>
-      )}
+      ))}
     </div>
   );
 }

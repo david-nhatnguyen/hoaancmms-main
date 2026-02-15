@@ -1,14 +1,16 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Plus, 
-  Download, 
-  FileSpreadsheet, 
-  Cpu, 
-  Loader2
+import { getImageUrl } from '@/lib/image-utils';
+import {
+  Plus,
+  Download,
+  FileSpreadsheet,
+  Cpu,
+  Eye,
+  Pencil,
+  Trash2
 } from 'lucide-react';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-import PullToRefresh from 'react-simple-pull-to-refresh';
 import { RowSelectionState } from '@tanstack/react-table';
 
 // UI Components
@@ -17,16 +19,15 @@ import { MobileButton } from '@/components/ui/mobile-button';
 import { MobileFilters } from '@/components/shared/MobileFilters';
 import { ChipFilter } from '@/components/shared/filters/ChipFilter';
 import { FilterCheckbox } from '@/components/shared/filters/FilterCheckbox';
-import { MobilePageHeader } from '@/components/shared/MobilePageHeader';
 import { ResponsiveTable } from '@/components/shared/ResponsiveTable';
-import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { PageContainer } from '@/components/shared/PageContainer';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { factoriesApi } from '@/api/endpoints/factories.api';
 import { DataTable } from '@/components/shared/table/DataTable';
 import { MobileCardActions } from '@/components/shared/table/MobileCardActions';
-import { DataTableFilterChips } from '@/components/shared/table/DataTableFilterChips';
+import { MobileCard } from '@/components/shared/table/MobileCard';
+import { ResponsivePageHeader } from '@/components/shared/layout/ResponsivePageHeader';
+import { ResponsiveDataView } from '@/components/shared/layout/ResponsiveDataView';
 
 // Feature Components, Hooks & Handlers
 import {
@@ -38,7 +39,6 @@ import {
   STATUS_OPTIONS,
   useEquipmentTableState,
 } from '@/features/equipments/hooks';
-import { getEquipmentFilterLabel } from '@/features/equipments/handlers/equipment-table.handlers';
 
 import {
   EquipmentStats,
@@ -56,7 +56,6 @@ import type { Equipment } from '@/api/types/equipment.types';
  */
 export default function EquipmentList() {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const queryClient = useQueryClient();
 
   // ============================================================================
@@ -86,7 +85,7 @@ export default function EquipmentList() {
 
   const handleUploadStart = useCallback((id: string, estimatedDuration?: number, fileName?: string) => {
     if (!id) return;
-    
+
     setActiveImportId(id);
     localStorage.setItem('import_id', id);
 
@@ -151,11 +150,21 @@ export default function EquipmentList() {
 
 
 
-  const getFilterLabel = useCallback((id: string, value: any) => {
-    return getEquipmentFilterLabel(id, value, factoryOptions);
-  }, [factoryOptions]);
 
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+
+  const facetedFilters = useMemo(() => [
+    {
+      column: "factoryName",
+      title: "Nhà máy",
+      options: factoryOptions,
+    },
+    {
+      column: "status",
+      title: "Trạng thái",
+      options: STATUS_OPTIONS,
+    }
+  ], [factoryOptions]);
 
   const handleBulkDelete = () => {
     if (selectedIds.length === 0) return;
@@ -170,142 +179,42 @@ export default function EquipmentList() {
     if (window.navigator.vibrate) window.navigator.vibrate(10);
   };
 
-  const renderTableContent = () => {
-    if (isLoading) return <TableSkeleton rows={5} />;
+  const equipmentsList = data?.data || [];
+  const isFiltered = params.search || activeFiltersCount > 0;
 
-    const equipmentsList = data?.data || [];
-    const isFiltered = params.search || activeFiltersCount > 0;
 
-    // Show standalone EmptyState only when no data AND no filters are active
-    if (equipmentsList.length === 0 && !isFiltered) {
-      return (
-        <EmptyState
-          icon={<Cpu className="h-12 w-12 text-muted-foreground/50" />}
-          title="Chưa có thiết bị nào"
-          description="Bắt đầu bằng cách thêm thiết bị đầu tiên của bạn"
-          action={{
-            label: 'Thêm thiết bị mới',
-            onClick: () => navigate('/equipments/new'),
-            icon: <Plus className="h-4 w-4" />,
-          }}
-        />
-      );
-    }
-
-    if (isMobile) {
-      return (
-        <ResponsiveTable<Equipment>
-          columns={columns}
-          data={equipmentsList}
-          keyExtractor={(eq) => eq.id}
-          emptyMessage={isFiltered ? "Không tìm thấy kết quả phù hợp" : "Chưa có thiết bị nào"}
-          pageCount={data?.meta?.totalPages}
-          currentPage={params.page}
-          showPagination={true}
-          onPageChange={(page) => setPagination(prev => ({ ...prev, pageIndex: page - 1 }))}
-          selectedIds={selectedIds}
-          onSelectionChange={(ids) => {
-            const nextSelection: RowSelectionState = {};
-            ids.forEach(id => nextSelection[id] = true);
-            setRowSelection(nextSelection);
-          }}
-          mobileCardAction={(eq) => (
-             <MobileCardActions 
-                 onView={() => navigate(`/equipments/${eq.code}`)}
-                 onEdit={() => navigate(`/equipments/${eq.code}/edit`)}
-                 onDelete={() => setDeletingEquipment(eq)}
-             />
-          )}
-        />
-      );
-    }
-
-    return (
-      <>
-        <DataTableFilterChips 
-          filters={columnFilters}
-          onRemove={toggleColumnFilter}
-          onClearAll={resetFilters}
-          getLabel={getFilterLabel}
-        />
-        <DataTable
-          columns={columns}
-          data={equipmentsList}
-          pageCount={data?.meta?.totalPages}
-          pageIndex={pagination.pageIndex}
-          pageSize={pagination.pageSize}
-          onPaginationChange={(pageIndex, pageSize) => {
-            setPagination({ pageIndex, pageSize });
-          }}
-          onRowSelectionChange={setRowSelection}
-          rowSelection={rowSelection}
-          getRowId={(row) => row.id}
-          // Integrated search and filters
-          searchColumn="name"
-          searchPlaceholder="Tìm kiếm thiết bị..."
-          searchValue={searchQuery}
-          onSearchChange={setSearchQuery}
-          facetedFilters={[
-            {
-              column: "factoryName",
-              title: "Nhà máy",
-              options: factoryOptions,
-            },
-            {
-              column: "status",
-              title: "Trạng thái",
-              options: STATUS_OPTIONS,
-            }
-          ]}
-          columnFilters={columnFilters}
-          onColumnFiltersChange={setColumnFilters}
-          onFilterReset={resetFilters}
-        />
-      </>
-    );
-  };
 
   return (
     <PageContainer>
-      {/* Mobile Header */}
-      {isMobile && (
-        <MobilePageHeader
-          title="Thiết bị"
-          actions={
-            <MobileButton size="sm" onClick={() => navigate('/equipments/new')}>
-              <Plus className="h-5 w-5 mr-1.5" />
-              Thêm
-            </MobileButton>
-          }
-        />
-      )}
+      <ResponsivePageHeader
+        title="Danh sách Thiết bị"
+        subtitle="QUẢN LÝ THIẾT BỊ"
+        mobileActions={
+          <MobileButton size="sm" onClick={() => navigate('/equipments/new')}>
+            <Plus className="h-5 w-5 mr-1.5" />
+            Thêm
+          </MobileButton>
+        }
+        desktopActions={
+          <>
+            <Button variant="outline" size="sm" className="action-btn-secondary" onClick={() => setShowImportDialog(true)}>
+              <FileSpreadsheet className="h-4 w-4" />
+              Import
+            </Button>
+            <Button variant="outline" size="sm" className="action-btn-secondary">
+              <Download className="h-4 w-4" />
+              Xuất
+            </Button>
+            <Button onClick={() => navigate('/equipments/new')} className="action-btn-primary">
+              <Plus className="h-4 w-4" />
+              Thêm Thiết bị
+            </Button>
+          </>
+        }
+      />
 
-      {/* Desktop Header */}
-      {!isMobile && (
-        <div className="mb-6">
-          <p className="page-subtitle">QUẢN LÝ THIẾT BỊ</p>
-          <div className="flex items-center justify-between">
-            <h1 className="page-title">Danh sách Thiết bị</h1>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="action-btn-secondary" onClick={() => setShowImportDialog(true)}>
-                <FileSpreadsheet className="h-4 w-4" />
-                Import
-              </Button>
-              <Button variant="outline" size="sm" className="action-btn-secondary">
-                <Download className="h-4 w-4" />
-                Xuất
-              </Button>
-              <Button onClick={() => navigate('/equipments/new')} className="action-btn-primary">
-                <Plus className="h-4 w-4" />
-                Thêm Thiết bị
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <ImportEquipmentDialog 
-        open={showImportDialog} 
+      <ImportEquipmentDialog
+        open={showImportDialog}
         onOpenChange={setShowImportDialog}
         onUploadStart={handleUploadStart}
       />
@@ -314,26 +223,41 @@ export default function EquipmentList() {
       <EquipmentStats stats={statsData?.data} isLoading={statsLoading} />
 
       {activeImportId && (
-        <ImportProgress 
+        <ImportProgress
           key={activeImportId}
-          jobId={activeImportId} 
+          jobId={activeImportId}
           fileName={activeImportFileName || undefined}
-          onClose={handleCloseImport} 
+          onClose={handleCloseImport}
         />
       )}
 
-      {/* Mobile Filters */}
-      {isMobile && (
-        <MobileFilters
-          searchValue={searchQuery}
-          onSearchChange={setSearchQuery}
-          searchPlaceholder="Tìm thiết bị..."
-          sections={[
-            {
-              id: 'factory',
-              label: 'Nhà máy',
-               activeCount: (columnFilters.find(f => f.id === 'factoryName')?.value as string[] || []).length,
-               content: (
+      <ResponsiveDataView
+        isLoading={isLoading}
+        isEmpty={equipmentsList.length === 0 && !isFiltered}
+        emptyState={
+          <EmptyState
+            icon={<Cpu className="h-12 w-12 text-muted-foreground/50" />}
+            title="Chưa có thiết bị nào"
+            description="Bắt đầu bằng cách thêm thiết bị đầu tiên của bạn"
+            action={{
+              label: 'Thêm thiết bị mới',
+              onClick: () => navigate('/equipments/new'),
+              icon: <Plus className="h-4 w-4" />,
+            }}
+          />
+        }
+        onRefresh={handleRefresh}
+        mobileFilters={
+          <MobileFilters
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Tìm thiết bị..."
+            sections={[
+              {
+                id: 'factory',
+                label: 'Nhà máy',
+                activeCount: (columnFilters.find(f => f.id === 'factoryName')?.value as string[] || []).length,
+                content: (
                   <div className="space-y-2">
                     {factoryOptions.map(f => {
                       const isActive = (columnFilters.find(f => f.id === 'factoryName')?.value as string[] || []).includes(f.value);
@@ -343,42 +267,129 @@ export default function EquipmentList() {
                           onClick={() => toggleColumnFilter('factoryName', f.value)}
                           className={`w-full flex items-center gap-3 p-2 rounded-lg text-sm transition-colors ${isActive ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-secondary text-muted-foreground'}`}
                         >
-                           <FilterCheckbox checked={isActive} />
-                           {f.label}
+                          <FilterCheckbox checked={isActive} />
+                          {f.label}
                         </button>
                       );
                     })}
                   </div>
-               )
-            },
-            {
-               id: 'status',
-               label: 'Trạng thái',
-               activeCount: (columnFilters.find(f => f.id === 'status')?.value as string[] || []).length,
-               content: (
-                 <ChipFilter 
-                   options={STATUS_OPTIONS} 
-                   selected={(columnFilters.find(f => f.id === 'status')?.value as string[]) || []} 
-                   onToggle={(val) => toggleColumnFilter('status', val)} 
-                 />
-               )
-             },
-          ]}
-          activeFiltersCount={activeFiltersCount}
-          onClearAll={resetFilters}
-          activeFilterTags={
-            <DataTableFilterChips 
-               filters={columnFilters}
-                onRemove={toggleColumnFilter}
-               onClearAll={resetFilters}
-               getLabel={getFilterLabel}
-            />
-          }
-          desktopFilters={null}
-        />
-      )}
+                )
+              },
+              {
+                id: 'status',
+                label: 'Trạng thái',
+                activeCount: (columnFilters.find(f => f.id === 'status')?.value as string[] || []).length,
+                content: (
+                  <ChipFilter
+                    options={STATUS_OPTIONS}
+                    selected={(columnFilters.find(f => f.id === 'status')?.value as string[]) || []}
+                    onToggle={(val) => toggleColumnFilter('status', val)}
+                  />
+                )
+              },
+            ]}
+            activeFiltersCount={activeFiltersCount}
+            onClearAll={resetFilters}
+            activeFilterTags={null}
 
-      {/* Bulk Actions */}
+            desktopFilters={null}
+          />
+        }
+        desktopFilters={null}
+
+        mobileContent={
+          <ResponsiveTable<Equipment>
+            columns={columns}
+            data={equipmentsList}
+            keyExtractor={(eq) => eq.id}
+            emptyMessage={isFiltered ? "Không tìm thấy kết quả phù hợp" : "Chưa có thiết bị nào"}
+            pageCount={data?.meta?.totalPages}
+            currentPage={params.page}
+            showPagination={true}
+            onPageChange={(page) => setPagination(prev => ({ ...prev, pageIndex: page - 1 }))}
+            selectedIds={selectedIds}
+            onSelectionChange={(ids) => {
+              const nextSelection: RowSelectionState = {};
+              ids.forEach(id => nextSelection[id] = true);
+              setRowSelection(nextSelection);
+            }}
+            renderMobileCard={(eq, cols, isSelected, toggleSelection) => {
+              // Helper to find special columns
+              const codeCol = cols.find(c => c.key === 'code');
+              const statusCol = cols.find(c => c.key === 'status');
+
+              return (
+                <MobileCard
+                  title={codeCol?.render(eq)}
+                  subtitle={eq.name}
+                  status={statusCol?.render(eq)}
+                  image={getImageUrl(eq.image)}
+                  data={[
+                    { label: 'Nhà máy', value: eq.factoryName },
+                    { label: 'Số lượng', value: eq.quantity }
+                  ]}
+                  footerActions={
+                    <MobileCardActions actions={[
+                      {
+                        key: 'view',
+                        label: 'Xem chi tiết',
+                        variant: 'primary',
+                        icon: <Eye className="h-4 w-4" />,
+                        onClick: () => navigate(`/equipments/${eq.code}`)
+                      },
+                      {
+                        key: 'edit',
+                        label: 'Chỉnh sửa',
+                        variant: 'warning',
+                        icon: <Pencil className="h-4 w-4" />,
+                        onClick: () => navigate(`/equipments/${eq.code}/edit`)
+                      },
+                      {
+                        key: 'delete',
+                        label: 'Xóa vĩnh viễn',
+                        variant: 'destructive',
+                        icon: <Trash2 className="h-4 w-4" />,
+                        onClick: () => setDeletingEquipment(eq)
+                      }
+                    ]} />
+                  }
+                  onClick={() => navigate(`/equipments/${eq.code}`)}
+                  isSelected={isSelected}
+                  onToggleSelection={toggleSelection}
+                  renderSelection={true}
+                />
+              );
+            }}
+            isLoading={isLoading}
+          />
+        }
+        desktopContent={
+          <DataTable
+            columns={columns}
+            data={equipmentsList}
+            pageCount={data?.meta?.totalPages}
+            pageIndex={pagination.pageIndex}
+            pageSize={pagination.pageSize}
+            onPaginationChange={(pageIndex, pageSize) => {
+              setPagination({ pageIndex, pageSize });
+            }}
+            onRowSelectionChange={setRowSelection}
+            rowSelection={rowSelection}
+            getRowId={(row) => row.id}
+            // Integrated search and filters
+            searchColumn="name"
+            searchPlaceholder="Tìm kiếm thiết bị..."
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            facetedFilters={facetedFilters}
+            columnFilters={columnFilters}
+            onColumnFiltersChange={setColumnFilters}
+            onFilterReset={resetFilters}
+            isLoading={isLoading}
+          />
+        }
+      />
+
       <BulkActionsToolbar
         selectedCount={selectedIds.length}
         onClear={() => setRowSelection({})}
@@ -386,57 +397,32 @@ export default function EquipmentList() {
         isDeleting={bulkDeleteEquipment.isPending}
       />
 
-      {/* Table with Pull-to-Refresh */}
-      {isMobile ? (
-        <PullToRefresh
-          onRefresh={handleRefresh}
-          isPullable={!isLoading}
-          pullingContent={
-            <div className="text-center py-4">
-              <p className="text-sm text-muted-foreground">⬇️ Kéo để làm mới</p>
-            </div>
-          }
-          refreshingContent={
-            <div className="text-center py-4">
-              <Loader2 className="h-5 w-5 animate-spin mx-auto text-primary" />
-              <p className="text-sm text-muted-foreground mt-2">Đang làm mới...</p>
-            </div>
-          }
-        >
-          <div className="pb-20">
-            {renderTableContent()}
-          </div>
-        </PullToRefresh>
-      ) : (
-        renderTableContent()
-      )}
-
       {/* Deleting Dialog */}
       <DeleteEquipmentDialog
-         equipment={deletingEquipment}
-         open={!!deletingEquipment}
-         onOpenChange={(open) => {
-             if (!open) {
-                 setDeletingEquipment(null);
-                 setIsBulkDeleting(false);
-             }
-         }}
-         onConfirm={() => {
-             if (isBulkDeleting) {
-                 bulkDeleteEquipment.mutate(selectedIds, {
-                     onSuccess: () => {
-                         setDeletingEquipment(null);
-                         setRowSelection({});
-                         setIsBulkDeleting(false);
-                     }
-                 });
-             } else if (deletingEquipment) {
-                 deleteEquipment.mutate(deletingEquipment.id, {
-                     onSuccess: () => setDeletingEquipment(null)
-                 });
-             }
-         }}
-         isDeleting={deleteEquipment.isPending || (isBulkDeleting && bulkDeleteEquipment.isPending)}
+        equipment={deletingEquipment}
+        open={!!deletingEquipment}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeletingEquipment(null);
+            setIsBulkDeleting(false);
+          }
+        }}
+        onConfirm={() => {
+          if (isBulkDeleting) {
+            bulkDeleteEquipment.mutate(selectedIds, {
+              onSuccess: () => {
+                setDeletingEquipment(null);
+                setRowSelection({});
+                setIsBulkDeleting(false);
+              }
+            });
+          } else if (deletingEquipment) {
+            deleteEquipment.mutate(deletingEquipment.id, {
+              onSuccess: () => setDeletingEquipment(null)
+            });
+          }
+        }}
+        isDeleting={deleteEquipment.isPending || (isBulkDeleting && bulkDeleteEquipment.isPending)}
       />
 
       {previewDialog}

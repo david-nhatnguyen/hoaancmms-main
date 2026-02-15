@@ -29,7 +29,14 @@ export interface BadgeProps
 
 function Badge({ className, variant, ...props }: BadgeProps) {
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <div 
+      className={cn(
+        badgeVariants({ variant }), 
+        "animate-in fade-in zoom-in-95 duration-300",
+        className
+      )} 
+      {...props} 
+    />
   )
 }
 
