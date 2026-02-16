@@ -14,24 +14,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from '@/components/ui/command';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
 import { UseFormReturn } from 'react-hook-form';
-import { Cpu, Check, ChevronsUpDown } from 'lucide-react';
+import { Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { STATUS_OPTIONS } from '@/features/equipments/hooks';
+import { FactorySelector } from '@/features/factories/components/FactorySelector';
 
 interface EquipmentIdentitySectionProps {
     form: UseFormReturn<any>;
@@ -144,59 +131,15 @@ export function EquipmentIdentitySection({
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Nhà máy quản lý</FormLabel>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            className={cn(
-                                                "w-full justify-between font-normal hover:border-primary/50 transition-colors",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                            disabled={isSubmitting || isLoadingFactories}
-                                        >
-                                            <span className="truncate">
-                                                {field.value
-                                                    ? factoriesList.find(
-                                                        (factory) => factory.id === field.value
-                                                    )?.name
-                                                    : "Chọn nhà máy"}
-                                            </span>
-                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-[300px] p-0" align="start">
-                                    <Command>
-                                        <CommandInput placeholder="Tìm nhà máy..." />
-                                        <CommandList>
-                                            <CommandEmpty>Không tìm thấy.</CommandEmpty>
-                                            <CommandGroup>
-                                                {factoriesList.map((factory) => (
-                                                    <CommandItem
-                                                        value={factory.name}
-                                                        key={factory.id}
-                                                        onSelect={() => {
-                                                            form.setValue("factoryId", factory.id);
-                                                        }}
-                                                    >
-                                                        <Check
-                                                            className={cn(
-                                                                "mr-2 h-4 w-4",
-                                                                factory.id === field.value
-                                                                    ? "opacity-100"
-                                                                    : "opacity-0"
-                                                            )}
-                                                        />
-                                                        {factory.name}
-                                                    </CommandItem>
-                                                ))}
-                                            </CommandGroup>
-                                        </CommandList>
-                                    </Command>
-                                </PopoverContent>
-                            </Popover>
+                            <FormControl>
+                                <FactorySelector
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    factories={factoriesList}
+                                    isLoading={isLoadingFactories}
+                                    disabled={isSubmitting}
+                                />
+                            </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
