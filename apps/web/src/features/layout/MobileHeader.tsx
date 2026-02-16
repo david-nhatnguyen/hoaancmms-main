@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, Bell, Search, MoreVertical } from 'lucide-react';
+import { ChevronLeft, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { cn } from '@/lib/utils';
@@ -27,11 +27,11 @@ const pageTitles: Record<string, string> = {
 const getCanGoBack = (pathname: string): boolean => {
   // Root level pages don't show back button
   const rootPages = ['/', '/factories', '/equipments', '/checklists', '/pm-plans', '/work-orders', '/corrective-maintenance'];
-  
+
   // Check if current path is a detail/edit/new page
   const isDetailPage = pathname.match(/\/[^/]+\/(\d+|new|edit)/);
   const isSystemSubPage = pathname.startsWith('/system/');
-  
+
   return !rootPages.includes(pathname) || !!isDetailPage || isSystemSubPage;
 };
 
@@ -40,7 +40,7 @@ const getPageTitle = (pathname: string): string => {
   if (pageTitles[pathname]) {
     return pageTitles[pathname];
   }
-  
+
   // Check for dynamic routes
   if (pathname.match(/\/equipments\/\d+\/edit/)) return 'Sửa thiết bị';
   if (pathname.match(/\/equipments\/\d+/)) return 'Chi tiết thiết bị';
@@ -53,14 +53,14 @@ const getPageTitle = (pathname: string): string => {
   if (pathname.match(/\/work-orders\/\d+/)) return 'Chi tiết WO';
   if (pathname.match(/\/corrective-maintenance\/\d+/)) return 'Chi tiết sự cố';
   if (pathname.match(/\/system\/roles\/\d+/)) return 'Chi tiết vai trò';
-  
+
   return 'CMMS';
 };
 
 export function MobileHeader() {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const canGoBack = getCanGoBack(location.pathname);
   const pageTitle = getPageTitle(location.pathname);
   const isRootPage = location.pathname === '/';
@@ -102,8 +102,8 @@ export function MobileHeader() {
       {/* Right section */}
       <div className="w-12 flex items-center justify-end gap-0.5">
         <ThemeToggle />
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           size="icon"
           className="h-9 w-9 relative"
         >

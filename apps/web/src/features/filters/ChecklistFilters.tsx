@@ -40,8 +40,6 @@ const STATUS_OPTIONS = [
 export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersProps) {
   const [machineTypeOpen, setMachineTypeOpen] = useState(false);
 
-  // Get all machine types from all groups
-  const allMachineTypes = Object.values(MACHINE_TYPES).flat();
 
   const updateFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
     onFiltersChange({ ...filters, [key]: value });
@@ -94,8 +92,8 @@ export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersP
         {/* Machine Type - Searchable Multi-select */}
         <Popover open={machineTypeOpen} onOpenChange={setMachineTypeOpen}>
           <PopoverTrigger asChild>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               className={cn(
                 "h-9 border-border bg-secondary/50 hover:bg-secondary",
@@ -117,8 +115,8 @@ export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersP
               <CommandList>
                 <CommandEmpty>Không tìm thấy</CommandEmpty>
                 {Object.entries(MACHINE_TYPES).map(([groupId, types]) => (
-                  <CommandGroup 
-                    key={groupId} 
+                  <CommandGroup
+                    key={groupId}
                     heading={EQUIPMENT_GROUPS[groupId as keyof typeof EQUIPMENT_GROUPS]?.name}
                     className="text-muted-foreground"
                   >
@@ -188,58 +186,61 @@ export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersP
       {hasActiveFilters && (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground">Đang lọc:</span>
-          
+
           {filters.machineTypes.map(type => (
-            <Badge 
-              key={type} 
-              variant="secondary" 
+            <Badge
+              key={type}
+              variant="secondary"
               className="bg-secondary text-foreground gap-1 pl-2 pr-1 py-0.5"
             >
               {type}
-              <button 
+              <button
                 onClick={() => removeFilter('machineTypes', type)}
                 className="ml-1 hover:bg-muted rounded-full p-0.5"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-          
-          {filters.cycle.map(c => (
-            <Badge 
-              key={c} 
-              variant="secondary" 
-              className="bg-primary/20 text-primary gap-1 pl-2 pr-1 py-0.5"
-            >
-              {getFilterLabel('cycle', c)}
-              <button 
-                onClick={() => removeFilter('cycle', c)}
-                className="ml-1 hover:bg-primary/30 rounded-full p-0.5"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-          
-          {filters.status.map(s => (
-            <Badge 
-              key={s} 
-              variant="secondary" 
-              className="bg-secondary text-foreground gap-1 pl-2 pr-1 py-0.5"
-            >
-              {getFilterLabel('status', s)}
-              <button 
-                onClick={() => removeFilter('status', s)}
-                className="ml-1 hover:bg-muted rounded-full p-0.5"
+                title="Xóa lọc"
               >
                 <X className="h-3 w-3" />
               </button>
             </Badge>
           ))}
 
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          {filters.cycle.map(c => (
+            <Badge
+              key={c}
+              variant="secondary"
+              className="bg-primary/20 text-primary gap-1 pl-2 pr-1 py-0.5"
+            >
+              {getFilterLabel('cycle', c)}
+              <button
+                onClick={() => removeFilter('cycle', c)}
+                className="ml-1 hover:bg-primary/30 rounded-full p-0.5"
+                title="Xóa lọc"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+
+          {filters.status.map(s => (
+            <Badge
+              key={s}
+              variant="secondary"
+              className="bg-secondary text-foreground gap-1 pl-2 pr-1 py-0.5"
+            >
+              {getFilterLabel('status', s)}
+              <button
+                onClick={() => removeFilter('status', s)}
+                className="ml-1 hover:bg-muted rounded-full p-0.5"
+                title="Xóa lọc"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={clearAllFilters}
             className="h-6 text-xs text-muted-foreground hover:text-foreground px-2"
           >

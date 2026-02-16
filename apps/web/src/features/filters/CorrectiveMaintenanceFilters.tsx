@@ -1,5 +1,4 @@
 import { X, Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -106,8 +105,8 @@ export function CorrectiveMaintenanceFilters({ filters, onFiltersChange }: Corre
           <span className="text-sm">Lọc:</span>
         </div>
 
-        <Select 
-          value={filters.factory[0] || 'all'} 
+        <Select
+          value={filters.factory[0] || 'all'}
           onValueChange={(v) => handleFilterChange('factory', v)}
         >
           <SelectTrigger className="w-[150px] h-9 bg-secondary/50 border-border/50">
@@ -121,8 +120,8 @@ export function CorrectiveMaintenanceFilters({ filters, onFiltersChange }: Corre
           </SelectContent>
         </Select>
 
-        <Select 
-          value={filters.equipmentGroup[0] || 'all'} 
+        <Select
+          value={filters.equipmentGroup[0] || 'all'}
           onValueChange={(v) => handleFilterChange('equipmentGroup', v)}
         >
           <SelectTrigger className="w-[220px] h-9 bg-secondary/50 border-border/50">
@@ -136,8 +135,8 @@ export function CorrectiveMaintenanceFilters({ filters, onFiltersChange }: Corre
           </SelectContent>
         </Select>
 
-        <Select 
-          value={filters.severity[0] || 'all'} 
+        <Select
+          value={filters.severity[0] || 'all'}
           onValueChange={(v) => handleFilterChange('severity', v)}
         >
           <SelectTrigger className="w-[140px] h-9 bg-secondary/50 border-border/50">
@@ -156,8 +155,8 @@ export function CorrectiveMaintenanceFilters({ filters, onFiltersChange }: Corre
           </SelectContent>
         </Select>
 
-        <Select 
-          value={filters.status[0] || 'all'} 
+        <Select
+          value={filters.status[0] || 'all'}
           onValueChange={(v) => handleFilterChange('status', v)}
         >
           <SelectTrigger className="w-[150px] h-9 bg-secondary/50 border-border/50">
@@ -190,6 +189,7 @@ export function CorrectiveMaintenanceFilters({ filters, onFiltersChange }: Corre
                 <button
                   onClick={() => removeFilter(key as keyof FilterState, value)}
                   className="hover:bg-primary/30 rounded-full p-0.5 transition-colors"
+                  title="Xóa lọc"
                 >
                   <X className="h-3 w-3" />
                 </button>

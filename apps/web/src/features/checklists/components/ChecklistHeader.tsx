@@ -26,22 +26,22 @@ export function ChecklistHeader({
   const title = isEditing
     ? 'Chỉnh sửa Checklist'
     : isCopying
-    ? 'Sao chép Checklist'
-    : 'Tạo Checklist mới';
+      ? 'Sao chép Checklist'
+      : 'Tạo Checklist mới';
 
-  const description = isEditing 
-    ? 'Cập nhật thông tin và các hạng mục kiểm tra cho quy trình bảo dưỡng hiện có.' 
+  const description = isEditing
+    ? 'Cập nhật thông tin và các hạng mục kiểm tra cho quy trình bảo dưỡng hiện có.'
     : 'Thiết lập quy trình kiểm tra định kỳ mới cho thiết bị để đảm bảo vận hành ổn định.';
 
   return (
     <PageHeader
       title={title}
       subtitle={
-         <div className="flex items-center gap-2">
-            <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigate('/checklists')}>CHECKLISTS</span>
-            <span className="text-muted-foreground/50">/</span>
-            <span>{isEditing ? 'EDIT' : isCopying ? 'COPY' : 'NEW'}</span>
-         </div>
+        <div className="flex items-center gap-2">
+          <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigate('/checklists')}>CHECKLISTS</span>
+          <span className="text-muted-foreground/50">/</span>
+          <span>{isEditing ? 'EDIT' : isCopying ? 'COPY' : 'NEW'}</span>
+        </div>
       }
       description={description}
       onGoBack={() => navigate('/checklists')}

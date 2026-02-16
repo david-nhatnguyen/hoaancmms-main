@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
-import { 
-  Plus, 
-  Trash2, 
-  Upload, 
-  Filter, 
+import {
+  Plus,
+  Trash2,
+  Upload,
+  Filter,
   Search,
   Link2,
   X,
@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
@@ -46,6 +45,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { equipments, EQUIPMENT_GROUPS } from '@/data/mockData';
 import { checklistTemplates } from '@/data/checklistData';
+import { ChecklistStatus } from '../checklists/types/checklist.types';
 import { ASSIGNEES } from '@/data/pmPlanData';
 import { cn } from '@/lib/utils';
 
@@ -73,14 +73,14 @@ interface PMPlanStep3Props {
   onChange: (items: PMPlanEquipmentItem[]) => void;
 }
 
-export function PMPlanStep3({ 
-  factoryId, 
-  items, 
-  defaultDate, 
+export function PMPlanStep3({
+  factoryId,
+  items,
+  defaultDate,
   defaultAssignees,
   applyToAll,
   allowPerDeviceChange,
-  onChange 
+  onChange
 }: PMPlanStep3Props) {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showCompanionSheet, setShowCompanionSheet] = useState(false);
@@ -89,7 +89,7 @@ export function PMPlanStep3({
   const [groupFilter, setGroupFilter] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const activeChecklists = checklistTemplates.filter(c => c.status === 'active');
+  const activeChecklists = (checklistTemplates as any[]).filter(c => c.status === ChecklistStatus.ACTIVE);
 
   const factoryEquipments = useMemo(() => {
     if (!factoryId) return [];
@@ -106,8 +106,8 @@ export function PMPlanStep3({
     }
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(e => 
-        e.code.toLowerCase().includes(query) || 
+      filtered = filtered.filter(e =>
+        e.code.toLowerCase().includes(query) ||
         e.name.toLowerCase().includes(query)
       );
     }
@@ -118,12 +118,12 @@ export function PMPlanStep3({
     if (!selectedItemForCompanion) return [];
     const mainItem = items.find(i => i.id === selectedItemForCompanion);
     if (!mainItem) return [];
-    
+
     const addedIds = items.map(i => i.equipmentId);
     const companionIds = items.flatMap(i => i.companionEquipment);
-    
-    return factoryEquipments.filter(e => 
-      e.id !== mainItem.equipmentId && 
+
+    return factoryEquipments.filter(e =>
+      e.id !== mainItem.equipmentId &&
       !addedIds.includes(e.id) &&
       !companionIds.includes(e.id)
     );
@@ -153,7 +153,7 @@ export function PMPlanStep3({
         companionEquipment: []
       };
     });
-    
+
     onChange([...items, ...newItems]);
     setSelectedEquipments([]);
     setShowAddDialog(false);
@@ -168,8 +168,8 @@ export function PMPlanStep3({
       if (item.id === itemId) {
         if (field === 'checklistId') {
           const checklist = activeChecklists.find(c => c.id === value);
-          return { 
-            ...item, 
+          return {
+            ...item,
             checklistId: value as string | null,
             checklistName: checklist?.name || null
           };
@@ -187,7 +187,7 @@ export function PMPlanStep3({
 
   const handleAddCompanion = (companionId: string) => {
     if (!selectedItemForCompanion) return;
-    
+
     onChange(items.map(item => {
       if (item.id === selectedItemForCompanion) {
         return {
@@ -217,8 +217,8 @@ export function PMPlanStep3({
     <div className="space-y-4">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3">
-        <Button 
-          onClick={() => setShowAddDialog(true)} 
+        <Button
+          onClick={() => setShowAddDialog(true)}
           disabled={!factoryId}
           className="action-btn-primary"
         >
@@ -229,9 +229,9 @@ export function PMPlanStep3({
           <Upload className="h-4 w-4" />
           Import danh sách
         </Button>
-        
+
         <div className="flex-1" />
-        
+
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
           <Select value={groupFilter || 'all'} onValueChange={(v) => setGroupFilter(v === 'all' ? '' : v)}>
@@ -295,8 +295,8 @@ export function PMPlanStep3({
             </TableHeader>
             <TableBody>
               {items.map((item) => (
-                <TableRow 
-                  key={item.id} 
+                <TableRow
+                  key={item.id}
                   className={cn(
                     "border-border/50",
                     (!item.checklistId || !item.plannedDate) && "bg-destructive/5"
@@ -312,8 +312,8 @@ export function PMPlanStep3({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Select 
-                      value={item.checklistId || ''} 
+                    <Select
+                      value={item.checklistId || ''}
                       onValueChange={(v) => updateItem(item.id, 'checklistId', v || null)}
                     >
                       <SelectTrigger className={cn(
@@ -324,7 +324,7 @@ export function PMPlanStep3({
                       </SelectTrigger>
                       <SelectContent className="bg-popover border-border">
                         {activeChecklists
-                          .filter(c => c.machineType === item.machineType)
+                          .filter(c => c.equipment?.category === item.machineType)
                           .map(c => (
                             <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                           ))}
@@ -343,8 +343,8 @@ export function PMPlanStep3({
                     />
                   </TableCell>
                   <TableCell>
-                    <Select 
-                      value={item.assignee || ''} 
+                    <Select
+                      value={item.assignee || ''}
                       onValueChange={(v) => updateItem(item.id, 'assignee', v || null)}
                       disabled={applyToAll && !allowPerDeviceChange}
                     >
@@ -365,15 +365,16 @@ export function PMPlanStep3({
                           {item.companionEquipment.map(compId => {
                             const comp = getEquipmentById(compId);
                             return (
-                              <Badge 
-                                key={compId} 
+                              <Badge
+                                key={compId}
                                 variant="secondary"
                                 className="text-xs flex items-center gap-1"
                               >
                                 {comp?.code}
-                                <button 
+                                <button
                                   onClick={() => handleRemoveCompanion(item.id, compId)}
                                   className="hover:text-destructive"
+                                  title="Xóa thiết bị đi kèm"
                                 >
                                   <X className="h-3 w-3" />
                                 </button>
@@ -394,9 +395,9 @@ export function PMPlanStep3({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => handleRemoveItem(item.id)}
                       className="h-8 w-8 text-muted-foreground hover:text-destructive"
                     >
@@ -431,7 +432,7 @@ export function PMPlanStep3({
               Chọn thiết bị để thêm vào kế hoạch bảo dưỡng
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
@@ -463,7 +464,7 @@ export function PMPlanStep3({
                 </div>
               ) : (
                 availableEquipments.map(eq => (
-                  <div 
+                  <div
                     key={eq.id}
                     className="flex items-center gap-3 p-3 border-b border-border/50 last:border-0 hover:bg-secondary/30"
                   >
@@ -492,7 +493,7 @@ export function PMPlanStep3({
             <Button variant="outline" onClick={() => { setShowAddDialog(false); setSelectedEquipments([]); }}>
               Hủy
             </Button>
-            <Button 
+            <Button
               onClick={handleAddEquipments}
               disabled={selectedEquipments.length === 0}
               className="action-btn-primary"
@@ -515,7 +516,7 @@ export function PMPlanStep3({
               Chọn thiết bị cần bảo dưỡng đồng thời với thiết bị chính
             </SheetDescription>
           </SheetHeader>
-          
+
           <div className="mt-6 space-y-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -534,14 +535,14 @@ export function PMPlanStep3({
                 availableCompanionEquipments.map(eq => {
                   const mainItem = items.find(i => i.id === selectedItemForCompanion);
                   const isAdded = mainItem?.companionEquipment.includes(eq.id);
-                  
+
                   return (
-                    <div 
+                    <div
                       key={eq.id}
                       className={cn(
                         "p-3 rounded-lg border cursor-pointer transition-all",
-                        isAdded 
-                          ? "border-primary bg-primary/5" 
+                        isAdded
+                          ? "border-primary bg-primary/5"
                           : "border-border hover:border-primary/50"
                       )}
                       onClick={() => {
@@ -571,8 +572,8 @@ export function PMPlanStep3({
               <p className="text-xs text-muted-foreground mb-2">
                 <strong>Lưu ý:</strong> Thiết bị đi kèm sẽ kế thừa ngày kế hoạch và người phụ trách từ thiết bị chính.
               </p>
-              <Button 
-                className="w-full" 
+              <Button
+                className="w-full"
                 onClick={() => setShowCompanionSheet(false)}
               >
                 Xong

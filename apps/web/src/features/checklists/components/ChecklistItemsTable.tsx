@@ -1,10 +1,10 @@
 import { UseFormReturn } from 'react-hook-form';
 import { ColumnDef } from '@tanstack/react-table';
-import { 
-  MoveUp, 
-  MoveDown, 
-  Trash2, 
-  Plus, 
+import {
+  MoveUp,
+  MoveDown,
+  Trash2,
+  Plus,
   ListTodo
 } from 'lucide-react';
 
@@ -31,14 +31,14 @@ interface ChecklistItemsTableProps {
   move: (from: number, to: number) => void;
 }
 
-export function ChecklistItemsTable({ 
-  form, 
-  fields, 
-  append, 
-  remove, 
-  move 
+export function ChecklistItemsTable({
+  form,
+  fields,
+  append,
+  remove,
+  move
 }: ChecklistItemsTableProps) {
-  
+
   const { isMobile, handleRemove } = useChecklistItemsTable(form, remove, move, fields);
 
   const columns: ColumnDef<ChecklistFormValues['items'][0]>[] = [
@@ -62,13 +62,13 @@ export function ChecklistItemsTable({
           render={({ field }) => (
             <FormItem className="space-y-0">
               <FormControl>
-                <Textarea 
-                  placeholder="Nội dung" 
-                  {...field} 
+                <Textarea
+                  placeholder="Nội dung"
+                  {...field}
                   className={cn(
                     "min-h-[60px] resize-none text-sm",
                     form.formState.errors.items?.[row.index]?.maintenanceTask && "border-destructive focus-visible:ring-destructive"
-                  )} 
+                  )}
                 />
               </FormControl>
             </FormItem>
@@ -87,10 +87,10 @@ export function ChecklistItemsTable({
           render={({ field }) => (
             <FormItem className="space-y-0">
               <FormControl>
-                <Textarea 
-                  placeholder="Tiêu chuẩn" 
-                  {...field} 
-                  className="min-h-[60px] resize-none text-sm" 
+                <Textarea
+                  placeholder="Tiêu chuẩn"
+                  {...field}
+                  className="min-h-[60px] resize-none text-sm"
                 />
               </FormControl>
             </FormItem>
@@ -109,17 +109,17 @@ export function ChecklistItemsTable({
           render={({ field }) => (
             <FormItem className="space-y-0">
               <FormControl>
-                <Textarea 
-                  placeholder="Phương pháp" 
-                  {...field} 
-                  className="min-h-[60px] resize-none text-sm" 
+                <Textarea
+                  placeholder="Phương pháp"
+                  {...field}
+                  className="min-h-[60px] resize-none text-sm"
                 />
               </FormControl>
             </FormItem>
           )}
         />
       ),
-       size: 150,
+      size: 150,
     },
     {
       accessorKey: "expectedResult",
@@ -131,93 +131,93 @@ export function ChecklistItemsTable({
           render={({ field }) => (
             <FormItem className="space-y-0">
               <FormControl>
-                <Textarea 
-                    placeholder="Kết quả" 
-                    {...field} 
-                    className="min-h-[60px] resize-none text-sm" 
+                <Textarea
+                  placeholder="Kết quả"
+                  {...field}
+                  className="min-h-[60px] resize-none text-sm"
                 />
               </FormControl>
             </FormItem>
           )}
         />
       ),
-       size: 150,
+      size: 150,
     },
     // Flags Grouped
     {
-        id: 'flags',
-        header: () => <div className="text-center text-xs tracking-wider w-[100px]">Cấu hình</div>,
-        cell: ({ row }) => (
-            <div className="flex flex-col gap-2 py-1">
-                 <FormField
-                    control={form.control}
-                    name={`items.${row.index}.isRequired`}
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                        <FormControl>
-                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                        </FormControl>
-                        <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">Bắt buộc</div>
-                        </FormItem>
-                    )}
-                 />
-                 <FormField
-                    control={form.control}
-                    name={`items.${row.index}.requiresImage`}
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                        <FormControl>
-                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                        </FormControl>
-                         <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">Yêu cầu ảnh</div>
-                        </FormItem>
-                    )}
-                 />
-                 <FormField
-                    control={form.control}
-                    name={`items.${row.index}.requiresNote`}
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                        <FormControl>
-                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                        </FormControl>
-                         <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">Yêu cầu Note</div>
-                        </FormItem>
-                    )}
-                 />
-            </div>
-        ),
-        size: 120,
+      id: 'flags',
+      header: () => <div className="text-center text-xs tracking-wider w-[100px]">Cấu hình</div>,
+      cell: ({ row }) => (
+        <div className="flex flex-col gap-2 py-1">
+          <FormField
+            control={form.control}
+            name={`items.${row.index}.isRequired`}
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">Bắt buộc</div>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name={`items.${row.index}.requiresImage`}
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">Yêu cầu ảnh</div>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name={`items.${row.index}.requiresNote`}
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">Yêu cầu Note</div>
+              </FormItem>
+            )}
+          />
+        </div>
+      ),
+      size: 120,
     },
     {
       id: "actions",
       header: () => <div className="text-right text-xs tracking-wider w-24">Thao tác</div>,
       cell: ({ row }) => (
         <div className="flex flex-col items-center justify-center gap-1">
-            <div className='flex gap-1'>
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 text-muted-foreground group-hover:text-foreground"
-                    title="Di chuyển lên"
-                    onClick={() => move(row.index, row.index - 1)}
-                    disabled={row.index === 0}
-                >
-                    <MoveUp className="h-3 w-3" />
-                </Button>
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 text-muted-foreground group-hover:text-foreground"
-                    title="Di chuyển xuống"
-                    onClick={() => move(row.index, row.index + 1)}
-                    disabled={row.index === fields.length - 1}
-                >
-                    <MoveDown className="h-3 w-3" />
-                </Button>
-            </div>
+          <div className='flex gap-1'>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-muted-foreground group-hover:text-foreground"
+              title="Di chuyển lên"
+              onClick={() => move(row.index, row.index - 1)}
+              disabled={row.index === 0}
+            >
+              <MoveUp className="h-3 w-3" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-muted-foreground group-hover:text-foreground"
+              title="Di chuyển xuống"
+              onClick={() => move(row.index, row.index + 1)}
+              disabled={row.index === fields.length - 1}
+            >
+              <MoveDown className="h-3 w-3" />
+            </Button>
+          </div>
           <Button
             type="button"
             variant="ghost"
@@ -247,68 +247,68 @@ export function ChecklistItemsTable({
           </div>
         </div>
         {!isMobile && (
-            <Button
+          <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={append}
             className="h-9 transition-all hover:bg-primary hover:text-primary-foreground"
-            >
+          >
             <Plus className="h-4 w-4 mr-2" />
             Thêm hạng mục
-            </Button>
+          </Button>
         )}
       </CardHeader>
-      <CardContent className="p-0">
+      <CardContent className={isMobile ? "p-0" : "p-2"}>
         {form.formState.errors.items && 'root' in form.formState.errors.items && (
-           <div className="m-4 p-3 bg-destructive/10 border border-destructive rounded-md text-sm text-destructive font-medium animate-in fade-in slide-in-from-top-2">
-              {(form.formState.errors.items as any).root?.message}
-           </div>
-        )}
-        
-        {isMobile ? (
-            <div className="p-4 space-y-4">
-                {fields.map((field, index) => (
-                    <MobileChecklistItem
-                        key={field.id}
-                        index={index}
-                        form={form}
-                        onRemove={remove}
-                        onMoveUp={(i) => move(i, i - 1)}
-                        onMoveDown={(i) => move(i, i + 1)}
-                        totalItems={fields.length}
-                    />
-                ))}
-                 {fields.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground text-sm">
-                        Chưa có hạng mục nào được thêm
-                    </div>
-                 )}
-            </div>
-        ) : (
-            <div className="w-full overflow-x-auto">
-            <DataTable
-                columns={columns}
-                data={fields}
-                showToolbar={false}
-                showPagination={false}
-                getRowId={(row) => (row as any).id}
-                className="border-none [&_td]:align-top [&_thead]:bg-muted/50"
-            />
-            </div>
+          <div className="m-4 p-3 bg-destructive/10 border border-destructive rounded-md text-sm text-destructive font-medium animate-in fade-in slide-in-from-top-2">
+            {(form.formState.errors.items as any).root?.message}
+          </div>
         )}
 
-         <div className="p-4 border-t border-border/40 bg-muted/20 flex justify-center">
-             <Button
-                type="button"
-                variant="ghost" 
-                className="w-full max-w-sm border-dashed border-2 hover:border-primary hover:bg-primary/5 hover:text-primary h-12"
-                onClick={append}
-            >
-                <Plus className="h-4 w-4 mr-2" />
-                Thêm hạng mục mới
-            </Button>
-         </div>
+        {isMobile ? (
+          <div className="p-4 space-y-4">
+            {fields.map((field, index) => (
+              <MobileChecklistItem
+                key={field.id}
+                index={index}
+                form={form}
+                onRemove={remove}
+                onMoveUp={(i) => move(i, i - 1)}
+                onMoveDown={(i) => move(i, i + 1)}
+                totalItems={fields.length}
+              />
+            ))}
+            {fields.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground text-sm">
+                Chưa có hạng mục nào được thêm
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="w-full overflow-x-auto">
+            <DataTable
+              columns={columns}
+              data={fields}
+              showToolbar={false}
+              showPagination={false}
+              getRowId={(row) => (row as any).id}
+              className="border-none [&_td]:align-top [&_thead]:bg-muted/50"
+            />
+          </div>
+        )}
+
+        <div className="p-4 border-t border-border/40 bg-muted/20 flex justify-center">
+          <Button
+            type="button"
+            variant="ghost"
+            className="w-full max-w-sm border-dashed border-2 hover:border-primary hover:bg-primary/5 hover:text-primary h-12"
+            onClick={append}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Thêm hạng mục mới
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

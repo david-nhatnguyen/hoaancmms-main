@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
 
 interface MobilePageHeaderProps {
   subtitle?: string;
@@ -9,11 +8,11 @@ interface MobilePageHeaderProps {
   mobileActions?: ReactNode; // Simplified actions for mobile
 }
 
-export function MobilePageHeader({ 
-  subtitle, 
-  title, 
+export function MobilePageHeader({
+  subtitle,
+  title,
   actions,
-  mobileActions 
+  mobileActions
 }: MobilePageHeaderProps) {
   const isMobile = useIsMobile();
 

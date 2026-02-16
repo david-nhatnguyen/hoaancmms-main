@@ -319,7 +319,6 @@ export default function FactoryList() {
                       }
                     ]} />
                   }
-                  onClick={() => navigate(`/equipments?factoryId=${factory.id}`)}
                   isSelected={isSelected}
                   onToggleSelection={toggleSelection}
                   renderSelection={true}

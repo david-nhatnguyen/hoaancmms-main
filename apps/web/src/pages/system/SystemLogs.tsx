@@ -1,12 +1,10 @@
 import { useState, useMemo } from 'react';
-import { 
-  Search, 
+import {
+  Search,
   Download,
-  Calendar,
   User,
   Activity,
   ExternalLink,
-  X,
   ChevronDown,
   Check,
   Clock,
@@ -135,10 +133,10 @@ function MultiSelectDropdown({
 }
 
 // Mobile log card component
-function LogCard({ 
-  log, 
-  onView 
-}: { 
+function LogCard({
+  log,
+  onView
+}: {
   log: SystemLog;
   onView: () => void;
 }) {
@@ -148,7 +146,7 @@ function LogCard({
   const actionLabel = actionConfig?.label || log.action;
 
   return (
-    <div 
+    <div
       className="bg-card rounded-xl border border-border/50 p-3"
       onClick={onView}
     >
@@ -195,7 +193,7 @@ export default function SystemLogs() {
     return systemLogs.filter(log => {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
-        const matches = 
+        const matches =
           log.userName.toLowerCase().includes(query) ||
           log.details.toLowerCase().includes(query) ||
           (log.objectName?.toLowerCase().includes(query));
@@ -472,7 +470,7 @@ export default function SystemLogs() {
             {(hasActiveFilters || searchQuery) && (
               <>
                 <div className="h-6 w-px bg-border/50" />
-                <button 
+                <button
                   onClick={clearFilters}
                   className="text-xs text-destructive hover:text-destructive/80 font-medium"
                 >
@@ -536,8 +534,8 @@ export default function SystemLogs() {
                 filteredLogs.map((log) => {
                   const ActionIcon = getActionIcon(log.action);
                   return (
-                    <TableRow 
-                      key={log.id} 
+                    <TableRow
+                      key={log.id}
                       className="table-row-interactive"
                       onClick={() => setSelectedLog(log)}
                     >
@@ -567,8 +565,8 @@ export default function SystemLogs() {
                         {log.details}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-muted-foreground hover:text-primary"
                           onClick={(e) => {
@@ -600,7 +598,7 @@ export default function SystemLogs() {
               <span className={isMobile ? "text-base" : ""}>Chi tiết nhật ký</span>
             </SheetTitle>
           </SheetHeader>
-          
+
           {selectedLog && (
             <div className={cn("mt-4 space-y-3", !isMobile && "mt-6 space-y-4")}>
               <div className="grid grid-cols-2 gap-2">

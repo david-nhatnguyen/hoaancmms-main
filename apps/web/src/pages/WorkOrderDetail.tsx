@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  Play, 
+import {
+  ArrowLeft,
+  Play,
   Clock,
   CheckCircle,
   AlertTriangle,
@@ -13,11 +13,10 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  workOrders, 
+import {
+  workOrders,
   WO_STATUS_LABELS,
   WorkOrder,
-  calculateProgress,
   calculateDuration,
   RESULT_LABELS
 } from '@/data/workOrderData';
@@ -28,7 +27,7 @@ export default function WorkOrderDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isMobile = useIsMobile();
-  
+
   const wo = workOrders.find(w => w.id === id);
 
   if (!wo) {
@@ -46,7 +45,6 @@ export default function WorkOrderDetail() {
     );
   }
 
-  const progress = calculateProgress(wo.items);
   const okCount = wo.items.filter(i => i.result === 'ok').length;
   const ngCount = wo.items.filter(i => i.result === 'ng').length;
   const naCount = wo.items.filter(i => i.result === 'na').length;
@@ -66,7 +64,7 @@ export default function WorkOrderDetail() {
 
   const getResultBadge = (result: 'ok' | 'ng' | 'na' | null) => {
     if (!result) return <span className="text-muted-foreground text-sm">-</span>;
-    
+
     const styles = {
       'ok': 'bg-status-active/20 text-[hsl(var(--status-active))]',
       'ng': 'bg-destructive/20 text-destructive',
@@ -113,8 +111,8 @@ export default function WorkOrderDetail() {
               <h1 className="text-base font-bold leading-tight truncate">{wo.equipmentName}</h1>
             </div>
             {wo.status !== 'completed' && (
-              <Button 
-                onClick={() => navigate(`/work-orders/${wo.id}/execute`)} 
+              <Button
+                onClick={() => navigate(`/work-orders/${wo.id}/execute`)}
                 size="sm"
                 className="shrink-0 h-9 px-3 gap-1.5"
               >
@@ -155,7 +153,7 @@ export default function WorkOrderDetail() {
           "bg-secondary/50 p-1",
           isMobile ? "w-full grid grid-cols-3 h-auto" : ""
         )}>
-          <TabsTrigger 
+          <TabsTrigger
             value="checklist"
             className={cn(
               "data-[state=active]:bg-card data-[state=active]:text-primary",
@@ -164,7 +162,7 @@ export default function WorkOrderDetail() {
           >
             Kết quả Checklist
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="info"
             className={cn(
               "data-[state=active]:bg-card data-[state=active]:text-primary",
@@ -173,7 +171,7 @@ export default function WorkOrderDetail() {
           >
             Thông tin chung
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="time"
             className={cn(
               "data-[state=active]:bg-card data-[state=active]:text-primary",
@@ -230,7 +228,7 @@ export default function WorkOrderDetail() {
             </div>
             <div className="divide-y divide-border/50">
               {wo.items.map((item, idx) => (
-                <div 
+                <div
                   key={item.id}
                   className={cn(
                     isMobile ? "p-3" : "p-4",

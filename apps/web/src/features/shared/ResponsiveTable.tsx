@@ -1,4 +1,4 @@
-import { ReactNode, useState, useMemo } from 'react';
+import { ReactNode, useState, useMemo, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -59,30 +59,30 @@ function MobilePagination({
   // Generate page numbers to show
   const getVisiblePages = () => {
     const pages: (number | 'ellipsis')[] = [];
-    
+
     if (totalPages <= 5) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       // Always show first page
       pages.push(1);
-      
+
       if (currentPage > 3) {
         pages.push('ellipsis');
       }
-      
+
       // Show pages around current
       for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
         if (!pages.includes(i)) pages.push(i);
       }
-      
+
       if (currentPage < totalPages - 2) {
         pages.push('ellipsis');
       }
-      
+
       // Always show last page
       if (!pages.includes(totalPages)) pages.push(totalPages);
     }
-    
+
     return pages;
   };
 
@@ -154,7 +154,7 @@ export function ResponsiveTable<T>({
 
   // Calculate pagination
   const totalPages = Math.ceil(data.length / pageSize);
-  
+
   // Get paginated data for mobile
   const paginatedData = useMemo(() => {
     if (!isMobile || !showPagination) return data;
@@ -163,11 +163,11 @@ export function ResponsiveTable<T>({
   }, [data, currentPage, pageSize, isMobile, showPagination]);
 
   // Reset to page 1 when data changes significantly
-  useMemo(() => {
+  useEffect(() => {
     if (currentPage > totalPages && totalPages > 0) {
       setCurrentPage(1);
     }
-  }, [data.length, totalPages, currentPage]);
+  }, [totalPages, currentPage]);
 
   // Mobile Card View
   if (isMobile) {
@@ -256,8 +256,8 @@ export function ResponsiveTable<T>({
                 {/* Actions at bottom */}
                 {columns.find(c => c.key === 'actions') && (
                   <div className="mt-3 pt-3 border-t border-border/50">
-                    {columns.find(c => c.key === 'actions')?.mobileRender?.(item) ?? 
-                     columns.find(c => c.key === 'actions')?.render(item)}
+                    {columns.find(c => c.key === 'actions')?.mobileRender?.(item) ??
+                      columns.find(c => c.key === 'actions')?.render(item)}
                   </div>
                 )}
               </div>
@@ -286,8 +286,8 @@ export function ResponsiveTable<T>({
             {columns
               .filter(col => col.key !== 'actions' || true) // Show all columns on desktop
               .map(col => (
-                <TableHead 
-                  key={col.key} 
+                <TableHead
+                  key={col.key}
                   className={cn(
                     "table-header-cell",
                     col.width,
@@ -319,7 +319,7 @@ export function ResponsiveTable<T>({
                 )}
               >
                 {columns.map(col => (
-                  <TableCell 
+                  <TableCell
                     key={col.key}
                     className={cn(
                       col.align === 'center' && "text-center",

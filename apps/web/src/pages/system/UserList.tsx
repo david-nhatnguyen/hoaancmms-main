@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Plus, 
-  Search, 
-  Download, 
+import {
+  Plus,
+  Search,
+  Download,
   FileSpreadsheet,
   Eye,
   Pencil,
@@ -13,7 +13,6 @@ import {
   Users,
   UserCheck,
   UserX,
-  X,
   ChevronDown,
   Check,
   MoreVertical
@@ -103,9 +102,9 @@ function MultiSelectDropdown({
           )}
         >
           <span className="text-sm">
-            {selected.length === 0 
-              ? label 
-              : selected.length === 1 
+            {selected.length === 0
+              ? label
+              : selected.length === 1
                 ? selectedLabels[0]
                 : `${label} (${selected.length})`
             }
@@ -173,13 +172,13 @@ function ChipFilter({
 }
 
 // Mobile user card component
-function UserCard({ 
-  user, 
-  onView, 
-  onEdit, 
-  onLockToggle 
-}: { 
-  user: typeof users[0]; 
+function UserCard({
+  user,
+  onView,
+  onEdit,
+  onLockToggle
+}: {
+  user: typeof users[0];
   onView: () => void;
   onEdit: () => void;
   onLockToggle: () => void;
@@ -223,7 +222,7 @@ function UserCard({
         </span>
         <span className={cn(
           "status-badge text-[10px]",
-          user.status === 'active' 
+          user.status === 'active'
             ? "bg-status-active/20 text-[hsl(var(--status-active))]"
             : "bg-status-inactive/20 text-[hsl(var(--status-inactive))]"
         )}>
@@ -256,7 +255,7 @@ export default function UserList() {
     return users.filter(user => {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
-        const matches = 
+        const matches =
           user.fullName.toLowerCase().includes(query) ||
           user.email.toLowerCase().includes(query) ||
           user.role.toLowerCase().includes(query);
@@ -406,8 +405,8 @@ export default function UserList() {
                 </Button>
               </>
             )}
-            <Button 
-              onClick={() => navigate('/system/users/new')} 
+            <Button
+              onClick={() => navigate('/system/users/new')}
               className={cn(
                 "action-btn-primary",
                 isMobile && "flex-1 h-9"
@@ -522,7 +521,7 @@ export default function UserList() {
           {(hasActiveFilters || searchQuery) && (
             <div className="flex items-center gap-2 pt-2 border-t border-border/30">
               <span className="text-xs text-muted-foreground">Đang lọc:</span>
-              <button 
+              <button
                 onClick={clearFilters}
                 className="text-xs text-destructive hover:text-destructive/80 font-medium"
               >
@@ -599,7 +598,7 @@ export default function UserList() {
                     <TableCell className="text-center">
                       <span className={cn(
                         "status-badge",
-                        user.status === 'active' 
+                        user.status === 'active'
                           ? "bg-status-active/20 text-[hsl(var(--status-active))]"
                           : "bg-status-inactive/20 text-[hsl(var(--status-inactive))]"
                       )}>
@@ -611,8 +610,8 @@ export default function UserList() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="icon"
                           onClick={() => navigate(`/system/users/${user.id}`)}
                           className="h-8 w-8 text-muted-foreground hover:text-primary"
@@ -620,8 +619,8 @@ export default function UserList() {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="icon"
                           onClick={() => navigate(`/system/users/${user.id}/edit`)}
                           className="h-8 w-8 text-muted-foreground hover:text-foreground"
@@ -629,13 +628,13 @@ export default function UserList() {
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="icon"
                           onClick={() => handleLockToggle(user)}
                           className={cn(
                             "h-8 w-8",
-                            user.status === 'active' 
+                            user.status === 'active'
                               ? "text-muted-foreground hover:text-destructive"
                               : "text-muted-foreground hover:text-status-active"
                           )}
@@ -643,8 +642,8 @@ export default function UserList() {
                         >
                           {user.status === 'active' ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
                         </Button>
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-muted-foreground hover:text-foreground"
                           title="Đặt lại mật khẩu"
@@ -672,21 +671,21 @@ export default function UserList() {
               {lockDialog.action === 'lock' ? 'Khóa tài khoản?' : 'Mở khóa tài khoản?'}
             </DialogTitle>
             <DialogDescription className={isMobile ? "text-xs" : ""}>
-              {lockDialog.action === 'lock' 
+              {lockDialog.action === 'lock'
                 ? `Tài khoản "${lockDialog.user?.fullName}" sẽ không thể đăng nhập vào hệ thống.`
                 : `Tài khoản "${lockDialog.user?.fullName}" sẽ có thể đăng nhập lại.`
               }
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className={cn("gap-2", isMobile && "flex-row")}>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setLockDialog(prev => ({ ...prev, open: false }))}
               className={cn(isMobile && "flex-1 h-9 text-xs")}
             >
               Hủy
             </Button>
-            <Button 
+            <Button
               variant={lockDialog.action === 'lock' ? 'destructive' : 'default'}
               onClick={() => setLockDialog(prev => ({ ...prev, open: false }))}
               className={cn(isMobile && "flex-1 h-9 text-xs")}

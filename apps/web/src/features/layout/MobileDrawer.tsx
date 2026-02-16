@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { 
-  ChevronDown, 
+import {
+  ChevronDown,
   ChevronRight,
-  X,
   Factory,
   Cpu,
   ClipboardList,
@@ -17,8 +16,6 @@ import {
   ScrollText,
   Cog
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetContent,
@@ -135,8 +132,8 @@ export function MobileDrawer({ open, onOpenChange }: MobileDrawerProps) {
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
 
   const toggleMenu = (label: string) => {
-    setExpandedMenus(prev => 
-      prev.includes(label) 
+    setExpandedMenus(prev =>
+      prev.includes(label)
         ? prev.filter(l => l !== label)
         : [...prev, label]
     );
@@ -150,8 +147,8 @@ export function MobileDrawer({ open, onOpenChange }: MobileDrawerProps) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent 
-        side="left" 
+      <SheetContent
+        side="left"
         className="w-[280px] p-0 bg-sidebar border-sidebar-border"
       >
         <SheetHeader className="h-14 flex flex-row items-center justify-between px-4 border-b border-sidebar-border">
@@ -188,14 +185,14 @@ export function MobileDrawer({ open, onOpenChange }: MobileDrawerProps) {
                           onClick={() => toggleMenu(item.label)}
                           className={cn(
                             "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200",
-                            active 
-                              ? "bg-primary text-primary-foreground font-medium" 
+                            active
+                              ? "bg-primary text-primary-foreground font-medium"
                               : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                           )}
                         >
                           <item.icon className="h-5 w-5 shrink-0" />
                           <span className="flex-1 text-left">{item.label}</span>
-                          {isExpanded 
+                          {isExpanded
                             ? <ChevronDown className="h-4 w-4 opacity-60" />
                             : <ChevronRight className="h-4 w-4 opacity-60" />
                           }
@@ -240,8 +237,8 @@ export function MobileDrawer({ open, onOpenChange }: MobileDrawerProps) {
                       {item.badge && item.badge > 0 && (
                         <span className={cn(
                           "min-w-[20px] h-5 px-1.5 flex items-center justify-center text-[10px] font-bold rounded-full animate-pulse shadow-lg",
-                          active 
-                            ? "bg-primary-foreground text-primary" 
+                          active
+                            ? "bg-primary-foreground text-primary"
                             : "bg-destructive text-destructive-foreground shadow-destructive/50"
                         )}>
                           {item.badge > 99 ? '99+' : item.badge}

@@ -50,27 +50,27 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100">
         <div className="flex items-start gap-4">
           {icon && (
-             <div className="hidden md:flex h-12 w-12 rounded-xl bg-primary/10 items-center justify-center shrink-0 border border-primary/20">
-                {icon}
-             </div>
+            <div className="hidden md:flex h-14 w-14 rounded-xl bg-primary/10 items-center justify-center shrink-0 border border-primary/20">
+              {icon}
+            </div>
           )}
           <div className="space-y-1.5 flex-1 min-w-0">
             {/* Subtitle / Context */}
             {subtitle && (
-              <div className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">
+              <div className="text-sm text-muted-foreground uppercase text-sidebar-foreground/80 uppercase tracking-[0.1em] mb-1">
                 {subtitle}
               </div>
             )}
-            
+
             {/* Title & Badges */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
-              <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl leading-tight">
+              <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl leading-tight tracking-[0.1em]">
                 {title}
               </h1>
               {badges && (
                 <div className="flex items-center gap-2 flex-wrap text-sm">
-                   {/* Separator on desktop if needed, or just standard gap */}
-                   {badges}
+                  {/* Separator on desktop if needed, or just standard gap */}
+                  {badges}
                 </div>
               )}
             </div>

@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Plus, 
+import {
+  Plus,
   Eye,
   Pencil,
   Copy,
@@ -31,19 +30,19 @@ import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Mobile role card component
-function RoleCard({ 
-  role, 
-  onView, 
-  onEdit, 
-  onCopy 
-}: { 
-  role: typeof roles[0]; 
+function RoleCard({
+  role,
+  onView,
+  onEdit,
+  onCopy
+}: {
+  role: typeof roles[0];
   onView: () => void;
   onEdit: () => void;
   onCopy: () => void;
 }) {
   return (
-    <div 
+    <div
       className="bg-card rounded-xl border border-border/50 p-3"
       onClick={onView}
     >
@@ -74,8 +73,8 @@ function RoleCard({
               <Eye className="h-3.5 w-3.5" />
               Xem chi tiết
             </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={(e) => { e.stopPropagation(); onEdit(); }} 
+            <DropdownMenuItem
+              onClick={(e) => { e.stopPropagation(); onEdit(); }}
               className="gap-2"
               disabled={role.id === 'admin'}
             >
@@ -140,8 +139,8 @@ export default function RoleList() {
                 Sao chép từ vai trò mẫu
               </Button>
             )}
-            <Button 
-              onClick={() => navigate('/system/roles/new')} 
+            <Button
+              onClick={() => navigate('/system/roles/new')}
               className={cn(
                 "action-btn-primary",
                 isMobile && "flex-1 h-9"
@@ -213,7 +212,7 @@ export default function RoleList() {
               role={role}
               onView={() => navigate(`/system/roles/${role.id}`)}
               onEdit={() => navigate(`/system/roles/${role.id}/edit`)}
-              onCopy={() => {}}
+              onCopy={() => { }}
             />
           ))}
         </div>
@@ -231,8 +230,8 @@ export default function RoleList() {
             </TableHeader>
             <TableBody>
               {roles.map((role) => (
-                <TableRow 
-                  key={role.id} 
+                <TableRow
+                  key={role.id}
                   className="table-row-interactive"
                   onClick={() => navigate(`/system/roles/${role.id}`)}
                 >
@@ -271,8 +270,8 @@ export default function RoleList() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="icon"
                         onClick={() => navigate(`/system/roles/${role.id}`)}
                         className="h-8 w-8 text-muted-foreground hover:text-primary"
@@ -280,8 +279,8 @@ export default function RoleList() {
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="icon"
                         onClick={() => navigate(`/system/roles/${role.id}/edit`)}
                         className="h-8 w-8 text-muted-foreground hover:text-foreground"
@@ -290,8 +289,8 @@ export default function RoleList() {
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-foreground"
                         title="Sao chép"

@@ -42,7 +42,7 @@ const formatFileSize = (bytes?: number) => {
 export const EquipmentDocumentsTab = ({ equipment }: EquipmentDocumentsTabProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  
+
   const uploadMutation = useUploadDocument();
   const deleteMutation = useDeleteDocument();
 
@@ -71,12 +71,12 @@ export const EquipmentDocumentsTab = ({ equipment }: EquipmentDocumentsTabProps)
       );
     }
   };
-  
+
   const getAssetUrl = (path: string) => {
-      if (path.startsWith('http')) return path;
-      const cleanPath = path.startsWith('/api/') ? path.replace('/api', '') : path;
-      const baseUrl = env.API_URL.endsWith('/') ? env.API_URL.slice(0, -1) : env.API_URL;
-      return `${baseUrl}${cleanPath.startsWith('/') ? '' : '/'}${cleanPath}`;
+    if (path.startsWith('http')) return path;
+    const cleanPath = path.startsWith('/api/') ? path.replace('/api', '') : path;
+    const baseUrl = env.API_URL.endsWith('/') ? env.API_URL.slice(0, -1) : env.API_URL;
+    return `${baseUrl}${cleanPath.startsWith('/') ? '' : '/'}${cleanPath}`;
   };
 
   const documents = equipment.documents || [];
@@ -90,17 +90,17 @@ export const EquipmentDocumentsTab = ({ equipment }: EquipmentDocumentsTabProps)
             <CardDescription>Quản lý các tài liệu hướng dẫn, thông số kỹ thuật</CardDescription>
           </div>
           <div>
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              className="hidden" 
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
               onChange={handleFileChange}
               accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png,.jpeg"
               aria-label="Upload document"
             />
-            <Button 
-              size="sm" 
-              onClick={() => fileInputRef.current?.click()} 
+            <Button
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
               disabled={uploadMutation.isPending}
               className="action-btn-primary"
             >
@@ -121,9 +121,9 @@ export const EquipmentDocumentsTab = ({ equipment }: EquipmentDocumentsTabProps)
               </div>
               <h3 className="text-sm font-medium text-foreground">Chưa có tài liệu nào</h3>
               <p className="text-xs text-muted-foreground mt-1 mb-4">Tải lên các tài liệu liên quan đến thiết bị này</p>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadMutation.isPending}
               >
@@ -131,54 +131,54 @@ export const EquipmentDocumentsTab = ({ equipment }: EquipmentDocumentsTabProps)
               </Button>
             </div>
           ) : (
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {documents.map((doc: EquipmentDocument) => {
-                  const Icon = getFileIcon(doc.type);
-                  return (
-                    <div 
-                      key={doc.id} 
-                      className="group relative flex items-start p-4 rounded-xl border border-border bg-card hover:bg-secondary/20 hover:border-primary/20 transition-all shadow-sm hover:shadow"
-                    >
-                      <div className="bg-primary/10 p-2.5 rounded-lg mr-3 text-primary shrink-0">
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1 min-w-0 pr-8">
-                        <h4 className="text-sm font-medium text-foreground truncate" title={doc.name}>
-                          {doc.name}
-                        </h4>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                            {formatFileSize(doc.size)}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground/70">
-                            {new Date(doc.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                         <a 
-                            href={getAssetUrl(doc.path)} 
-                            download 
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1.5 rounded-md hover:bg-primary/20 text-primary transition-colors"
-                            title="Tải xuống"
-                          >
-                            <Download className="h-3.5 w-3.5" />
-                          </a>
-                          <button 
-                            onClick={() => setDeleteId(doc.id)}
-                            className="p-1.5 rounded-md hover:bg-destructive/10 text-destructive transition-colors"
-                            title="Xóa"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {documents.map((doc: EquipmentDocument) => {
+                const Icon = getFileIcon(doc.type);
+                return (
+                  <div
+                    key={doc.id}
+                    className="group relative flex items-start p-4 rounded-xl border border-border bg-card hover:bg-secondary/20 hover:border-primary/20 transition-all shadow-sm hover:shadow"
+                  >
+                    <div className="bg-primary/10 p-2.5 rounded-lg mr-3 text-primary shrink-0">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1 min-w-0 pr-8">
+                      <h4 className="text-sm font-medium text-foreground truncate" title={doc.name}>
+                        {doc.name}
+                      </h4>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                          {formatFileSize(doc.size)}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground/70">
+                          {new Date(doc.createdAt).toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
-                  );
-                })}
-             </div>
+
+                    <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <a
+                        href={getAssetUrl(doc.path)}
+                        download
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 rounded-md hover:bg-primary/20 text-primary transition-colors"
+                        title="Tải xuống"
+                      >
+                        <Download className="h-3.5 w-3.5" />
+                      </a>
+                      <button
+                        onClick={() => setDeleteId(doc.id)}
+                        className="p-1.5 rounded-md hover:bg-destructive/10 text-destructive transition-colors"
+                        title="Xóa"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </CardContent>
       </Card>
@@ -193,7 +193,7 @@ export const EquipmentDocumentsTab = ({ equipment }: EquipmentDocumentsTabProps)
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleDelete}
               className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
               disabled={deleteMutation.isPending}

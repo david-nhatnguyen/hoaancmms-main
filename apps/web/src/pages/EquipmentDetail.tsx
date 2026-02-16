@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  FileText, 
+import {
+  FileText,
   History,
   Tag,
   AlertCircle,
@@ -63,7 +63,7 @@ export default function EquipmentDetail() {
       "animate-fade-in max-w-full overflow-x-hidden min-h-screen bg-background/50",
       isMobile ? "px-4 py-3" : "p-6"
     )}>
-      
+
       <EquipmentHeader equipment={equipment} />
 
       {/* Tabs */}
@@ -72,8 +72,8 @@ export default function EquipmentDetail() {
           "bg-secondary/50 p-1 mb-4",
           isMobile ? "w-full grid grid-cols-3 h-auto" : "mb-6"
         )}>
-          <TabsTrigger 
-            value="info" 
+          <TabsTrigger
+            value="info"
             className={cn(
               "gap-1.5 data-[state=active]:bg-card data-[state=active]:text-primary",
               isMobile && "text-xs py-2 flex-col h-auto [&>svg]:mb-0.5"
@@ -82,8 +82,8 @@ export default function EquipmentDetail() {
             <Tag className={cn("h-4 w-4", isMobile && "h-3.5 w-3.5")} />
             <span className={isMobile ? "text-[11px] leading-tight" : ""}>Thông tin chung</span>
           </TabsTrigger>
-          <TabsTrigger 
-            value="documents" 
+          <TabsTrigger
+            value="documents"
             className={cn(
               "gap-1.5 data-[state=active]:bg-card data-[state=active]:text-primary",
               isMobile && "text-xs py-2 flex-col h-auto [&>svg]:mb-0.5"
@@ -92,8 +92,8 @@ export default function EquipmentDetail() {
             <FileText className={cn("h-4 w-4", isMobile && "h-3.5 w-3.5")} />
             <span className={isMobile ? "text-[11px] leading-tight" : ""}>Tài liệu</span>
           </TabsTrigger>
-          <TabsTrigger 
-            value="history" 
+          <TabsTrigger
+            value="history"
             className={cn(
               "gap-1.5 data-[state=active]:bg-card data-[state=active]:text-primary",
               isMobile && "text-xs py-2 flex-col h-auto [&>svg]:mb-0.5"
@@ -106,12 +106,12 @@ export default function EquipmentDetail() {
 
         {/* General Info Tab */}
         <TabsContent value="info" className="animate-fade-in mt-6">
-           <EquipmentInfoCard equipment={equipment} />
+          <EquipmentInfoCard equipment={equipment} />
         </TabsContent>
 
         {/* Documents Tab */}
         <TabsContent value="documents" className="animate-fade-in mt-6">
-             <EquipmentDocumentsTab equipment={equipment} />
+          <EquipmentDocumentsTab equipment={equipment} />
         </TabsContent>
 
         {/* History Tab */}

@@ -65,7 +65,7 @@ export default function PMPlanForm() {
       default:
         return false;
     }
-  }, [currentStep, step1Data, step2Data, items]);
+  }, [currentStep, step1Data, items]);
 
   const handleNext = () => {
     if (currentStep < 4 && canProceed) {
@@ -123,8 +123,8 @@ export default function PMPlanForm() {
 
       {/* Progress Indicator */}
       <div className="bg-card rounded-xl border border-border/50 p-4 mb-6">
-        <PMPlanWizardProgress 
-          currentStep={currentStep} 
+        <PMPlanWizardProgress
+          currentStep={currentStep}
           onStepClick={(step) => step < currentStep && setCurrentStep(step)}
         />
       </div>
@@ -132,15 +132,15 @@ export default function PMPlanForm() {
       {/* Step Content */}
       <div className="bg-card rounded-xl border border-border/50 p-6 mb-6 min-h-[400px]">
         {currentStep === 1 && (
-          <PMPlanStep1 
-            data={step1Data} 
-            onChange={(updates) => setStep1Data({ ...step1Data, ...updates })} 
+          <PMPlanStep1
+            data={step1Data}
+            onChange={(updates) => setStep1Data({ ...step1Data, ...updates })}
           />
         )}
         {currentStep === 2 && (
-          <PMPlanStep2 
-            data={step2Data} 
-            onChange={(updates) => setStep2Data({ ...step2Data, ...updates })} 
+          <PMPlanStep2
+            data={step2Data}
+            onChange={(updates) => setStep2Data({ ...step2Data, ...updates })}
           />
         )}
         {currentStep === 3 && (
@@ -155,18 +155,18 @@ export default function PMPlanForm() {
           />
         )}
         {currentStep === 4 && (
-          <PMPlanStep4 
-            step1Data={step1Data} 
-            step2Data={step2Data} 
-            items={items} 
+          <PMPlanStep4
+            step1Data={step1Data}
+            step2Data={step2Data}
+            items={items}
           />
         )}
       </div>
 
       {/* Navigation Buttons */}
       <div className="flex items-center justify-between">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={handleBack}
           disabled={currentStep === 1}
           className="action-btn-secondary"
@@ -177,7 +177,7 @@ export default function PMPlanForm() {
 
         <div className="flex items-center gap-2">
           {currentStep < 4 ? (
-            <Button 
+            <Button
               onClick={handleNext}
               disabled={!canProceed}
               className="action-btn-primary"
@@ -186,7 +186,7 @@ export default function PMPlanForm() {
               <ArrowRight className="h-4 w-4" />
             </Button>
           ) : (
-            <Button 
+            <Button
               onClick={handleApply}
               disabled={!canProceed}
               className="action-btn-primary"

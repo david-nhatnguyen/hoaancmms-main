@@ -18,35 +18,35 @@ export function MainLayout() {
     <div className="flex min-h-screen w-full bg-background">
       {/* Desktop Sidebar - Hidden on mobile */}
       {!isMobile && (
-        <AppSidebar 
-          isCollapsed={sidebarCollapsed} 
-          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
+        <AppSidebar
+          isCollapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
       )}
-      
+
       {/* Mobile Drawer for "More" menu */}
-      <MobileDrawer 
-        open={mobileMenuOpen} 
-        onOpenChange={setMobileMenuOpen} 
+      <MobileDrawer
+        open={mobileMenuOpen}
+        onOpenChange={setMobileMenuOpen}
       />
-      
+
       {/* Main Content Area */}
       <div className={cn(
         "flex-1 flex flex-col min-h-screen transition-all duration-300",
         // Desktop margin for sidebar
-        !isMobile && (sidebarCollapsed ? "lg:ml-16" : "lg:ml-56")
+        !isMobile && (sidebarCollapsed ? "lg:ml-16" : "lg:ml-64")
       )}>
         {/* Desktop Header */}
         {!isMobile && (
-          <AppHeader 
+          <AppHeader
             onMenuClick={() => setMobileMenuOpen(true)}
             showMenuButton={false}
           />
         )}
-        
+
         {/* Mobile Header - App-like with back button */}
         {isMobile && <MobileHeader />}
-        
+
         {/* Main content with bottom padding for mobile nav */}
         <main className={cn(
           "flex-1 overflow-auto",
@@ -60,7 +60,7 @@ export function MainLayout() {
             <Outlet />
           )}
         </main>
-        
+
         {/* Mobile Bottom Navigation */}
         {isMobile && (
           <BottomNav onMoreClick={() => setMobileMenuOpen(true)} />

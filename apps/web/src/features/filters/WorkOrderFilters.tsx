@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, ChevronDown, Check, Calendar } from 'lucide-react';
+import { X, ChevronDown, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -114,8 +114,8 @@ export function WorkOrderFilters({ filters, onFiltersChange }: WorkOrderFiltersP
         {/* Factory Selector */}
         <Popover open={factoryOpen} onOpenChange={setFactoryOpen}>
           <PopoverTrigger asChild>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               className={cn(
                 "h-9 border-border bg-secondary/50 hover:bg-secondary",
@@ -162,8 +162,8 @@ export function WorkOrderFilters({ filters, onFiltersChange }: WorkOrderFiltersP
         {/* Equipment Group Selector */}
         <Popover open={groupOpen} onOpenChange={setGroupOpen}>
           <PopoverTrigger asChild>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               className={cn(
                 "h-9 border-border bg-secondary/50 hover:bg-secondary",
@@ -230,13 +230,14 @@ export function WorkOrderFilters({ filters, onFiltersChange }: WorkOrderFiltersP
       {hasActiveFilters && (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground">Đang lọc:</span>
-          
+
           {filters.dateRange !== 'all' && (
             <Badge variant="secondary" className="bg-primary/20 text-primary gap-1 pl-2 pr-1 py-0.5">
               {DATE_OPTIONS.find(d => d.id === filters.dateRange)?.label}
-              <button 
+              <button
                 onClick={() => removeFilter('dateRange', '')}
                 className="ml-1 hover:bg-primary/30 rounded-full p-0.5"
+                title="Xóa lọc"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -246,15 +247,16 @@ export function WorkOrderFilters({ filters, onFiltersChange }: WorkOrderFiltersP
           {filters.factory.map(fId => {
             const factory = factories.find(f => f.id === fId);
             return (
-              <Badge 
-                key={fId} 
-                variant="secondary" 
+              <Badge
+                key={fId}
+                variant="secondary"
                 className="bg-secondary text-foreground gap-1 pl-2 pr-1 py-0.5"
               >
                 {factory?.name}
-                <button 
+                <button
                   onClick={() => removeFilter('factory', fId)}
                   className="ml-1 hover:bg-muted rounded-full p-0.5"
+                  title="Xóa lọc"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -265,15 +267,16 @@ export function WorkOrderFilters({ filters, onFiltersChange }: WorkOrderFiltersP
           {filters.equipmentGroup.map(gId => {
             const group = EQUIPMENT_GROUPS[gId as keyof typeof EQUIPMENT_GROUPS];
             return (
-              <Badge 
-                key={gId} 
-                variant="secondary" 
+              <Badge
+                key={gId}
+                variant="secondary"
                 className="bg-secondary text-foreground gap-1 pl-2 pr-1 py-0.5"
               >
                 {group?.name}
-                <button 
+                <button
                   onClick={() => removeFilter('equipmentGroup', gId)}
                   className="ml-1 hover:bg-muted rounded-full p-0.5"
+                  title="Xóa lọc"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -282,24 +285,25 @@ export function WorkOrderFilters({ filters, onFiltersChange }: WorkOrderFiltersP
           })}
 
           {filters.status.map(s => (
-            <Badge 
-              key={s} 
-              variant="secondary" 
+            <Badge
+              key={s}
+              variant="secondary"
               className="bg-secondary text-foreground gap-1 pl-2 pr-1 py-0.5"
             >
               {WO_STATUS_LABELS[s as keyof typeof WO_STATUS_LABELS]}
-              <button 
+              <button
                 onClick={() => removeFilter('status', s)}
                 className="ml-1 hover:bg-muted rounded-full p-0.5"
+                title="Xóa lọc"
               >
                 <X className="h-3 w-3" />
               </button>
             </Badge>
           ))}
 
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={clearAllFilters}
             className="h-6 text-xs text-muted-foreground hover:text-foreground px-2"
           >

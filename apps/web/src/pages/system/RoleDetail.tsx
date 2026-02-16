@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
+import {
   ArrowLeft,
   Pencil,
   Shield,
@@ -9,7 +9,6 @@ import {
   Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
   TableBody,
@@ -52,9 +51,9 @@ export default function RoleDetail() {
     <div className="p-6 animate-fade-in">
       {/* Header */}
       <div className="mb-6">
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => navigate('/system/roles')}
           className="mb-3 -ml-2 text-muted-foreground hover:text-foreground"
         >
@@ -147,7 +146,7 @@ export default function RoleDetail() {
             </TooltipProvider>
           )}
         </div>
-        
+
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border/50">

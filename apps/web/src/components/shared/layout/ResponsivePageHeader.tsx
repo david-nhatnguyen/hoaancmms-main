@@ -28,9 +28,9 @@ export function ResponsivePageHeader({
 
   return (
     <div className="mb-6">
-      {subtitle && <p className="page-subtitle uppercase text-muted-foreground text-sm font-semibold tracking-wide mb-1">{subtitle}</p>}
+      {subtitle && <p className="page-subtitle">{subtitle}</p>}
       <div className="flex items-center justify-between">
-        <h1 className="page-title text-2xl font-bold">{title}</h1>
+        <h1 className="page-title">{title}</h1>
         {desktopActions && (
           <div className="flex items-center gap-2">
             {desktopActions}

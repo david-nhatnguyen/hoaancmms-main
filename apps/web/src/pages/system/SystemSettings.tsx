@@ -1,19 +1,15 @@
 import { useState } from 'react';
-import { 
+import {
   Save,
-  Settings,
   Globe,
   Wrench,
   FileText,
   AlertTriangle,
   Bell,
-  ChevronDown,
-  ChevronUp,
   Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import {
   Select,
@@ -96,8 +92,8 @@ export default function SystemSettingsPage() {
             "font-bold",
             isMobile ? "text-base" : "page-title"
           )}>Cài đặt chung</h1>
-          <Button 
-            onClick={handleSave} 
+          <Button
+            onClick={handleSave}
             disabled={!hasChanges}
             className={cn(
               "action-btn-primary",
@@ -157,7 +153,7 @@ export default function SystemSettingsPage() {
               </SettingRow>
 
               <SettingRow label="Định dạng ngày" isMobile={isMobile}>
-                <Select 
+                <Select
                   value={settings.general.dateFormat}
                   onValueChange={(v) => updateSetting('general', 'dateFormat', v)}
                 >
@@ -172,12 +168,12 @@ export default function SystemSettingsPage() {
                 </Select>
               </SettingRow>
 
-              <SettingRow 
-                label="Tên công ty / nhà máy" 
+              <SettingRow
+                label="Tên công ty / nhà máy"
                 description="Hiển thị trên báo cáo và xuất file"
                 isMobile={isMobile}
               >
-                <Input 
+                <Input
                   value={settings.general.companyName}
                   onChange={(e) => updateSetting('general', 'companyName', e.target.value)}
                   className={cn(isMobile ? "w-full h-9 text-sm" : "w-[280px]")}
@@ -206,56 +202,56 @@ export default function SystemSettingsPage() {
               </div>
             </AccordionTrigger>
             <AccordionContent className={cn(isMobile ? "px-3 pb-3" : "px-6 pb-4")}>
-              <SettingRow 
+              <SettingRow
                 label="Cho phép sửa kế hoạch PM sau khi Áp dụng"
                 description="Kế hoạch đã áp dụng có thể được chỉnh sửa"
                 isMobile={isMobile}
               >
-                <Switch 
+                <Switch
                   checked={settings.operations.allowEditAppliedPM}
                   onCheckedChange={(v) => updateSetting('operations', 'allowEditAppliedPM', v)}
                 />
               </SettingRow>
 
-              <SettingRow 
+              <SettingRow
                 label="Cho phép kéo thả lịch PM"
                 description="Cho phép thay đổi ngày PM bằng kéo thả trên lịch"
                 isMobile={isMobile}
               >
-                <Switch 
+                <Switch
                   checked={settings.operations.allowDragDropPM}
                   onCheckedChange={(v) => updateSetting('operations', 'allowDragDropPM', v)}
                 />
               </SettingRow>
 
-              <SettingRow 
+              <SettingRow
                 label="Bắt buộc ảnh khi Work Order có NG"
                 description="Kỹ thuật viên phải chụp ảnh khi có hạng mục NG"
                 isMobile={isMobile}
               >
-                <Switch 
+                <Switch
                   checked={settings.operations.requirePhotoOnNG}
                   onCheckedChange={(v) => updateSetting('operations', 'requirePhotoOnNG', v)}
                 />
               </SettingRow>
 
-              <SettingRow 
+              <SettingRow
                 label="Bắt buộc ghi chú khi NG"
                 description="Phải nhập ghi chú giải thích cho hạng mục NG"
                 isMobile={isMobile}
               >
-                <Switch 
+                <Switch
                   checked={settings.operations.requireNoteOnNG}
                   onCheckedChange={(v) => updateSetting('operations', 'requireNoteOnNG', v)}
                 />
               </SettingRow>
 
-              <SettingRow 
+              <SettingRow
                 label="Cho phép mở lại sự cố sau khi đóng"
                 description="Sự cố đã đóng có thể được mở lại để xử lý tiếp"
                 isMobile={isMobile}
               >
-                <Switch 
+                <Switch
                   checked={settings.operations.allowReopenIncident}
                   onCheckedChange={(v) => updateSetting('operations', 'allowReopenIncident', v)}
                 />
@@ -284,7 +280,7 @@ export default function SystemSettingsPage() {
             </AccordionTrigger>
             <AccordionContent className={cn(isMobile ? "px-3 pb-3" : "px-6 pb-4")}>
               <SettingRow label="Trạng thái mặc định" isMobile={isMobile}>
-                <Select 
+                <Select
                   value={settings.workOrder.defaultStatus}
                   onValueChange={(v) => updateSetting('workOrder', 'defaultStatus', v)}
                 >
@@ -298,23 +294,23 @@ export default function SystemSettingsPage() {
                 </Select>
               </SettingRow>
 
-              <SettingRow 
+              <SettingRow
                 label="Cho phép Xác nhận hoàn thành"
                 description="Hiển thị bước xác nhận trước khi đóng WO"
                 isMobile={isMobile}
               >
-                <Switch 
+                <Switch
                   checked={settings.workOrder.allowConfirmComplete}
                   onCheckedChange={(v) => updateSetting('workOrder', 'allowConfirmComplete', v)}
                 />
               </SettingRow>
 
-              <SettingRow 
+              <SettingRow
                 label="Bắt buộc người xác nhận khi đóng WO"
                 description="Phải có người phê duyệt để hoàn thành phiếu"
                 isMobile={isMobile}
               >
-                <Switch 
+                <Switch
                   checked={settings.workOrder.requireApproverOnClose}
                   onCheckedChange={(v) => updateSetting('workOrder', 'requireApproverOnClose', v)}
                 />
@@ -342,23 +338,23 @@ export default function SystemSettingsPage() {
               </div>
             </AccordionTrigger>
             <AccordionContent className={cn(isMobile ? "px-3 pb-3" : "px-6 pb-4")}>
-              <SettingRow 
+              <SettingRow
                 label="Bắt buộc chọn mức độ ảnh hưởng"
                 description="Phải chọn mức độ nghiêm trọng khi báo sự cố"
                 isMobile={isMobile}
               >
-                <Switch 
+                <Switch
                   checked={settings.corrective.requireImpactLevel}
                   onCheckedChange={(v) => updateSetting('corrective', 'requireImpactLevel', v)}
                 />
               </SettingRow>
 
-              <SettingRow 
+              <SettingRow
                 label="Bắt buộc nhập nguyên nhân trước khi đóng"
                 description="Phải ghi nhận nguyên nhân gốc rễ để đóng sự cố"
                 isMobile={isMobile}
               >
-                <Switch 
+                <Switch
                   checked={settings.corrective.requireCauseBeforeClose}
                   onCheckedChange={(v) => updateSetting('corrective', 'requireCauseBeforeClose', v)}
                 />
@@ -386,34 +382,34 @@ export default function SystemSettingsPage() {
               </div>
             </AccordionTrigger>
             <AccordionContent className={cn(isMobile ? "px-3 pb-3" : "px-6 pb-4")}>
-              <SettingRow 
+              <SettingRow
                 label="Bật thông báo công việc quá hạn"
                 description="Gửi thông báo khi WO hoặc PM quá hạn"
                 isMobile={isMobile}
               >
-                <Switch 
+                <Switch
                   checked={settings.notifications.enableOverdueAlert}
                   onCheckedChange={(v) => updateSetting('notifications', 'enableOverdueAlert', v)}
                 />
               </SettingRow>
 
-              <SettingRow 
+              <SettingRow
                 label="Bật thông báo sự cố mức độ Nặng"
                 description="Gửi thông báo ngay khi có sự cố nghiêm trọng"
                 isMobile={isMobile}
               >
-                <Switch 
+                <Switch
                   checked={settings.notifications.enableSevereIncidentAlert}
                   onCheckedChange={(v) => updateSetting('notifications', 'enableSevereIncidentAlert', v)}
                 />
               </SettingRow>
 
-              <SettingRow 
+              <SettingRow
                 label="Gửi nhắc việc trước ngày PM"
                 description="Số ngày nhắc trước khi đến hạn PM"
                 isMobile={isMobile}
               >
-                <Select 
+                <Select
                   value={String(settings.notifications.pmReminderDays)}
                   onValueChange={(v) => updateSetting('notifications', 'pmReminderDays', Number(v))}
                 >

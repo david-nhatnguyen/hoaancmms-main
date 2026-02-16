@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { 
-  Building2, 
-  Package, 
-  Calendar, 
-  Wrench, 
+import {
+  Building2,
+  Package,
+  Calendar,
+  Wrench,
   Cpu,
   Info
 } from 'lucide-react';
@@ -41,7 +41,7 @@ export const EquipmentInfoCard = ({ equipment }: EquipmentInfoCardProps) => {
 
   return (
     <div className={cn(
-      "grid gap-4 animate-fade-in", 
+      "grid gap-4 animate-fade-in",
       isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2 lg:gap-6"
     )}>
       {/* General Info */}
@@ -52,28 +52,28 @@ export const EquipmentInfoCard = ({ equipment }: EquipmentInfoCardProps) => {
             isMobile ? "text-sm" : "text-base"
           )}>
             <div className="p-1.5 rounded-md bg-transparent text-primary p-0">
-               <Wrench className={cn("text-primary", isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />
+              <Wrench className={cn("text-primary", isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />
             </div>
             Thông tin thiết bị
           </CardTitle>
         </CardHeader>
         <CardContent className={cn("pt-2", isMobile ? "p-3 pt-0" : "p-6 pt-2")}>
-          <InfoRow 
-            label="Tên thiết bị" 
+          <InfoRow
+            label="Tên thiết bị"
             value={equipment.name}
           />
-          <InfoRow 
-            label="Mã thiết bị" 
+          <InfoRow
+            label="Mã thiết bị"
             value={<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{equipment.code}</code>}
           />
-          <InfoRow 
-            label="Loại thiết bị" 
+          <InfoRow
+            label="Loại thiết bị"
             value={equipment.category}
           />
-          <InfoRow 
-            label="Nhà máy" 
+          <InfoRow
+            label="Nhà máy"
             value={(equipment.factory?.name || equipment.factoryName) ? (
-              <button 
+              <button
                 onClick={() => navigate(`/equipments?factory=${equipment.factory?.id || equipment.factoryId}`)}
                 className="text-primary hover:underline font-medium flex items-center gap-1.5 transition-colors hover:text-primary/80"
               >
@@ -82,8 +82,8 @@ export const EquipmentInfoCard = ({ equipment }: EquipmentInfoCardProps) => {
             ) : '-'}
             icon={Building2}
           />
-          <InfoRow 
-            label="Số lượng" 
+          <InfoRow
+            label="Số lượng"
             value={equipment.quantity}
             icon={Package}
           />
@@ -97,28 +97,28 @@ export const EquipmentInfoCard = ({ equipment }: EquipmentInfoCardProps) => {
             "flex items-center gap-2",
             isMobile ? "text-sm" : "text-base"
           )}>
-             <div className="p-1.5 rounded-md bg-transparent text-primary p-0">
-               <Cpu className={cn("text-primary", isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />
+            <div className="p-1.5 rounded-md bg-transparent text-primary p-0">
+              <Cpu className={cn("text-primary", isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />
             </div>
             Thông tin kỹ thuật
           </CardTitle>
         </CardHeader>
         <CardContent className={cn("pt-2", isMobile ? "p-3 pt-0" : "p-6 pt-2")}>
-          <InfoRow 
-            label="Thương hiệu" 
+          <InfoRow
+            label="Thương hiệu"
             value={equipment.brand}
           />
-          <InfoRow 
-            label="Xuất xứ" 
+          <InfoRow
+            label="Xuất xứ"
             value={equipment.origin}
           />
-          <InfoRow 
-            label="Năm sản xuất" 
+          <InfoRow
+            label="Năm sản xuất"
             value={equipment.modelYear}
             icon={Calendar}
           />
-          <InfoRow 
-            label="Kích thước" 
+          <InfoRow
+            label="Kích thước"
             value={equipment.dimension}
           />
         </CardContent>
@@ -127,9 +127,9 @@ export const EquipmentInfoCard = ({ equipment }: EquipmentInfoCardProps) => {
       {/* Notes (Full Width) */}
       {equipment.notes && (
         <Card className="bg-card border-border/50 shadow-sm lg:col-span-2">
-           <CardHeader className={cn("pb-3", isMobile && "p-4")}>
+          <CardHeader className={cn("pb-3", isMobile && "p-4")}>
             <CardTitle className={cn("flex items-center gap-2", isMobile ? "text-sm" : "text-base")}>
-               <div className="p-1.5 rounded-md bg-orange-500/10 text-orange-500">
+              <div className="p-1.5 rounded-md bg-orange-500/10 text-orange-500">
                 <Info className="h-4 w-4" />
               </div>
               Ghi chú

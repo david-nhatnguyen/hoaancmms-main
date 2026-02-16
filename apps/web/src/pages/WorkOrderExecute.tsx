@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  Play, 
-  Square,
+import {
+  ArrowLeft,
+  Play,
   CheckCircle,
   Camera,
   AlertTriangle,
@@ -24,14 +23,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { 
-  workOrders, 
+import {
+  workOrders,
   WO_STATUS_LABELS,
   WorkOrder,
   WorkOrderChecklistItem,
   calculateProgress,
-  calculateDuration,
-  RESULT_LABELS
+  calculateDuration
 } from '@/data/workOrderData';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -41,9 +39,9 @@ export default function WorkOrderExecute() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isMobile = useIsMobile();
-  
+
   const wo = workOrders.find(w => w.id === id);
-  
+
   const [items, setItems] = useState<WorkOrderChecklistItem[]>(wo?.items || []);
   const [status, setStatus] = useState<WorkOrder['status']>(wo?.status || 'new');
   const [startTime, setStartTime] = useState<string | null>(wo?.startTime || null);
@@ -95,7 +93,7 @@ export default function WorkOrderExecute() {
   };
 
   const handleUpdateNotes = (itemId: string, notes: string) => {
-    setItems(items.map(item => 
+    setItems(items.map(item =>
       item.id === itemId ? { ...item, notes } : item
     ));
   };
@@ -110,7 +108,7 @@ export default function WorkOrderExecute() {
       toast.error(`Còn ${pendingItems.length} mục chưa hoàn thành`);
       return;
     }
-    
+
     // Validate: NG items must have notes
     const ngWithoutNotes = ngItems.filter(i => !i.notes.trim());
     if (ngWithoutNotes.length > 0) {
@@ -180,8 +178,8 @@ export default function WorkOrderExecute() {
             isMobile && "w-full mt-2"
           )}>
             {status === 'new' && (
-              <Button 
-                onClick={handleStart} 
+              <Button
+                onClick={handleStart}
                 className={cn(
                   "action-btn-primary",
                   isMobile && "flex-1 h-9"
@@ -193,15 +191,15 @@ export default function WorkOrderExecute() {
             )}
             {status === 'in-progress' && (
               <>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={handleSave}
                   className={cn(isMobile && "flex-1 h-9 text-xs")}
                 >
                   Lưu tạm
                 </Button>
-                <Button 
-                  onClick={handleComplete} 
+                <Button
+                  onClick={handleComplete}
                   className={cn(
                     "bg-[hsl(var(--status-active))] hover:bg-[hsl(var(--status-active))]/90",
                     isMobile && "flex-1 h-9"
@@ -282,9 +280,9 @@ export default function WorkOrderExecute() {
           <h3 className={cn("font-semibold", isMobile && "text-sm")}>
             Thực hiện Checklist ({items.length} mục)
           </h3>
-          
+
           {items.map((item, idx) => (
-            <div 
+            <div
               key={item.id}
               className={cn(
                 "bg-card rounded-xl border border-border/50 overflow-hidden transition-all",
@@ -293,7 +291,7 @@ export default function WorkOrderExecute() {
               )}
             >
               {/* Item Header */}
-              <div 
+              <div
                 className={cn(
                   "cursor-pointer",
                   isMobile ? "p-3" : "p-4"
@@ -311,11 +309,11 @@ export default function WorkOrderExecute() {
                   )}>
                     {item.result ? (
                       item.result === 'ok' ? <Check className={cn(isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} /> :
-                      item.result === 'ng' ? <X className={cn(isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} /> :
-                      'N/A'
+                        item.result === 'ng' ? <X className={cn(isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} /> :
+                          'N/A'
                     ) : idx + 1}
                   </div>
-                  
+
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
                       <p className={cn("font-medium", isMobile && "text-sm")}>{item.task}</p>
@@ -343,11 +341,11 @@ export default function WorkOrderExecute() {
 
                 {/* Quick Result Buttons (always visible) */}
                 {status === 'in-progress' && (
-                  <div 
+                  <div
                     className={cn(
                       "flex gap-2 mt-3",
                       isMobile ? "ml-9" : "ml-11"
-                    )} 
+                    )}
                     onClick={e => e.stopPropagation()}
                   >
                     <button
@@ -355,8 +353,8 @@ export default function WorkOrderExecute() {
                       className={cn(
                         "flex-1 rounded-lg font-medium transition-all border-2",
                         isMobile ? "py-2 text-xs" : "py-2.5 text-sm",
-                        item.result === 'ok' 
-                          ? "bg-[hsl(var(--status-active))] text-white border-[hsl(var(--status-active))]" 
+                        item.result === 'ok'
+                          ? "bg-[hsl(var(--status-active))] text-white border-[hsl(var(--status-active))]"
                           : "bg-[hsl(var(--status-active))]/10 text-[hsl(var(--status-active))] border-[hsl(var(--status-active))]/30 hover:bg-[hsl(var(--status-active))]/20"
                       )}
                     >
@@ -367,8 +365,8 @@ export default function WorkOrderExecute() {
                       className={cn(
                         "flex-1 rounded-lg font-medium transition-all border-2",
                         isMobile ? "py-2 text-xs" : "py-2.5 text-sm",
-                        item.result === 'ng' 
-                          ? "bg-destructive text-white border-destructive" 
+                        item.result === 'ng'
+                          ? "bg-destructive text-white border-destructive"
                           : "bg-destructive/10 text-destructive border-destructive/30 hover:bg-destructive/20"
                       )}
                     >
@@ -379,8 +377,8 @@ export default function WorkOrderExecute() {
                       className={cn(
                         "flex-1 rounded-lg font-medium transition-all border-2",
                         isMobile ? "py-2 text-xs" : "py-2.5 text-sm",
-                        item.result === 'na' 
-                          ? "bg-muted-foreground text-white border-muted-foreground" 
+                        item.result === 'na'
+                          ? "bg-muted-foreground text-white border-muted-foreground"
                           : "bg-muted text-muted-foreground border-muted hover:bg-muted/80"
                       )}
                     >
@@ -453,8 +451,8 @@ export default function WorkOrderExecute() {
                       )}>
                         Hình ảnh đính kèm <span className="text-destructive">*</span>
                       </label>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         className={cn(
                           "w-full border-dashed",
                           isMobile ? "h-16" : "h-20"
@@ -487,7 +485,7 @@ export default function WorkOrderExecute() {
               Kiểm tra lại kết quả trước khi hoàn thành công việc
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-3">
             {/* Summary */}
             <div className="grid grid-cols-3 gap-2">
@@ -568,15 +566,15 @@ export default function WorkOrderExecute() {
           </div>
 
           <DialogFooter className={cn("gap-2", isMobile && "flex-row")}>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setShowCompleteDialog(false)}
               className={cn(isMobile && "flex-1 h-9 text-xs")}
             >
               Quay lại
             </Button>
-            <Button 
-              onClick={confirmComplete} 
+            <Button
+              onClick={confirmComplete}
               className={cn(
                 "bg-[hsl(var(--status-active))] hover:bg-[hsl(var(--status-active))]/90",
                 isMobile && "flex-1 h-9 text-xs"

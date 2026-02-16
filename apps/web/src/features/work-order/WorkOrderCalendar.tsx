@@ -20,7 +20,6 @@ const WEEKDAYS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 export function WorkOrderCalendar({ workOrders }: WorkOrderCalendarProps) {
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1)); // January 2026
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
 
@@ -94,18 +93,6 @@ export function WorkOrderCalendar({ workOrders }: WorkOrderCalendarProps) {
     }
   };
 
-  const getStatusDot = (status: WorkOrder['status']) => {
-    switch (status) {
-      case 'new':
-        return 'bg-teal-500';
-      case 'in-progress':
-        return 'bg-amber-500';
-      case 'completed':
-        return 'bg-emerald-500';
-      default:
-        return 'bg-muted';
-    }
-  };
 
   const monthNames = [
     'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
@@ -133,8 +120,8 @@ export function WorkOrderCalendar({ workOrders }: WorkOrderCalendarProps) {
       {/* Weekday Headers */}
       <div className="grid grid-cols-7 border-b border-border/50">
         {WEEKDAYS.map((day, idx) => (
-          <div 
-            key={day} 
+          <div
+            key={day}
             className={cn(
               "py-3 text-center text-sm font-medium",
               idx === 0 && "text-destructive"
@@ -232,7 +219,7 @@ export function WorkOrderCalendar({ workOrders }: WorkOrderCalendarProps) {
               Chi tiết Work Order
             </DialogTitle>
           </DialogHeader>
-          
+
           {selectedWorkOrder && (
             <div className="space-y-4">
               {/* Status Badge */}
@@ -297,7 +284,7 @@ export function WorkOrderCalendar({ workOrders }: WorkOrderCalendarProps) {
                     </span>
                   </div>
                   <div className="h-2 bg-amber-200 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-amber-500 rounded-full transition-all"
                       style={{ width: `${calculateProgress(selectedWorkOrder.items)}%` }}
                     />
@@ -318,8 +305,8 @@ export function WorkOrderCalendar({ workOrders }: WorkOrderCalendarProps) {
 
               {/* Actions */}
               <div className="flex gap-2 pt-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="flex-1"
                   onClick={() => {
                     setDetailOpen(false);
@@ -330,11 +317,11 @@ export function WorkOrderCalendar({ workOrders }: WorkOrderCalendarProps) {
                   Xem chi tiết
                 </Button>
                 {selectedWorkOrder.status !== 'completed' && (
-                  <Button 
+                  <Button
                     className={cn(
                       "flex-1",
-                      selectedWorkOrder.status === 'new' 
-                        ? "bg-teal-600 hover:bg-teal-700" 
+                      selectedWorkOrder.status === 'new'
+                        ? "bg-teal-600 hover:bg-teal-700"
                         : "bg-amber-600 hover:bg-amber-700"
                     )}
                     onClick={() => {

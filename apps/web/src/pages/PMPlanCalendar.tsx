@@ -1,12 +1,11 @@
 import { useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  ChevronLeft, 
+import {
+  ArrowLeft,
+  ChevronLeft,
   ChevronRight,
   Calendar,
-  AlertTriangle,
-  Wrench
+  AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,9 +14,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { 
-  pmPlans, 
-  getDaysInMonth, 
+import {
+  pmPlans,
+  getDaysInMonth,
   getFirstDayOfMonth,
   PMPlanItem,
   PM_ITEM_STATUS_LABELS
@@ -29,9 +28,9 @@ const WEEKDAYS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 export default function PMPlanCalendar() {
   const navigate = useNavigate();
   const { id } = useParams();
-  
+
   const plan = pmPlans.find(p => p.id === id);
-  
+
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
 
@@ -135,8 +134,8 @@ export default function PMPlanCalendar() {
         {/* Weekday Headers */}
         <div className="grid grid-cols-7 border-b border-border/50">
           {WEEKDAYS.map((day, idx) => (
-            <div 
-              key={day} 
+            <div
+              key={day}
               className={cn(
                 "py-3 text-center text-sm font-medium text-muted-foreground",
                 idx === 0 && "text-destructive/70"
@@ -160,7 +159,7 @@ export default function PMPlanCalendar() {
             const isWeekend = (firstDayOfMonth + day - 1) % 7 === 0;
 
             return (
-              <div 
+              <div
                 key={day}
                 onClick={() => handleDateClick(day)}
                 className={cn(
@@ -180,14 +179,14 @@ export default function PMPlanCalendar() {
                     <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
                   )}
                 </div>
-                
+
                 <div className="space-y-1">
                   {dayItems.slice(0, 3).map(item => (
-                    <div 
+                    <div
                       key={item.id}
                       className={cn(
                         "px-2 py-1 rounded text-xs truncate",
-                        item.status === 'work-order-created' 
+                        item.status === 'work-order-created'
                           ? "bg-status-active/20 text-[hsl(var(--status-active))]"
                           : "bg-primary/20 text-primary"
                       )}
@@ -232,7 +231,7 @@ export default function PMPlanCalendar() {
               Công việc ngày {selectedDate ? new Date(selectedDate).toLocaleDateString('vi-VN') : ''}
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-3">
             {selectedDateItems.length === 0 ? (
               <p className="text-center py-6 text-muted-foreground">
@@ -240,7 +239,7 @@ export default function PMPlanCalendar() {
               </p>
             ) : (
               selectedDateItems.map(item => (
-                <div 
+                <div
                   key={item.id}
                   className="p-4 bg-secondary/30 rounded-lg border border-border/50"
                 >
@@ -256,14 +255,14 @@ export default function PMPlanCalendar() {
                     </div>
                     <span className={cn(
                       "status-badge text-xs",
-                      item.status === 'work-order-created' 
+                      item.status === 'work-order-created'
                         ? "bg-status-active/20 text-[hsl(var(--status-active))]"
                         : "bg-primary/20 text-primary"
                     )}>
                       {PM_ITEM_STATUS_LABELS[item.status]}
                     </span>
                   </div>
-                  
+
                   <div className="mt-3 pt-3 border-t border-border/50 grid grid-cols-2 gap-2 text-sm">
                     <div>
                       <span className="text-muted-foreground">Checklist:</span>

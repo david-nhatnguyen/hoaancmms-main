@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Download, 
+import {
+  Download,
   Calendar,
   Factory,
   Filter,
@@ -10,8 +9,7 @@ import {
   AlertTriangle,
   Clock,
   Activity,
-  FileText,
-  ChevronRight
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -56,18 +54,9 @@ import {
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-const CHART_COLORS = {
-  primary: 'hsl(var(--primary))',
-  success: 'hsl(var(--status-active))',
-  warning: 'hsl(var(--status-maintenance))',
-  danger: 'hsl(var(--destructive))',
-  muted: 'hsl(var(--muted-foreground))'
-};
-
 const PIE_COLORS = ['#10b981', '#f59e0b', '#ef4444'];
 
 export default function Dashboard() {
-  const navigate = useNavigate();
   const [selectedMonth, setSelectedMonth] = useState('12');
   const [selectedYear, setSelectedYear] = useState('2026');
   const [selectedFactory, setSelectedFactory] = useState('all');
@@ -79,8 +68,8 @@ export default function Dashboard() {
   return (
     <div className={cn(
       "animate-fade-in",
-      isMobile 
-        ? "px-4 py-3 max-w-full overflow-x-hidden" 
+      isMobile
+        ? "px-4 py-3 max-w-full overflow-x-hidden"
         : "p-6 overflow-x-hidden"
     )}>
       {/* Page Header */}
@@ -104,7 +93,7 @@ export default function Dashboard() {
             <Filter className="h-4 w-4" />
             <span className="text-sm font-medium">Lọc:</span>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Select value={selectedMonth} onValueChange={setSelectedMonth}>
               <SelectTrigger className="w-[100px] h-9 bg-secondary/50 border-border/50">
@@ -119,7 +108,7 @@ export default function Dashboard() {
                 ))}
               </SelectContent>
             </Select>
-            
+
             <Select value={selectedYear} onValueChange={setSelectedYear}>
               <SelectTrigger className="w-[90px] h-9 bg-secondary/50 border-border/50">
                 <SelectValue placeholder="Năm" />
@@ -182,44 +171,44 @@ export default function Dashboard() {
         {/* Mobile-optimized tabs - wrap to next line instead of scroll */}
         <TabsList className={cn(
           "bg-secondary/50 p-1",
-          isMobile 
+          isMobile
             ? "w-full grid grid-cols-4 h-auto"
             : ""
         )}>
-          <TabsTrigger 
-            value="overview" 
+          <TabsTrigger
+            value="overview"
             className={cn(
-              "gap-1.5", 
+              "gap-1.5",
               isMobile && "text-[11px] px-1.5 py-2 flex-col h-auto [&>svg]:mb-0.5"
             )}
           >
             <Activity className={cn("h-4 w-4", isMobile && "h-3.5 w-3.5")} />
             <span className={isMobile ? "leading-tight" : ""}>Tổng quan</span>
           </TabsTrigger>
-          <TabsTrigger 
-            value="performance" 
+          <TabsTrigger
+            value="performance"
             className={cn(
-              "gap-1.5", 
+              "gap-1.5",
               isMobile && "text-[11px] px-1.5 py-2 flex-col h-auto [&>svg]:mb-0.5"
             )}
           >
             <TrendingUp className={cn("h-4 w-4", isMobile && "h-3.5 w-3.5")} />
             <span className={isMobile ? "leading-tight" : ""}>PM</span>
           </TabsTrigger>
-          <TabsTrigger 
-            value="risk" 
+          <TabsTrigger
+            value="risk"
             className={cn(
-              "gap-1.5", 
+              "gap-1.5",
               isMobile && "text-[11px] px-1.5 py-2 flex-col h-auto [&>svg]:mb-0.5"
             )}
           >
             <AlertTriangle className={cn("h-4 w-4", isMobile && "h-3.5 w-3.5")} />
             <span className={isMobile ? "leading-tight" : ""}>Rủi ro</span>
           </TabsTrigger>
-          <TabsTrigger 
-            value="incidents" 
+          <TabsTrigger
+            value="incidents"
             className={cn(
-              "gap-1.5", 
+              "gap-1.5",
               isMobile && "text-[11px] px-1.5 py-2 flex-col h-auto [&>svg]:mb-0.5"
             )}
           >
@@ -275,20 +264,20 @@ export default function Dashboard() {
             "grid gap-2",
             isMobile ? "grid-cols-1" : "md:grid-cols-3 gap-4"
           )}>
-            <InsightPanel 
-              title="Hiệu suất bảo dưỡng" 
+            <InsightPanel
+              title="Hiệu suất bảo dưỡng"
               insights={managementInsights.performance}
               type="warning"
             />
             {!isMobile && (
               <>
-                <InsightPanel 
-                  title="Phân tích sự cố" 
+                <InsightPanel
+                  title="Phân tích sự cố"
                   insights={managementInsights.incidents}
                   type="warning"
                 />
-                <InsightPanel 
-                  title="Downtime & Tác động" 
+                <InsightPanel
+                  title="Downtime & Tác động"
                   insights={managementInsights.downtime}
                   type="warning"
                 />
@@ -308,17 +297,17 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
                   <YAxis stroke="hsl(var(--muted-foreground))" domain={[80, 100]} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px'
-                    }} 
+                    }}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="pmCompletion" 
-                    stroke="hsl(var(--primary))" 
+                  <Line
+                    type="monotone"
+                    dataKey="pmCompletion"
+                    stroke="hsl(var(--primary))"
                     strokeWidth={3}
                     dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 4 }}
                     name="Tỷ lệ hoàn thành (%)"
@@ -329,8 +318,8 @@ export default function Dashboard() {
 
             {/* Insights */}
             <div>
-              <InsightPanel 
-                title="Nhận xét hiệu suất" 
+              <InsightPanel
+                title="Nhận xét hiệu suất"
                 insights={managementInsights.performance}
                 type="info"
               />
@@ -346,12 +335,12 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
                   <YAxis dataKey="group" type="category" stroke="hsl(var(--muted-foreground))" width={120} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px'
-                    }} 
+                    }}
                   />
                   <Legend />
                   <Bar dataKey="onTime" fill="hsl(var(--status-active))" name="Đúng hạn" radius={[0, 4, 4, 0]} />
@@ -367,12 +356,12 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
                   <YAxis stroke="hsl(var(--muted-foreground))" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px'
-                    }} 
+                    }}
                   />
                   <Legend />
                   <Bar dataKey="pmOnTime" stackId="a" fill="hsl(var(--status-active))" name="Đúng hạn" />
@@ -389,10 +378,10 @@ export default function Dashboard() {
             <div className="lg:col-span-2">
               <RiskTable data={riskEquipments} />
             </div>
-            
+
             <div className="space-y-4">
-              <InsightPanel 
-                title="Đánh giá rủi ro" 
+              <InsightPanel
+                title="Đánh giá rủi ro"
                 insights={[
                   'IMM-01 có điểm rủi ro cao nhất (85/100)',
                   '3 thiết bị ở mức rủi ro cao',
@@ -400,7 +389,7 @@ export default function Dashboard() {
                 ]}
                 type="warning"
               />
-              
+
               {/* Risk Distribution */}
               <div className="bg-card rounded-xl border border-border/50 p-4">
                 <h4 className="font-semibold mb-3 text-sm">Phân bố rủi ro</h4>
@@ -449,12 +438,12 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
                   <YAxis stroke="hsl(var(--muted-foreground))" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px'
-                    }} 
+                    }}
                   />
                   <Legend />
                   <Line type="monotone" dataKey="total" stroke="hsl(var(--primary))" strokeWidth={3} name="Tổng" dot={{ r: 4 }} />
@@ -502,20 +491,20 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
                   <YAxis dataKey="cause" type="category" stroke="hsl(var(--muted-foreground))" width={150} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px'
-                    }} 
+                    }}
                   />
                   <Bar dataKey="count" fill="hsl(var(--primary))" name="Số lượng" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            <InsightPanel 
-              title="Phân tích sự cố" 
+            <InsightPanel
+              title="Phân tích sự cố"
               insights={managementInsights.incidents}
               type="warning"
             />
@@ -533,9 +522,9 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis type="number" stroke="hsl(var(--muted-foreground))" unit="h" />
                   <YAxis dataKey="equipmentCode" type="category" stroke="hsl(var(--muted-foreground))" width={80} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px'
                     }}
@@ -559,7 +548,7 @@ export default function Dashboard() {
                     outerRadius={80}
                     paddingAngle={5}
                     dataKey="downtime"
-                    label={({ group, percentage }) => `${percentage}%`}
+                    label={({ percentage }) => `${percentage}%`}
                   >
                     <Cell fill="hsl(var(--primary))" />
                     <Cell fill="hsl(var(--status-maintenance))" />
@@ -568,9 +557,9 @@ export default function Dashboard() {
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
-              
-              <InsightPanel 
-                title="Khuyến nghị" 
+
+              <InsightPanel
+                title="Khuyến nghị"
                 insights={managementInsights.downtime}
                 type="warning"
               />
@@ -653,7 +642,7 @@ export default function Dashboard() {
                 icon: Clock
               }
             ].map((report) => (
-              <div 
+              <div
                 key={report.title}
                 className="bg-card rounded-xl border border-border/50 p-6 hover:border-primary/50 transition-all cursor-pointer"
               >
@@ -692,7 +681,7 @@ export default function Dashboard() {
                   <SelectItem value="2026">Năm 2026</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <Select defaultValue="all">
                 <SelectTrigger>
                   <SelectValue placeholder="Nhà máy" />
@@ -703,7 +692,7 @@ export default function Dashboard() {
                   <SelectItem value="hn">Nhà máy Hà Nội</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <Select defaultValue="executive">
                 <SelectTrigger>
                   <SelectValue placeholder="Loại báo cáo" />
@@ -714,7 +703,7 @@ export default function Dashboard() {
                   <SelectItem value="risk">Phân tích rủi ro</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <Button className="action-btn-primary">
                 <FileText className="h-4 w-4 mr-1" />
                 Tạo báo cáo
