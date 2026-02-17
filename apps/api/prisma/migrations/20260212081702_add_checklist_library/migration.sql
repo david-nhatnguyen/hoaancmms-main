@@ -77,7 +77,6 @@ CREATE TABLE "checklist_template_items" (
     "expectedResult" TEXT,
     "isRequired" BOOLEAN NOT NULL DEFAULT false,
     "requiresImage" BOOLEAN NOT NULL DEFAULT false,
-    "requiresNote" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

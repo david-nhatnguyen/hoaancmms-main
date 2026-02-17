@@ -58,7 +58,6 @@ export interface ChecklistTemplateItem {
   // Constraints
   isRequired: boolean;
   requiresImage: boolean;
-  requiresNote: boolean;
 
   createdAt: string;
   updatedAt: string;
@@ -113,7 +112,6 @@ export interface CreateTemplateItemDto {
   expectedResult?: string;
   isRequired?: boolean;
   requiresImage?: boolean;
-  requiresNote?: boolean;
 }
 
 export interface CreateTemplateDto {

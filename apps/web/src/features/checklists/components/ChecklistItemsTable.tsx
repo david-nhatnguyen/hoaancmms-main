@@ -63,7 +63,7 @@ export function ChecklistItemsTable({
             <FormItem className="space-y-0">
               <FormControl>
                 <Textarea
-                  placeholder="Nội dung"
+                  placeholder="Hạng mục"
                   {...field}
                   className={cn(
                     "min-h-[60px] resize-none text-sm",
@@ -122,6 +122,28 @@ export function ChecklistItemsTable({
       size: 150,
     },
     {
+      accessorKey: "maintenanceContent",
+      header: () => <div className="text-xs tracking-wider">Nội dung chi tiết bảo dưỡng</div>,
+      cell: ({ row }) => (
+        <FormField
+          control={form.control}
+          name={`items.${row.index}.maintenanceContent`}
+          render={({ field }) => (
+            <FormItem className="space-y-0">
+              <FormControl>
+                <Textarea
+                  placeholder="Nội dung chi tiết bảo dưỡng"
+                  {...field}
+                  className="min-h-[60px] resize-none text-sm"
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+      ),
+      size: 150,
+    },
+    {
       accessorKey: "expectedResult",
       header: () => <div className="text-xs tracking-wider">Kết quả mong đợi</div>,
       cell: ({ row }) => (
@@ -132,7 +154,7 @@ export function ChecklistItemsTable({
             <FormItem className="space-y-0">
               <FormControl>
                 <Textarea
-                  placeholder="Kết quả"
+                  placeholder="Kết quả mong đợi"
                   {...field}
                   className="min-h-[60px] resize-none text-sm"
                 />
@@ -170,18 +192,6 @@ export function ChecklistItemsTable({
                   <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
                 <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">Yêu cầu ảnh</div>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name={`items.${row.index}.requiresNote`}
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-                <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">Yêu cầu Note</div>
               </FormItem>
             )}
           />

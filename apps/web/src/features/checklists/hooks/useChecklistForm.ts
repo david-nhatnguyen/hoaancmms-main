@@ -25,7 +25,6 @@ export const checklistItemSchema = z.object({
   expectedResult: z.string().default(''),
   isRequired: z.boolean().default(false),
   requiresImage: z.boolean().default(false),
-  requiresNote: z.boolean().default(false),
   order: z.number().default(0),
 });
 
@@ -62,7 +61,6 @@ export const defaultValues: ChecklistFormValues = {
       expectedResult: '',
       isRequired: false,
       requiresImage: false,
-      requiresNote: false,
       order: 1,
     },
   ],
@@ -118,7 +116,6 @@ export const useChecklistForm = () => {
           expectedResult: item.expectedResult || '',
           isRequired: item.isRequired,
           requiresImage: item.requiresImage,
-          requiresNote: item.requiresNote,
           order: item.order || 0,
         })),
       };
@@ -142,12 +139,16 @@ export const useChecklistForm = () => {
     const dto = transformFormToDto(data as any);
     
     // 2. Add IDs for Updated Items if Editing
+    // NOTE: Backend deletes all items and recreates them, so valid ID is not required in DTO
+    // and actually causes 400 Bad Request because CreateTemplateItemDto does not have 'id'
+    /*
     if (isEditing) {
        dto.items = data.items.map((item, index) => ({
          ...dto.items[index], // base properties
          id: item.id // add ID back for reconciliation
        }));
     }
+    */
 
     try {
       if (isEditing && id) {
@@ -173,7 +174,6 @@ export const useChecklistForm = () => {
       expectedResult: '',
       isRequired: false,
       requiresImage: false,
-      requiresNote: false,
       order: fields.length + 1,
     });
   };

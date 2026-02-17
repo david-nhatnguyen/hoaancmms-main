@@ -52,11 +52,6 @@ export class CreateTemplateItemDto {
   @IsBoolean()
   @IsOptional()
   requiresImage?: boolean;
-
-  @ApiPropertyOptional({ example: false })
-  @IsBoolean()
-  @IsOptional()
-  requiresNote?: boolean;
 }
 
 export class CreateTemplateDto {

@@ -32,8 +32,6 @@ export class QueryTemplateDto {
   @IsUUID('4')
   equipmentId?: string;
 
-
-
   @ApiPropertyOptional({ example: 'injection' })
   @IsOptional()
   @IsString()

@@ -110,7 +110,6 @@ export const transformFormToDto = (
       expectedResult: item.expectedResult?.trim() || undefined,
       isRequired: item.isRequired ?? false,
       requiresImage: item.requiresImage ?? false,
-      requiresNote: item.requiresNote ?? false,
     })),
   };
 };
@@ -143,7 +142,6 @@ export const createEmptyItem = (
     expectedResult: '',
     isRequired: false,
     requiresImage: false,
-    requiresNote: false,
   };
 };
 

@@ -222,7 +222,6 @@ model ChecklistTemplateItem {
   // Constraints
   isRequired           Boolean @default(false)
   requiresImage        Boolean @default(false)
-  requiresNote         Boolean @default(false)
   
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
