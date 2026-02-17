@@ -42,7 +42,7 @@ export default function ChecklistForm() {
       <div className="max-w-7xl mx-auto pb-20">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            
+
             {/* Header Section */}
             <ChecklistHeader
               isEditing={isEditing}
@@ -55,7 +55,7 @@ export default function ChecklistForm() {
 
             {/* General Info Section */}
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
-               <ChecklistGeneralInfo form={form as any} />
+              <ChecklistGeneralInfo form={form as any} />
             </div>
 
             {/* Checklist Items Table Section */}

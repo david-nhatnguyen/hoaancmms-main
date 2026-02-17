@@ -2,7 +2,9 @@ import React from 'react';
 import { ClipboardList, History, Loader2, AlertCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { PageContainer } from '@/components/shared/PageContainer';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Atomic Components
 import { ChecklistDetailHeader } from '@/features/checklists/components/ChecklistDetailHeader';
@@ -23,93 +25,111 @@ export default function ChecklistDetail() {
     handlers,
   } = useChecklistDetail();
 
-  // Loading state
+  // 1. Loading State - Standardized Full Screen
   if (isLoading) {
     return (
-      <div className="p-6">
-        <div className="flex flex-col items-center justify-center py-20">
-          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground">Đang tải checklist...</p>
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          <p className="text-muted-foreground animate-pulse">Đang tải dữ liệu...</p>
         </div>
       </div>
     );
   }
 
-  // Error state
+  // 2. Error State - Standardized
   if (error) {
     return (
-      <div className="p-6">
-        <div className="max-w-2xl mx-auto py-12">
-          <Alert variant="destructive" className="mb-4">
+      <PageContainer>
+        <div className="max-w-2xl mx-auto pt-20">
+          <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
             <AlertCircle className="h-4 w-4" />
+            <AlertTitle className="mb-2">Không thể tải checklist</AlertTitle>
             <AlertDescription>
-              {error.message || 'Có lỗi xảy ra khi tải checklist'}
+              {error.message || 'Có lỗi xảy ra khi kết nối với máy chủ. Vui lòng thử lại sau.'}
             </AlertDescription>
+            <div className="mt-4 flex gap-3">
+              <Button variant="outline" onClick={handlers.handleGoBack} className="bg-background">
+                Quay lại
+              </Button>
+              <Button onClick={() => refetch()} variant="destructive">
+                Thử lại
+              </Button>
+            </div>
           </Alert>
-          <div className="flex gap-2 justify-center">
-            <Button variant="outline" onClick={handlers.handleGoBack}>
-              Quay lại danh sách
-            </Button>
-            <Button onClick={() => refetch()}>
-              Thử lại
-            </Button>
-          </div>
         </div>
-      </div>
+      </PageContainer>
     );
   }
 
-  // Not found state
+  // 3. Not Found State
   if (!checklist) {
     return (
-      <div className="p-6">
-        <div className="text-center py-12">
-          <ClipboardList className="h-12 w-12 mx-auto text-muted-foreground mb-4 opacity-20" />
-          <h2 className="text-lg font-medium mb-2">Không tìm thấy checklist</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Checklist không tồn tại hoặc đã bị xóa khỏi hệ thống
-          </p>
-          <Button variant="outline" onClick={handlers.handleGoBack} className="border-border">
-            Quay lại danh sách
-          </Button>
+      <PageContainer>
+        <div className="max-w-2xl mx-auto pt-20">
+          <Card className="border-border/60 shadow-sm bg-card">
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="bg-muted p-4 rounded-full mb-4">
+                <ClipboardList className="h-10 w-10 text-muted-foreground" />
+              </div>
+              <h2 className="text-xl font-semibold mb-2">Không tìm thấy checklist</h2>
+              <p className="text-muted-foreground mb-6 max-w-sm">
+                Checklist bạn đang tìm kiếm không tồn tại, đã bị xóa hoặc bạn không có quyền truy cập.
+              </p>
+              <Button onClick={handlers.handleGoBack} variant="outline" className="min-w-[140px]">
+                Quay lại danh sách
+              </Button>
+            </CardContent>
+          </Card>
         </div>
-      </div>
+      </PageContainer>
     );
   }
 
+  // 4. Main Content - Standardized Page Structure
   return (
-    <div className="p-6 animate-fade-in">
-      {/* Header */}
-      <ChecklistDetailHeader
-        checklist={checklist}
-        onGoBack={handlers.handleGoBack}
-        onCopy={handlers.handleCopy}
-        onEdit={() => handlers.handleEdit(checklist.id)}
-      />
+    <PageContainer>
+      <div className="max-w-7xl mx-auto pb-20 space-y-8">
+        {/* Header Section */}
+        <div className="animate-in fade-in slide-in-from-top-4 duration-500">
+          <ChecklistDetailHeader
+            checklist={checklist}
+            onGoBack={handlers.handleGoBack}
+            onCopy={handlers.handleCopy}
+            onEdit={() => handlers.handleEdit(checklist.id)}
+          />
+        </div>
 
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-secondary/50 p-1 mb-6">
-          <TabsTrigger value="preview" className="gap-2 data-[state=active]:bg-card data-[state=active]:text-primary">
-            <ClipboardList className="h-4 w-4" />
-            Xem trước Checklist
-          </TabsTrigger>
-          <TabsTrigger value="info" className="gap-2 data-[state=active]:bg-card data-[state=active]:text-primary">
-            <History className="h-4 w-4" />
-            Thông tin & Lịch sử
-          </TabsTrigger>
-        </TabsList>
+        {/* Content Tabs */}
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="bg-muted/50 p-1 border border-border/40 inline-flex w-full sm:w-auto h-auto">
+              <TabsTrigger
+                value="preview"
+                className="gap-2 px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all flex-1 sm:flex-none"
+              >
+                <ClipboardList className="h-4 w-4" />
+                Xem trước
+              </TabsTrigger>
+              <TabsTrigger
+                value="info"
+                className="gap-2 px-4 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all flex-1 sm:flex-none"
+              >
+                <History className="h-4 w-4" />
+                Thông tin & Lịch sử
+              </TabsTrigger>
+            </TabsList>
 
-        {/* Preview Tab */}
-        <TabsContent value="preview" className="animate-fade-in">
-          <ChecklistPreviewTab checklist={checklist} />
-        </TabsContent>
+            <TabsContent value="preview" className="outline-none mt-0 space-y-6 animate-in fade-in duration-300">
+              <ChecklistPreviewTab checklist={checklist} />
+            </TabsContent>
 
-        {/* Info Tab */}
-        <TabsContent value="info" className="animate-fade-in">
-          <ChecklistInfoTab checklist={checklist} />
-        </TabsContent>
-      </Tabs>
-    </div>
+            <TabsContent value="info" className="outline-none mt-0 space-y-6 animate-in fade-in duration-300">
+              <ChecklistInfoTab checklist={checklist} />
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </PageContainer>
   );
 }

@@ -190,6 +190,8 @@ export class TemplatesService {
             status: true,
             brand: true,
             origin: true,
+            image: true, // Required for EquipmentQuickView
+            modelYear: true,
             factoryId: true,
             factory: {
               select: {

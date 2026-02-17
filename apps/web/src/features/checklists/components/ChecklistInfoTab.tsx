@@ -1,7 +1,8 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ChecklistTemplate, CYCLE_LABELS, STATUS_LABELS } from '../types/checklist.types';
-import { cn } from '@/lib/utils';
+import { Tag, FileText, Calendar, Layers } from 'lucide-react';
+import { ChecklistTemplate, CYCLE_LABELS } from '../types/checklist.types';
+import { GeneralInfoCard } from './GeneralInfoCard';
+import { ChecklistVersionHistoryCard } from './ChecklistVersionHistoryCard';
 
 interface ChecklistInfoTabProps {
   checklist: ChecklistTemplate;
@@ -10,103 +11,67 @@ interface ChecklistInfoTabProps {
 /**
  * ChecklistInfoTab component
  * Uses REAL API ChecklistTemplate type
- * Displays equipment relation data and version history
+ * Displays equipment relation data and version history using reusable components.
  */
 export const ChecklistInfoTab: React.FC<ChecklistInfoTabProps> = ({ checklist }) => {
+  const generalInfoItems: React.ComponentProps<typeof GeneralInfoCard>['items'] = [
+    {
+      label: 'Mã checklist',
+      value: <span className="font-mono text-primary">{checklist.code}</span>,
+      icon: <Tag className="h-3.5 w-3.5 opacity-70" />
+    },
+    {
+      label: 'Tên checklist', // Added context if available, though typically handled via parent/header
+      value: checklist.name,
+      icon: <FileText className="h-3.5 w-3.5 opacity-70" />
+    },
+    {
+      label: 'Chu kỳ',
+      value: CYCLE_LABELS[checklist.cycle],
+      icon: <Calendar className="h-3.5 w-3.5 opacity-70" />
+    },
+    {
+      label: 'Bộ phận',
+      value: checklist.department || '-',
+      icon: <Layers className="h-3.5 w-3.5 opacity-70" />
+    },
+    {
+      label: 'Phiên bản',
+      value: `v${checklist.version}`,
+      icon: <Tag className="h-3.5 w-3.5 opacity-70" />
+    },
+    {
+      label: 'Ngày cập nhật',
+      value: new Date(checklist.updatedAt).toLocaleDateString('vi-VN'),
+      icon: <Calendar className="h-3.5 w-3.5 opacity-70" />
+    },
+  ];
+
+  if (checklist.notes) {
+    generalInfoItems.push({
+      label: 'Ghi chú',
+      value: checklist.notes,
+      isFullWidth: true,
+      icon: <FileText className="h-3.5 w-3.5 opacity-70" />
+    });
+  }
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* General Info */}
-      <Card className="bg-card border-border/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Thông tin chung</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex justify-between py-2 border-b border-border/50">
-            <span className="text-muted-foreground">Mã checklist</span>
-            <span className="font-mono text-primary">{checklist.code}</span>
-          </div>
-          <div className="flex justify-between py-2 border-b border-border/50">
-            <span className="text-muted-foreground">Thiết bị</span>
-            <span>{checklist.equipment?.name || 'Chưa gắn thiết bị'}</span>
-          </div>
-          <div className="flex justify-between py-2 border-b border-border/50">
-            <span className="text-muted-foreground">Loại thiết bị</span>
-            <span>{checklist.equipment?.category || '-'}</span>
-          </div>
-          <div className="flex justify-between py-2 border-b border-border/50">
-            <span className="text-muted-foreground">Chu kỳ</span>
-            <span>{CYCLE_LABELS[checklist.cycle]}</span>
-          </div>
-          {checklist.department && (
-            <div className="flex justify-between py-2 border-b border-border/50">
-              <span className="text-muted-foreground">Bộ phận</span>
-              <span>{checklist.department}</span>
-            </div>
-          )}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* General Info - Takes 2/3 space */}
+      <div className="col-span-1 lg:col-span-2 animate-in fade-in slide-in-from-left-4 duration-500">
+        <GeneralInfoCard
+          title="Thông tin chung"
+          subtitle="Chi tiết và ngữ cảnh của checklist"
+          items={generalInfoItems}
+          equipment={checklist.equipment as any}
+        />
+      </div>
 
-          <div className="flex justify-between py-2 border-b border-border/50">
-            <span className="text-muted-foreground">Phiên bản</span>
-            <span>v{checklist.version}</span>
-          </div>
-          <div className="flex justify-between py-2">
-            <span className="text-muted-foreground">Ngày cập nhật</span>
-            <span>{new Date(checklist.updatedAt).toLocaleDateString('vi-VN')}</span>
-          </div>
-          {checklist.notes && (
-            <div className="pt-3 border-t border-border/50">
-              <span className="text-muted-foreground text-sm">Ghi chú:</span>
-              <p className="mt-1 text-sm">{checklist.notes}</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Version History */}
-      <Card className="bg-card border-border/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Lịch sử phiên bản</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/10 border border-primary/30">
-              <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-xs font-bold text-primary-foreground">v{checklist.version}</span>
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium">Phiên bản hiện tại</p>
-                <p className="text-xs text-muted-foreground">
-                  {new Date(checklist.updatedAt).toLocaleDateString('vi-VN')}
-                </p>
-              </div>
-              <span className={cn(
-                'status-badge text-xs',
-                checklist.status === 'ACTIVE' && 'bg-status-active/20 text-status-active',
-                checklist.status === 'DRAFT' && 'bg-muted text-muted-foreground',
-                checklist.status === 'INACTIVE' && 'bg-status-inactive/20 text-status-inactive'
-              )}>
-                {STATUS_LABELS[checklist.status]}
-              </span>
-            </div>
-            
-            {checklist.version > 1 && (
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50">
-                <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                  <span className="text-xs font-bold text-muted-foreground">v{checklist.version - 1}</span>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-muted-foreground">Phiên bản cũ</p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(checklist.createdAt).toLocaleDateString('vi-VN')}
-                  </p>
-                </div>
-                <span className="status-badge text-xs bg-status-inactive/20 text-status-inactive">
-                  Đã thay thế
-                </span>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Version History - Takes 1/3 space */}
+      <div className="col-span-1 animate-in fade-in slide-in-from-right-4 duration-500 delay-100">
+        <ChecklistVersionHistoryCard checklist={checklist} />
+      </div>
     </div>
   );
 };

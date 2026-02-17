@@ -33,10 +33,10 @@ export const EquipmentQuickView: React.FC<EquipmentQuickViewProps> = ({
           isCompact ? "h-14 w-14" : "h-24 w-24"
         )}>
           {equipment.image ? (
-            <img 
-              src={getImageUrl(equipment.image)} 
-              alt={equipment.name} 
-              className="w-full h-full object-cover" 
+            <img
+              src={getImageUrl(equipment.image)}
+              alt={equipment.name}
+              className="w-full h-full object-cover"
             />
           ) : (
             <ImageIcon className={cn("text-muted-foreground/30", isCompact ? "h-6 w-6" : "h-10 w-10")} />
