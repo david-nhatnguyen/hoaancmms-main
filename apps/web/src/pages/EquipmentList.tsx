@@ -44,7 +44,7 @@ import {
   EquipmentStats,
   DeleteEquipmentDialog,
   ImportEquipmentDialog,
-  ImportProgress,
+  EquipmentImportProgress,
 } from '@/features/equipments/components';
 import { BulkActionsToolbar } from '@/components/shared/table/BulkActionsToolbar';
 
@@ -65,38 +65,38 @@ export default function EquipmentList() {
   // Import Dialog State
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [activeImportId, setActiveImportId] = useState<string | null>(() => {
-    const saved = localStorage.getItem('import_id');
+    const saved = localStorage.getItem('equipment_import_id');
     if (!saved || saved === 'undefined' || saved === 'null') return null;
     return saved;
   });
   const [activeImportFileName, setActiveImportFileName] = useState<string | null>(() => {
-    return localStorage.getItem('import_file_name');
+    return localStorage.getItem('equipment_import_file_name');
   });
 
   // Handle cleanup for import
   const handleCloseImport = useCallback(() => {
     setActiveImportId(null);
     setActiveImportFileName(null);
-    localStorage.removeItem('import_id');
-    localStorage.removeItem('import_file_name');
-    localStorage.removeItem('import_duration');
-    localStorage.removeItem('import_start_time');
+    localStorage.removeItem('equipment_import_id');
+    localStorage.removeItem('equipment_import_file_name');
+    localStorage.removeItem('equipment_import_duration');
+    localStorage.removeItem('equipment_import_start_time');
   }, []);
 
   const handleUploadStart = useCallback((id: string, estimatedDuration?: number, fileName?: string) => {
     if (!id) return;
 
     setActiveImportId(id);
-    localStorage.setItem('import_id', id);
+    localStorage.setItem('equipment_import_id', id);
 
     if (fileName) {
       setActiveImportFileName(fileName);
-      localStorage.setItem('import_file_name', fileName);
+      localStorage.setItem('equipment_import_file_name', fileName);
     }
 
     if (estimatedDuration) {
-      localStorage.setItem('import_duration', estimatedDuration.toString());
-      localStorage.setItem('import_start_time', Date.now().toString());
+      localStorage.setItem('equipment_import_duration', estimatedDuration.toString());
+      localStorage.setItem('equipment_import_start_time', Date.now().toString());
     }
   }, []);
 
@@ -223,7 +223,7 @@ export default function EquipmentList() {
       <EquipmentStats stats={statsData?.data} isLoading={statsLoading} />
 
       {activeImportId && (
-        <ImportProgress
+        <EquipmentImportProgress
           key={activeImportId}
           jobId={activeImportId}
           fileName={activeImportFileName || undefined}

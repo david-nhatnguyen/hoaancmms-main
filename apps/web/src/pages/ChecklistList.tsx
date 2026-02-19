@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getImageUrl } from '@/lib/image-utils';
 import { Eye, Pencil, Trash2, Copy, Power } from 'lucide-react';
@@ -39,6 +39,13 @@ import {
 } from '@/features/checklists/hooks';
 import { DeleteChecklistDialog } from '@/features/checklists/components/DeleteChecklistDialog';
 import {
+  ImportChecklistDialog,
+  ImportChecklistProgress,
+} from '@/features/checklists/components';
+
+
+
+import {
   ChecklistStatus,
   ChecklistCycle,
   CYCLE_LABELS,
@@ -68,6 +75,43 @@ export default function ChecklistList() {
   // ============================================================================
   // STATE & HOOKS
   // ============================================================================
+
+  // Import Dialog State
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [activeImportId, setActiveImportId] = useState<string | null>(null);
+  const [activeImportFileName, setActiveImportFileName] = useState<string | null>(null);
+
+  const handleCloseImport = useCallback(() => {
+    setActiveImportId(null);
+    setActiveImportFileName(null);
+    localStorage.removeItem('checklist_import_id');
+    localStorage.removeItem('checklist_import_file_name');
+    localStorage.removeItem('checklist_import_duration');
+    localStorage.removeItem('checklist_import_start_time');
+  }, []);
+
+  const handleUploadStart = useCallback(
+    (id: string, estimatedDuration?: number, fileName?: string) => {
+      if (!id) return;
+
+      // Write to localStorage FIRST so useImportProgress reads correct values
+      // when it mounts after activeImportId state is set.
+      localStorage.setItem('checklist_import_id', id);
+      if (fileName) {
+        localStorage.setItem('checklist_import_file_name', fileName);
+      }
+      if (estimatedDuration) {
+        localStorage.setItem('checklist_import_duration', estimatedDuration.toString());
+      }
+      // Always stamp start time
+      localStorage.setItem('checklist_import_start_time', Date.now().toString());
+
+      // Then set state to trigger re-render + mount ImportChecklistProgress
+      setActiveImportId(id);
+      if (fileName) setActiveImportFileName(fileName);
+    },
+    []
+  );
 
   const {
     searchQuery,
@@ -156,7 +200,12 @@ export default function ChecklistList() {
         }
         desktopActions={
           <>
-            <Button variant="outline" size="sm" className="action-btn-secondary">
+            <Button
+              variant="outline"
+              size="sm"
+              className="action-btn-secondary"
+              onClick={() => setShowImportDialog(true)}
+            >
               <FileSpreadsheet className="h-4 w-4" />
               Import
             </Button>
@@ -170,6 +219,12 @@ export default function ChecklistList() {
             </Button>
           </>
         }
+      />
+
+      <ImportChecklistDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        onUploadStart={handleUploadStart}
       />
 
       {/* Stats Cards */}
@@ -209,6 +264,15 @@ export default function ChecklistList() {
         </div>
       </div>
 
+      {activeImportId && (
+        <ImportChecklistProgress
+          key={activeImportId}
+          jobId={activeImportId}
+          fileName={activeImportFileName || undefined}
+          onClose={handleCloseImport}
+        />
+      )}
+
       <ResponsiveDataView
         isLoading={isLoading}
         isEmpty={items.length === 0 && !isFiltered}
@@ -236,25 +300,25 @@ export default function ChecklistList() {
                 label: 'Chu kỳ',
                 activeCount: (columnFilters.find(f => f.id === 'cycle')?.value as string[] || []).length,
                 content: (
-                  <ChipFilter 
-                    options={CYCLE_OPTIONS} 
-                    selected={(columnFilters.find(f => f.id === 'cycle')?.value as string[]) || []} 
-                    onToggle={(val) => toggleColumnFilter('cycle', val)} 
+                  <ChipFilter
+                    options={CYCLE_OPTIONS}
+                    selected={(columnFilters.find(f => f.id === 'cycle')?.value as string[]) || []}
+                    onToggle={(val) => toggleColumnFilter('cycle', val)}
                   />
                 )
               },
               {
-                 id: 'status',
-                 label: 'Trạng thái',
-                 activeCount: (columnFilters.find(f => f.id === 'status')?.value as string[] || []).length,
-                 content: (
-                   <ChipFilter 
-                     options={STATUS_OPTIONS} 
-                     selected={(columnFilters.find(f => f.id === 'status')?.value as string[]) || []} 
-                     onToggle={(val) => toggleColumnFilter('status', val)} 
-                   />
-                 )
-               },
+                id: 'status',
+                label: 'Trạng thái',
+                activeCount: (columnFilters.find(f => f.id === 'status')?.value as string[] || []).length,
+                content: (
+                  <ChipFilter
+                    options={STATUS_OPTIONS}
+                    selected={(columnFilters.find(f => f.id === 'status')?.value as string[]) || []}
+                    onToggle={(val) => toggleColumnFilter('status', val)}
+                  />
+                )
+              },
             ]}
             activeFiltersCount={activeFiltersCount}
             onClearAll={resetFilters}
@@ -282,68 +346,68 @@ export default function ChecklistList() {
               setRowSelection(nextSelection);
             }}
             renderMobileCard={(t, cols, isSelected, toggleSelection) => {
-               const codeCol = cols.find(c => c.key === 'code');
-               const statusCol = cols.find(c => c.key === 'status');
-               const cycleCol = cols.find(c => c.key === 'cycle');
-               const versionCol = cols.find(c => c.key === 'version');
-               
-               return (
-                 <MobileCard
-                   title={codeCol?.render(t)}
-                   subtitle={t.name}
-                   status={statusCol?.render(t)}
-                   image={getImageUrl(t.equipment?.image ?? undefined)}
-                   data={[
-                     { label: 'Thiết bị', value: t.equipment?.name },
-                     { label: 'Chu kỳ', value: cycleCol?.render(t) },
-                     { label: 'Phiên bản', value: versionCol?.render(t) },
-                     { label: 'Bộ phận', value: t.department }
-                   ]}
-                   footerActions={
-                     <MobileCardActions actions={[
-                       {
-                         key: 'view',
-                         label: 'Xem chi tiết',
-                         variant: 'primary',
-                         icon: <Eye className="h-4 w-4" />,
-                         onClick: () => navigate(`/checklists/${t.id}`)
-                       },
-                       {
-                         key: 'edit',
-                         label: 'Chỉnh sửa',
-                         variant: 'warning',
-                         icon: <Pencil className="h-4 w-4" />,
-                         onClick: () => navigate(`/checklists/${t.id}/edit`)
-                       },
-                       {
-                         key: 'copy',
-                         label: 'Nhân bản',
-                         variant: 'default',
-                         icon: <Copy className="h-4 w-4" />,
-                         onClick: () => duplicate.mutate(t.id)
-                       },
-                       {
-                         key: 'deactivate',
-                         label: t.status === ChecklistStatus.ACTIVE ? 'Tạm ngưng' : 'Kích hoạt',
-                         variant: 'secondary',
-                         icon: <Power className="h-4 w-4" />,
-                         onClick: () => deactivate.mutate(t.id)
-                       },
-                       {
-                         key: 'delete',
-                         label: 'Xóa',
-                         variant: 'destructive',
-                         icon: <Trash2 className="h-4 w-4" />,
-                         onClick: () => setDeletingTemplate(t)
-                       }
-                     ]} />
-                   }
-                   onClick={() => navigate(`/checklists/${t.id}`)}
-                   isSelected={isSelected}
-                   onToggleSelection={toggleSelection}
-                   renderSelection={true}
-                 />
-               );
+              const codeCol = cols.find(c => c.key === 'code');
+              const statusCol = cols.find(c => c.key === 'status');
+              const cycleCol = cols.find(c => c.key === 'cycle');
+              const versionCol = cols.find(c => c.key === 'version');
+
+              return (
+                <MobileCard
+                  title={codeCol?.render(t)}
+                  subtitle={t.name}
+                  status={statusCol?.render(t)}
+                  image={getImageUrl(t.equipment?.image ?? undefined)}
+                  data={[
+                    { label: 'Thiết bị', value: t.equipment?.name },
+                    { label: 'Chu kỳ', value: cycleCol?.render(t) },
+                    { label: 'Phiên bản', value: versionCol?.render(t) },
+                    { label: 'Bộ phận', value: t.department }
+                  ]}
+                  footerActions={
+                    <MobileCardActions actions={[
+                      {
+                        key: 'view',
+                        label: 'Xem chi tiết',
+                        variant: 'primary',
+                        icon: <Eye className="h-4 w-4" />,
+                        onClick: () => navigate(`/checklists/${t.id}`)
+                      },
+                      {
+                        key: 'edit',
+                        label: 'Chỉnh sửa',
+                        variant: 'warning',
+                        icon: <Pencil className="h-4 w-4" />,
+                        onClick: () => navigate(`/checklists/${t.id}/edit`)
+                      },
+                      {
+                        key: 'copy',
+                        label: 'Nhân bản',
+                        variant: 'default',
+                        icon: <Copy className="h-4 w-4" />,
+                        onClick: () => duplicate.mutate(t.id)
+                      },
+                      {
+                        key: 'deactivate',
+                        label: t.status === ChecklistStatus.ACTIVE ? 'Tạm ngưng' : 'Kích hoạt',
+                        variant: 'secondary',
+                        icon: <Power className="h-4 w-4" />,
+                        onClick: () => deactivate.mutate(t.id)
+                      },
+                      {
+                        key: 'delete',
+                        label: 'Xóa',
+                        variant: 'destructive',
+                        icon: <Trash2 className="h-4 w-4" />,
+                        onClick: () => setDeletingTemplate(t)
+                      }
+                    ]} />
+                  }
+                  onClick={() => navigate(`/checklists/${t.id}`)}
+                  isSelected={isSelected}
+                  onToggleSelection={toggleSelection}
+                  renderSelection={true}
+                />
+              );
             }}
             isLoading={isLoading}
           />
@@ -384,30 +448,30 @@ export default function ChecklistList() {
 
       {/* Deleting Dialog */}
       <DeleteChecklistDialog
-         template={deletingTemplate}
-         open={!!deletingTemplate}
-         onOpenChange={(open) => {
-             if (!open) {
-                 setDeletingTemplate(null);
-                 setIsBulkDeleting(false);
-             }
-         }}
-         onConfirm={() => {
-             if (isBulkDeleting) {
-                 bulkDeleteTemplate.mutate(selectedIds, {
-                     onSuccess: () => {
-                         setDeletingTemplate(null);
-                         setRowSelection({});
-                         setIsBulkDeleting(false);
-                     }
-                 });
-             } else if (deletingTemplate) {
-                 deleteTemplate.mutate(deletingTemplate.id, {
-                     onSuccess: () => setDeletingTemplate(null)
-                 });
-             }
-         }}
-         isDeleting={deleteTemplate.isPending || (isBulkDeleting && bulkDeleteTemplate.isPending)}
+        template={deletingTemplate}
+        open={!!deletingTemplate}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeletingTemplate(null);
+            setIsBulkDeleting(false);
+          }
+        }}
+        onConfirm={() => {
+          if (isBulkDeleting) {
+            bulkDeleteTemplate.mutate(selectedIds, {
+              onSuccess: () => {
+                setDeletingTemplate(null);
+                setRowSelection({});
+                setIsBulkDeleting(false);
+              }
+            });
+          } else if (deletingTemplate) {
+            deleteTemplate.mutate(deletingTemplate.id, {
+              onSuccess: () => setDeletingTemplate(null)
+            });
+          }
+        }}
+        isDeleting={deleteTemplate.isPending || (isBulkDeleting && bulkDeleteTemplate.isPending)}
       />
     </PageContainer>
   );

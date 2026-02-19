@@ -1,6 +1,5 @@
-
 import { useNavigate } from 'react-router-dom';
-import { Eye, Save, PlusCircle } from 'lucide-react';
+import { Save, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/shared/PageHeader';
 
@@ -8,7 +7,6 @@ interface ChecklistHeaderProps {
   isEditing: boolean;
   isCopying: boolean;
   onSave: () => void;
-  onPreview: () => void;
   isSaving: boolean;
   isValid: boolean;
 }
@@ -17,7 +15,6 @@ export function ChecklistHeader({
   isEditing,
   isCopying,
   onSave,
-  onPreview,
   isSaving,
   isValid
 }: ChecklistHeaderProps) {
@@ -48,16 +45,6 @@ export function ChecklistHeader({
       icon={<PlusCircle className="h-6 w-6 text-primary" />}
       actions={
         <div className="flex items-center gap-3 w-full sm:w-auto mt-4 sm:mt-0">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onPreview}
-            className="flex-1 sm:flex-none h-9 gap-2"
-          >
-            <Eye className="h-4 w-4" />
-            <span className="hidden sm:inline">Xem trước</span>
-            <span className="sm:hidden">Xem</span>
-          </Button>
           <Button
             size="sm"
             onClick={onSave}

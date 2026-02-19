@@ -37,7 +37,7 @@ import { Loader2 } from "lucide-react"
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean
   loading?: boolean
 }
@@ -47,7 +47,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }), 
+        className={cn(buttonVariants({ variant, size, className }),
           loading && "text-transparent pointer-events-none relative transition-none"
         )}
         ref={ref}
@@ -55,12 +55,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         <span className={cn(
-          "flex items-center gap-2", 
+          "flex items-center gap-2",
           loading ? "opacity-0" : "opacity-100"
         )}>
           {children}
         </span>
-        
+
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center">
             <Loader2 className="h-4 w-4 animate-spin text-current" />

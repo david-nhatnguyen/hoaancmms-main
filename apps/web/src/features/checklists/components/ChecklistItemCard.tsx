@@ -91,7 +91,7 @@ export const ChecklistItemCard: React.FC<ChecklistItemCardProps> = ({ item }) =>
           </div>
 
           {/* Preview Interaction Section - Clean Footer */}
-          <div className="pt-4 border-t border-border/60">
+          {/* <div className="pt-4 border-t border-border/60">
             <span className="text-xs font-semibold text-muted-foreground block mb-3">
               Thao tác mẫu (Preview)
             </span>
@@ -122,7 +122,7 @@ export const ChecklistItemCard: React.FC<ChecklistItemCardProps> = ({ item }) =>
                 )}
               </div>
             </div>
-          </div>
+          </div> */}
         </CardContent>
       </div>
     </Card>

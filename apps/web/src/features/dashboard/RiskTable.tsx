@@ -56,7 +56,7 @@ export function RiskTable({ data, compact = false, className }: RiskTableProps) 
         )}
         <div className="divide-y divide-border/50">
           {displayData.map((eq) => (
-            <div 
+            <div
               key={eq.id}
               onClick={() => navigate(`/equipments/${eq.id}`)}
               className={cn(
@@ -124,8 +124,8 @@ export function RiskTable({ data, compact = false, className }: RiskTableProps) 
         </TableHeader>
         <TableBody>
           {displayData.map((eq) => (
-            <TableRow 
-              key={eq.id} 
+            <TableRow
+              key={eq.id}
               className={cn(
                 "table-row-interactive",
                 eq.riskLevel === 'high' && "bg-destructive/5"

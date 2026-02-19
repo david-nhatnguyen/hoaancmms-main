@@ -1,6 +1,4 @@
-
-import { toast } from 'sonner';
-
+// ...imports...
 import { PageContainer } from '@/components/shared/PageContainer';
 import { Form } from '@/components/ui/form';
 
@@ -33,10 +31,6 @@ export default function ChecklistForm() {
     );
   }
 
-  const handlePreview = () => {
-    toast.info('Tính năng xem trước đang được phát triển');
-  };
-
   return (
     <PageContainer>
       <div className="max-w-7xl mx-auto pb-20">
@@ -48,7 +42,6 @@ export default function ChecklistForm() {
               isEditing={isEditing}
               isCopying={isCopying}
               onSave={form.handleSubmit(onSubmit)}
-              onPreview={handlePreview}
               isSaving={isSubmitting}
               isValid={form.formState.isValid}
             />

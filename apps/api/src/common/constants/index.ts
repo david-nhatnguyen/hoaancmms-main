@@ -72,6 +72,7 @@ export const ERROR_CODES = {
 export const QUEUE_NAMES = {
   FILE_UPLOAD: 'file-upload',
   EXCEL_IMPORT: 'excel-import',
+  CHECKLIST_IMPORT: 'checklist-import',
   EXCEL_EXPORT: 'excel-export',
   QR_CODE_GENERATION: 'qr-code-generation',
   EMAIL_NOTIFICATION: 'email-notification',

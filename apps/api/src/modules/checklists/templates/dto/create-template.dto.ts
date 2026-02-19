@@ -18,30 +18,30 @@ export class CreateTemplateItemDto {
   @IsInt()
   order: number;
 
-  @ApiProperty({ example: 'Vệ sinh' })
+  @ApiProperty({ example: 'Vệ sinh tủ điện' })
   @IsString()
   @IsNotEmpty({ message: 'Hạng mục bảo dưỡng không được để trống' })
   maintenanceTask: string;
 
-  @ApiPropertyOptional({ example: 'Tủ điện không bụi bẩn, dầu mỡ' })
+  @ApiProperty({ example: 'Không có bụi bẩn, dầu mỡ' })
   @IsString()
-  @IsOptional()
-  judgmentStandard?: string;
+  @IsNotEmpty({ message: 'Tiêu chuẩn phán định không được để trống' })
+  judgmentStandard: string;
 
-  @ApiPropertyOptional({ example: 'Nhìn' })
+  @ApiProperty({ example: 'Quan sát' })
   @IsString()
-  @IsOptional()
-  inspectionMethod?: string;
+  @IsNotEmpty({ message: 'Phương pháp kiểm tra không được để trống' })
+  inspectionMethod: string;
 
-  @ApiPropertyOptional({ example: 'Vệ sinh tủ điện, vệ sinh máy' })
+  @ApiProperty({ example: 'Vệ sinh tủ điện bằng khí nén' })
   @IsString()
-  @IsOptional()
-  maintenanceContent?: string;
+  @IsNotEmpty({ message: 'Nội dung chi tiết bảo dưỡng không được để trống' })
+  maintenanceContent: string;
 
-  @ApiPropertyOptional({ example: 'OK' })
+  @ApiProperty({ example: 'Sạch sẽ' })
   @IsString()
-  @IsOptional()
-  expectedResult?: string;
+  @IsNotEmpty({ message: 'Kết quả mong đợi không được để trống' })
+  expectedResult: string;
 
   @ApiPropertyOptional({ example: true })
   @IsBoolean()

@@ -4,13 +4,90 @@ import {
   ConflictException,
   BadRequestException,
 } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { PrismaService } from '../../../database/prisma.service';
 import { CreateTemplateDto, UpdateTemplateDto, QueryTemplateDto } from './dto';
 import { ChecklistStatus } from '@prisma/generated/prisma';
+import { QUEUE_NAMES } from '@/common/constants';
+import * as ExcelJS from 'exceljs';
+import * as fs from 'fs';
 
 @Injectable()
 export class TemplatesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @InjectQueue(QUEUE_NAMES.CHECKLIST_IMPORT) private importQueue: Queue,
+  ) {}
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Import
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Start an async Excel import job for checklist templates.
+   * Returns immediately with a jobId so the frontend can poll for progress.
+   */
+  async importExcel(filePath: string) {
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(filePath);
+
+    // Multi-sheet format: each worksheet = 1 checklist template
+    // Rows 1-4 = metadata, row 5 = section label, row 6 = col headers, rows 7+ = items
+    const sheetCount = workbook.worksheets.length;
+    let totalItemRows = 0;
+    workbook.worksheets.forEach((sheet) => {
+      sheet.eachRow((row, rowNumber) => {
+        if (rowNumber >= 7 && row.actualCellCount > 0 && row.getCell(2).text?.trim()) {
+          totalItemRows++;
+        }
+      });
+    });
+
+    const totalRecords = sheetCount; // 1 sheet = 1 checklist template
+    const estimatedDuration = sheetCount * 1500 + totalItemRows * 5;
+
+    // Create the import history record
+    const importHistory = await this.prisma.importHistory.create({
+      data: {
+        fileName: filePath.split('/').pop() ?? 'unknown.xlsx',
+        fileSize: fs.statSync(filePath).size,
+        totalRecords,
+        status: 'PENDING',
+        importType: 'CHECKLIST',
+      },
+    });
+
+    // Push to checklist-specific queue
+    await this.importQueue.add(
+      'import-checklists',
+      { filePath, importHistoryId: importHistory.id },
+      { removeOnComplete: true, removeOnFail: false },
+    );
+
+    return {
+      id: importHistory.id,
+      importId: importHistory.id,
+      totalRecords,
+      estimatedDuration,
+      message: 'Import job started',
+    };
+  }
+
+  /**
+   * Get the current status of a checklist import job.
+   */
+  async getImportStatus(id: string) {
+    const history = await this.prisma.importHistory.findUnique({ where: { id } });
+    if (!history) {
+      throw new NotFoundException(`Import job ${id} không tìm thấy`);
+    }
+    return history;
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Templates CRUD
+  // ──────────────────────────────────────────────────────────────────────────
 
   /**
    * Create a new checklist template

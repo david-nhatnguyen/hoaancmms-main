@@ -78,4 +78,45 @@ export const checklistTemplatesApi = {
   duplicate: async (id: string): Promise<ApiResponse<ChecklistTemplate>> => {
     return apiClient.post(`/checklist-templates/${id}/duplicate`);
   },
+
+  /**
+   * Import checklist templates from Excel
+   */
+  importExcel: async (file: File): Promise<{
+    importId: string;
+    totalRecords: number;
+    estimatedDuration: number;
+    message: string;
+  }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post('/checklist-templates/import', formData, {
+      headers: { 'Content-Type': undefined },
+    });
+  },
+
+  /**
+   * Download import template file
+   */
+  getTemplate: async (): Promise<Blob> => {
+    return apiClient.get('/checklist-templates/import/template', {
+      responseType: 'blob',
+    });
+  },
+
+  /**
+   * Get import job status
+   */
+  getImportStatus: async (importId: string): Promise<{
+    id: string;
+    fileName: string;
+    totalRecords: number;
+    processedRecords: number;
+    successCount: number;
+    failedCount: number;
+    status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+    errorFileUrl?: string;
+  }> => {
+    return apiClient.get(`/checklist-templates/import/${importId}`);
+  },
 };

@@ -1,19 +1,19 @@
 import { useMemo, ReactNode } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { 
-  Eye, 
-  Pencil, 
-  Copy, 
-  Ban, 
+import {
+  Eye,
+  Pencil,
+  Copy,
+  Ban,
   MoreHorizontal,
   Trash2,
 } from 'lucide-react';
-import { 
-  ChecklistTemplate, 
-  ChecklistStatus, 
+import {
+  ChecklistTemplate,
+  ChecklistStatus,
   ChecklistCycle,
   CYCLE_LABELS,
-  STATUS_LABELS 
+  STATUS_LABELS
 } from '../types/checklist.types';
 import { Button } from '@/components/ui/button';
 import {
@@ -48,6 +48,8 @@ export function useChecklistColumns({
     mobilePriority?: 'primary' | 'secondary' | 'metadata';
     width?: string;
     align?: 'left' | 'center' | 'right';
+    truncate?: boolean;
+    tooltip?: boolean;
   })[]>(() => [
     {
       id: "select",
@@ -71,13 +73,17 @@ export function useChecklistColumns({
       render: () => null,
       enableSorting: false,
       enableHiding: false,
+      size: 40,
+      minSize: 40,
+      maxSize: 40,
     },
     {
       accessorKey: 'code',
       key: 'code',
       header: 'Mã',
+      size: 120,
       cell: ({ row }) => (
-        <Link 
+        <Link
           to={`/checklists/${row.original.id}`}
           className="font-mono font-medium text-primary uppercase hover:underline"
           onClick={(e) => e.stopPropagation()}
@@ -86,7 +92,7 @@ export function useChecklistColumns({
         </Link>
       ),
       render: (t) => (
-        <Link 
+        <Link
           to={`/checklists/${t.id}`}
           className="font-mono font-medium text-primary uppercase"
           onClick={(e) => e.stopPropagation()}
@@ -100,15 +106,17 @@ export function useChecklistColumns({
       accessorKey: 'name',
       key: 'name',
       header: 'Tên checklist',
+      size: 300,
+      minSize: 200,
       cell: ({ row }) => (
-        <div className="flex flex-col max-w-[250px]">
+        <div className="flex flex-col max-w-[500px]">
           <span className="font-medium truncate" title={row.original.name}>
             {row.original.name}
           </span>
           {row.original.description && (
-             <span className="text-[11px] text-muted-foreground truncate" title={row.original.description}>
-               {row.original.description}
-             </span>
+            <span className="text-[11px] text-muted-foreground truncate" title={row.original.description}>
+              {row.original.description}
+            </span>
           )}
         </div>
       ),
@@ -118,9 +126,9 @@ export function useChecklistColumns({
             {t.name}
           </span>
           {t.description && (
-             <span className="text-[11px] text-muted-foreground truncate">
-               {t.description}
-             </span>
+            <span className="text-[11px] text-muted-foreground truncate">
+              {t.description}
+            </span>
           )}
         </div>
       ),
@@ -130,6 +138,7 @@ export function useChecklistColumns({
       id: 'equipment',
       key: 'equipment',
       header: 'Thiết bị áp dụng',
+      size: 180,
       accessorFn: (row) => row.equipment?.name,
       cell: ({ row }) => {
         const equipment = row.original.equipment;
@@ -151,9 +160,10 @@ export function useChecklistColumns({
       accessorKey: 'department',
       key: 'department',
       header: 'Bộ phận sử dụng',
+      size: 140,
       cell: ({ row }) => (
-        <div 
-          className="text-sm truncate max-w-[150px]" 
+        <div
+          className="text-sm truncate max-w-[150px]"
           title={row.original.department || ''}
         >
           {row.original.department || '—'}
@@ -169,7 +179,10 @@ export function useChecklistColumns({
     {
       accessorKey: 'cycle',
       key: 'cycle',
+      tooltip: false,
+      truncate: false,
       header: () => <div className="text-center">Chu kỳ</div>,
+      size: 100,
       cell: ({ row }) => {
         const cycle = row.getValue('cycle') as ChecklistCycle;
         return (
@@ -190,7 +203,10 @@ export function useChecklistColumns({
     {
       accessorKey: 'version',
       key: 'version',
+      tooltip: false,
+      truncate: false,
       header: () => <div className="text-center">Phiên bản</div>,
+      size: 80,
       cell: ({ row }) => (
         <div className="text-center font-mono text-xs text-muted-foreground">
           v{row.getValue('version')}
@@ -206,7 +222,10 @@ export function useChecklistColumns({
     {
       accessorKey: 'status',
       key: 'status',
+      truncate: false,
+      tooltip: false,
       header: () => <div className="text-center">Trạng thái</div>,
+      size: 120,
       cell: ({ row }) => {
         const status = row.getValue('status') as ChecklistStatus;
         const styles = {
@@ -238,6 +257,8 @@ export function useChecklistColumns({
     {
       id: 'actions',
       key: 'actions',
+      size: 50,
+      truncate: false,
       cell: ({ row }) => {
         const template = row.original;
         return (
@@ -263,7 +284,7 @@ export function useChecklistColumns({
                   Sao chép
                 </DropdownMenuItem>
                 {template.status === ChecklistStatus.ACTIVE && (
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={() => onDeactivate(template)}
                     className="text-destructive focus:text-destructive"
                   >
@@ -271,7 +292,7 @@ export function useChecklistColumns({
                     Ngừng sử dụng
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => onDelete(template)}
                   className="text-destructive focus:text-destructive"
                 >

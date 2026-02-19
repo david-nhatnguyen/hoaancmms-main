@@ -69,6 +69,7 @@ import { QUEUE_NAMES } from '../../common/constants';
     BullModule.registerQueue(
       { name: QUEUE_NAMES.FILE_UPLOAD },
       { name: QUEUE_NAMES.EXCEL_IMPORT },
+      { name: QUEUE_NAMES.CHECKLIST_IMPORT },
       { name: QUEUE_NAMES.EXCEL_EXPORT },
       { name: QUEUE_NAMES.QR_CODE_GENERATION },
       { name: QUEUE_NAMES.EMAIL_NOTIFICATION },

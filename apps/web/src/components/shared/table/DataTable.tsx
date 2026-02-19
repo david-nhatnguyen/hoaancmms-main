@@ -27,6 +27,7 @@ import {
 
 import { DataTablePagination } from "./DataTablePagination"
 import { DataTableToolbar } from "./DataTableToolbar"
+import { CellTooltip } from "./CellTooltip"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -137,8 +138,8 @@ export function DataTable<TData, TValue>({
     },
     onPaginationChange: (updater) => {
       if (onPaginationChange) {
-        const nextState = typeof updater === 'function' 
-          ? updater({ pageIndex, pageSize }) 
+        const nextState = typeof updater === 'function'
+          ? updater({ pageIndex, pageSize })
           : updater
         onPaginationChange(nextState.pageIndex, nextState.pageSize)
       }
@@ -170,8 +171,8 @@ export function DataTable<TData, TValue>({
   return (
     <div className={cn("flex flex-col gap-4", className)}>
       {showToolbar && (
-        <DataTableToolbar 
-          table={table} 
+        <DataTableToolbar
+          table={table}
           searchColumn={searchColumn}
           searchPlaceholder={searchPlaceholder}
           searchValue={searchValue}
@@ -181,20 +182,25 @@ export function DataTable<TData, TValue>({
           actions={toolbarActions}
         />
       )}
-      <div className="rounded-xl border bg-card overflow-hidden shadow-sm transition-all duration-300 ring-1 ring-border/5">
-        <Table className="relative">
+      <div className="rounded-xl border bg-card overflow-x-auto shadow-sm transition-all duration-300 ring-1 ring-border/5">
+        <Table className="relative table-fixed w-full">
           <TableHeader className="bg-muted/30">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent border-border/50">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} colSpan={header.colSpan} className="h-11 font-semibold text-foreground/70">
+                    <TableHead
+                      key={header.id}
+                      colSpan={header.colSpan}
+                      className="h-11 font-semibold text-foreground/70"
+                      style={{ width: header.getSize() }}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   )
                 })}
@@ -226,14 +232,38 @@ export function DataTable<TData, TValue>({
                     "animate-in fade-in slide-in-from-top-1 duration-300"
                   )}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-3">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    // Check if column enforces truncation (default: true)
+                    // We cast to any because standard ColumnDef doesn't have our custom 'truncate' property
+                    const shouldTruncate = (cell.column.columnDef as any).truncate !== false;
+                    const enableTooltip = (cell.column.columnDef as any).tooltip !== false;
+
+                    let cellValue: string | number | undefined;
+                    if (enableTooltip) {
+                      try {
+                        const val = cell.getValue();
+                        if (val !== null && val !== undefined && (typeof val === 'string' || typeof val === 'number')) {
+                          cellValue = val;
+                        }
+                      } catch {
+                        // ignore
+                      }
+                    }
+
+                    return (
+                      <TableCell
+                        key={cell.id}
+                        className={cn("py-3", shouldTruncate && "truncate")}
+                      >
+                        <CellTooltip value={cellValue} truncate={shouldTruncate}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </CellTooltip>
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             ) : (

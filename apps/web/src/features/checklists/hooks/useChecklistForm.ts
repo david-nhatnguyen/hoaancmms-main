@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { useCreateTemplate } from '@/features/checklists/hooks/useCreateTemplate';
 import { useUpdateTemplate } from '@/features/checklists/hooks/useUpdateTemplate';
 import { useChecklistTemplate } from '@/features/checklists/hooks/useChecklistTemplates';
-import { transformFormToDto, validateTemplateForm } from '@/features/checklists/handlers/templateFormHandlers';
+import { transformFormToDto } from '@/features/checklists/handlers/templateFormHandlers';
 import { ChecklistCycle, ChecklistStatus } from '@/features/checklists/types/checklist.types';
 
 // ============================================================================
@@ -81,7 +81,7 @@ export const useChecklistForm = () => {
   // API Hooks
   const createTemplate = useCreateTemplate();
   const updateTemplate = useUpdateTemplate();
-  const { data: existingTemplate, isLoading: isLoadingTemplate } = useChecklistTemplate(id || '');
+  const { data: existingTemplate, isLoading: isLoadingTemplate } = useChecklistTemplate(id || searchParams.get('copy') || '');
 
   // Form Initialization
   const form = useForm<ChecklistFormValues>({

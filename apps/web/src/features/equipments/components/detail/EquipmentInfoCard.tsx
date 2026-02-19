@@ -47,15 +47,12 @@ export const EquipmentInfoCard = ({ equipment }: EquipmentInfoCardProps) => {
       {/* General Info */}
       <Card className="bg-card border-border/50 shadow-sm transition-all hover:shadow-md">
         <CardHeader className={cn("pb-2", isMobile && "p-3 pb-2")}>
-          <CardTitle className={cn(
-            "flex items-center gap-2",
-            isMobile ? "text-sm" : "text-base"
-          )}>
-            <div className="p-1.5 rounded-md bg-transparent text-primary p-0">
-              <Wrench className={cn("text-primary", isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />
+          <div className={cn("flex items-center gap-2", isMobile ? "text-sm" : "text-base")}>
+            <div className="p-2 rounded-md bg-primary/10 text-primary">
+              <Wrench className={cn("h-5 w-5", isMobile && "h-4 w-4")} />
             </div>
-            Thông tin thiết bị
-          </CardTitle>
+            <CardTitle className="text-lg">Thông tin thiết bị</CardTitle>
+          </div>
         </CardHeader>
         <CardContent className={cn("pt-2", isMobile ? "p-3 pt-0" : "p-6 pt-2")}>
           <InfoRow
@@ -93,15 +90,12 @@ export const EquipmentInfoCard = ({ equipment }: EquipmentInfoCardProps) => {
       {/* Technical Info */}
       <Card className="bg-card border-border/50 shadow-sm transition-all hover:shadow-md">
         <CardHeader className={cn("pb-2", isMobile && "p-3 pb-2")}>
-          <CardTitle className={cn(
-            "flex items-center gap-2",
-            isMobile ? "text-sm" : "text-base"
-          )}>
-            <div className="p-1.5 rounded-md bg-transparent text-primary p-0">
-              <Cpu className={cn("text-primary", isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />
+          <div className={cn("flex items-center gap-2", isMobile ? "text-sm" : "text-base")}>
+            <div className="p-2 rounded-md bg-primary/10 text-primary">
+              <Cpu className={cn("h-5 w-5", isMobile && "h-4 w-4")} />
             </div>
-            Thông tin kỹ thuật
-          </CardTitle>
+            <CardTitle className="text-lg">Thông tin kỹ thuật</CardTitle>
+          </div>
         </CardHeader>
         <CardContent className={cn("pt-2", isMobile ? "p-3 pt-0" : "p-6 pt-2")}>
           <InfoRow
@@ -128,12 +122,12 @@ export const EquipmentInfoCard = ({ equipment }: EquipmentInfoCardProps) => {
       {equipment.notes && (
         <Card className="bg-card border-border/50 shadow-sm lg:col-span-2">
           <CardHeader className={cn("pb-3", isMobile && "p-4")}>
-            <CardTitle className={cn("flex items-center gap-2", isMobile ? "text-sm" : "text-base")}>
-              <div className="p-1.5 rounded-md bg-orange-500/10 text-orange-500">
-                <Info className="h-4 w-4" />
+            <div className={cn("flex items-center gap-2", isMobile ? "text-sm" : "text-base")}>
+              <div className="p-2 rounded-md bg-orange-500/10 text-orange-500">
+                <Info className="h-5 w-5" />
               </div>
-              Ghi chú
-            </CardTitle>
+              <CardTitle className="text-lg">Ghi chú</CardTitle>
+            </div>
           </CardHeader>
           <CardContent className={cn("pt-4", isMobile ? "p-4" : "p-6")}>
             <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">{equipment.notes}</p>

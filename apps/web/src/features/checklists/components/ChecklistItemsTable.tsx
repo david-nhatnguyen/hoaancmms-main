@@ -41,12 +41,13 @@ export function ChecklistItemsTable({
 
   const { isMobile, handleRemove } = useChecklistItemsTable(form, remove, move, fields);
 
-  const columns: ColumnDef<ChecklistFormValues['items'][0]>[] = [
+  const columns: (ColumnDef<ChecklistFormValues['items'][0]> & { truncate?: boolean })[] = [
     {
       accessorKey: "index",
       header: () => <div className="text-center text-xs tracking-wider w-8">#</div>,
       cell: ({ row }) => <div className="text-center text-muted-foreground w-8">{row.index + 1}</div>,
       size: 40,
+      truncate: false
     },
     {
       accessorKey: "maintenanceTask",
@@ -240,7 +241,7 @@ export function ChecklistItemsTable({
           </Button>
         </div>
       ),
-      size: 80,
+      truncate: false
     },
   ];
 

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  Check, 
-  ChevronsUpDown, 
-  Building2, 
-  X, 
+import {
+  Check,
+  ChevronsUpDown,
+  Building2,
+  X,
 } from 'lucide-react';
 import { useEquipmentSearch } from '../hooks';
 import { Equipment } from '../types/checklist.types';
@@ -92,13 +92,13 @@ export const EquipmentSearchInput: React.FC<EquipmentSearchInputProps> = ({
                 <span className="text-[10px] text-muted-foreground">Nhấp để tìm kiếm và chọn thiết bị</span>
               </div>
             </div>
-            
+
             <div className="flex items-center ml-2 shrink-0 self-center z-10">
               <div className={cn(
                 "flex items-center transition-all duration-300",
                 value ? "opacity-100 scale-100 w-auto" : "opacity-0 scale-50 w-0 overflow-hidden pointer-events-none"
               )}>
-                <div 
+                <div
                   onClick={handleClear}
                   className="p-1.5 hover:bg-destructive/10 hover:text-destructive rounded-full mr-1 transition-colors"
                   title="Gỡ bỏ lựa chọn"
@@ -112,15 +112,15 @@ export const EquipmentSearchInput: React.FC<EquipmentSearchInputProps> = ({
             </div>
           </Button>
         </PopoverTrigger>
-        <PopoverContent 
-          className="w-[--radix-popover-trigger-width] p-0 shadow-xl border-border/40" 
+        <PopoverContent
+          className="w-[--radix-popover-trigger-width] p-0 shadow-xl border-border/40"
           align="start"
           sideOffset={8}
         >
           <Command shouldFilter={false}>
             <div className="flex items-center border-b px-3">
-              <CommandInput 
-                placeholder="Nhập mã hoặc tên thiết bị..." 
+              <CommandInput
+                placeholder="Nhập mã hoặc tên thiết bị..."
                 value={searchQuery}
                 onValueChange={setSearchQuery}
                 className="border-none focus:ring-0"
@@ -139,8 +139,8 @@ export const EquipmentSearchInput: React.FC<EquipmentSearchInputProps> = ({
                         </div>
                         <Skeleton className="h-3 w-32" />
                         <div className="flex gap-2">
-                           <Skeleton className="h-3 w-16" />
-                           <Skeleton className="h-3 w-16" />
+                          <Skeleton className="h-3 w-16" />
+                          <Skeleton className="h-3 w-16" />
                         </div>
                       </div>
                     </div>

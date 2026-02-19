@@ -17,16 +17,16 @@ function normalizeStatus(status: StatusType): 'active' | 'maintenance' | 'inacti
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   if (!status) return null;
-  
+
   const normalizedStatus = normalizeStatus(status);
-  
+
   // STATUS_LABELS use uppercase keys, so we need to convert back for lookup
   const labelKey = normalizedStatus.toUpperCase() as keyof typeof STATUS_LABELS;
-  
+
   return (
     <span
       className={cn(
-        "status-badge",
+        "status-badge max-w-full inline-flex items-center justify-center whitespace-normal h-auto text-center break-words py-0.5 leading-tight",
         normalizedStatus === 'active' && "status-active",
         normalizedStatus === 'maintenance' && "status-maintenance",
         normalizedStatus === 'inactive' && "status-inactive",

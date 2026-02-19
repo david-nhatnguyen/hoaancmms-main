@@ -4,10 +4,10 @@ import { Equipment } from '@/api/types/equipment.types';
 import { Button } from '@/components/ui/button';
 import { Eye, Pencil, Trash2, X, Maximize2, QrCode as QrIcon, ImageIcon, MoreHorizontal } from 'lucide-react';
 import { StatusBadge } from '@/components/shared/StatusBadge';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogClose 
+import {
+  Dialog,
+  DialogContent,
+  DialogClose
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -34,6 +34,8 @@ export interface UseEquipmentColumnsReturn {
     mobilePriority?: 'primary' | 'secondary' | 'metadata';
     width?: string;
     align?: 'left' | 'center' | 'right';
+    truncate?: boolean;
+    tooltip?: boolean;
   })[];
   previewDialog: React.ReactNode;
 }
@@ -66,15 +68,19 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
       render: () => null, // Placeholder for select column
       enableSorting: false,
       enableHiding: false,
+      size: 40,
+      minSize: 40,
+      maxSize: 40,
     },
     {
       accessorKey: "code",
       key: "code",
       header: "Mã số thiết bị",
+      size: 120,
       cell: ({ row }) => {
         const eq = row.original
         return (
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               onViewDetails(eq.code);
@@ -86,7 +92,7 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
         )
       },
       render: (eq) => (
-        <button 
+        <button
           onClick={(e) => {
             e.stopPropagation();
             onViewDetails(eq.code);
@@ -102,22 +108,23 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
       id: "image",
       key: "image",
       header: "Hình ảnh",
+      size: 80,
       cell: ({ row }) => {
         const eq = row.original
         const fullUrl = getImageUrl(eq.image);
         return (
           <div className="flex items-center justify-center">
             {eq.image ? (
-              <button 
+              <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setPreviewImage({ url: fullUrl, name: eq.name });
                 }}
                 className="w-10 h-10 rounded-lg border border-border overflow-hidden shadow-sm bg-muted/30 group relative"
               >
-                <img 
-                  src={fullUrl} 
-                  alt={eq.name} 
+                <img
+                  src={fullUrl}
+                  alt={eq.name}
                   className="w-full h-full object-cover transition-transform group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -135,17 +142,17 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
       render: (eq) => {
         const fullUrl = getImageUrl(eq.image);
         return (
-            <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center">
             {eq.image ? (
-                 <img 
-                  src={fullUrl} 
-                  alt={eq.name} 
-                  className="w-10 h-10 object-cover rounded"
-                />
+              <img
+                src={fullUrl}
+                alt={eq.name}
+                className="w-10 h-10 object-cover rounded"
+              />
             ) : (
-                <ImageIcon className="h-5 w-5 text-muted-foreground/30" />
+              <ImageIcon className="h-5 w-5 text-muted-foreground/30" />
             )}
-            </div>
+          </div>
         );
       }
     },
@@ -153,6 +160,8 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
       accessorKey: "name",
       key: "name",
       header: "Tên thiết bị",
+      size: 250,
+      minSize: 150,
       cell: ({ row }) => <span className="font-medium text-sm">{row.getValue("name")}</span>,
       render: (eq) => <span className="font-medium text-sm">{eq.name}</span>,
       mobilePriority: 'secondary',
@@ -161,6 +170,7 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
       accessorKey: "factoryName",
       key: "factoryName",
       header: "Nhà máy",
+      size: 150,
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground truncate max-w-[150px]">
           {row.getValue("factoryName") || '-'}
@@ -177,6 +187,8 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
       accessorKey: "quantity",
       key: "quantity",
       header: "Số lượng",
+      tooltip: false,
+      size: 80,
       cell: ({ row }) => <span className="font-medium text-sm">{row.getValue("quantity") || 1}</span>,
       render: (eq) => <span className="font-medium text-sm">{eq.quantity || 1}</span>,
       mobilePriority: 'metadata',
@@ -185,6 +197,9 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
       accessorKey: "status",
       key: "status",
       header: "Trạng thái",
+      tooltip: false,
+      size: 120,
+      truncate: false,
       cell: ({ row }) => <div className="scale-90 origin-left"><StatusBadge status={row.getValue("status")} /></div>,
       render: (eq) => <StatusBadge status={eq.status} />,
     },
@@ -192,6 +207,7 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
       id: "qrCode",
       key: "qrCode",
       header: "QR Code",
+      size: 80,
       cell: ({ row }) => {
         const eq = row.original
         return (
@@ -205,9 +221,9 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
                 className="w-8 h-8 p-1 rounded-md border border-border bg-white hover:border-primary/50 transition-colors shadow-sm group relative"
                 title="Xem mã QR"
               >
-                <img 
-                  src={getImageUrl(eq.qrCode)} 
-                  alt="QR" 
+                <img
+                  src={getImageUrl(eq.qrCode)}
+                  alt="QR"
                   className="w-full h-full object-contain"
                 />
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -221,22 +237,25 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
         )
       },
       render: (eq) => (
-          <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center">
           {eq.qrCode ? (
-               <img 
-                src={getImageUrl(eq.qrCode)} 
-                alt="QR" 
-                className="w-8 h-8 object-contain"
-              />
+            <img
+              src={getImageUrl(eq.qrCode)}
+              alt="QR"
+              className="w-8 h-8 object-contain"
+            />
           ) : (
-              <QrIcon className="h-4 w-4 text-muted-foreground/20" />
+            <QrIcon className="h-4 w-4 text-muted-foreground/20" />
           )}
-          </div>
+        </div>
       )
     },
     {
       id: "actions",
       key: "actions",
+      size: 50,
+      tooltip: false,
+      truncate: false,
       cell: ({ row }) => {
         const eq = row.original
         return (
@@ -256,7 +275,7 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
                 <Pencil className="mr-2 h-4 w-4" /> Chỉnh sửa
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => onDelete(eq)}
                 className="text-destructive focus:text-destructive"
               >
@@ -277,23 +296,23 @@ export function useEquipmentColumns({ onEdit, onDelete, onViewDetails }: UseEqui
           <div className="relative group max-h-[85vh] max-w-full">
             <div className="absolute top-4 right-4 z-50">
               <DialogClose asChild>
-                  <Button variant="secondary" size="icon" className="rounded-full h-8 w-8 bg-black/50 text-white hover:bg-black/70 border-none">
-                    <X className="h-4 w-4" />
-                  </Button>
+                <Button variant="secondary" size="icon" className="rounded-full h-8 w-8 bg-black/50 text-white hover:bg-black/70 border-none">
+                  <X className="h-4 w-4" />
+                </Button>
               </DialogClose>
             </div>
             <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-2xl">
-              <img 
-                src={previewImage?.url} 
-                alt={previewImage?.name} 
+              <img
+                src={previewImage?.url}
+                alt={previewImage?.name}
                 className="w-auto h-auto max-h-[80vh] object-contain mx-auto"
               />
             </div>
           </div>
         </DialogContent>
       </Dialog>
-      
-      <QRPreviewDialog 
+
+      <QRPreviewDialog
         isOpen={!!qrPreviewEquipment}
         onClose={() => setQrPreviewEquipment(null)}
         equipment={qrPreviewEquipment}
