@@ -1,5 +1,5 @@
-import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient, UserRole, FactoryStatus } from '../generated/prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient, FactoryStatus } from '../generated/prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const adapter = new PrismaPg({
@@ -13,7 +13,7 @@ async function main() {
 
   // 1. Create Default Factory
   const factory = await prisma.factory.upsert({
-    where: { code: 'F01' }, // Use code as unique identifier
+    where: { code: 'F01' },
     update: {},
     create: {
       code: 'F01',
@@ -24,8 +24,20 @@ async function main() {
   });
   console.log(`🏭 Factory created: ${factory.name}`);
 
-  // 2. Create Admin User
-  // Password mặc định: password123
+  // 2. Create System Admin Role
+  const adminRole = await prisma.role.upsert({
+    where: { name: 'Admin' },
+    update: {},
+    create: {
+      name: 'Admin',
+      description: 'System administrator with full access',
+      isSystem: true,
+    },
+  });
+  console.log(`🔐 Admin role created: ${adminRole.name}`);
+
+  // 3. Create Admin User linked to the Admin Role
+  // Default password: password123
   const hashedPassword = await bcrypt.hash('password123', 10);
 
   const admin = await prisma.user.upsert({
@@ -35,7 +47,7 @@ async function main() {
       username: 'admin',
       password: hashedPassword,
       fullName: 'System Administrator',
-      role: UserRole.ADMIN,
+      roleId: adminRole.id,
     },
   });
   console.log(`👤 Admin user created: ${admin.username}`);

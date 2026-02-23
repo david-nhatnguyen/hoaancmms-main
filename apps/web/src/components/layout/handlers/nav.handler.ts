@@ -9,7 +9,8 @@ import {
   Users, 
   Shield, 
   ScrollText, 
-  Cog 
+  Cog,
+  Layers,
 } from 'lucide-react';
 import React from 'react';
 
@@ -98,6 +99,11 @@ export const MENU_SECTIONS: MenuSection[] = [
         label: 'Vai trò & Phân quyền',
         path: '/system/roles',
         icon: Shield,
+      },
+      {
+        label: 'Modules phân quyền',
+        path: '/system/modules',
+        icon: Layers,
       },
       {
         label: 'Nhật ký hệ thống',

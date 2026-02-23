@@ -11,6 +11,7 @@ import { QueueModule } from './modules/queue/queue.module';
 import { FactoriesModule } from './modules/factories/factories.module';
 import { EquipmentsModule } from './modules/equipments/equipments.module';
 import { ChecklistsModule } from './modules/checklists/checklists.module';
+import { RolesModule } from './modules/roles/roles.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ChecklistsModule } from './modules/checklists/checklists.module';
     FactoriesModule, // Factory CRUD API
     EquipmentsModule,
     ChecklistsModule, // Checklist Library API
+    RolesModule, // Roles & Permissions API
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -26,8 +26,11 @@ import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 // System Admin pages
 import UserList from "./pages/system/UserList";
+import UserForm from "./pages/system/UserForm";
 import RoleList from "./pages/system/RoleList";
 import RoleDetail from "./pages/system/RoleDetail";
+import RoleForm from "./pages/system/RoleForm";
+import PermissionModuleList from "./pages/system/PermissionModuleList";
 import SystemLogs from "./pages/system/SystemLogs";
 import SystemSettings from "./pages/system/SystemSettings";
 
@@ -66,8 +69,13 @@ const App = () => (
               <Route path="corrective-maintenance/:id" element={<CorrectiveMaintenanceDetail />} />
               {/* System Admin Routes */}
               <Route path="system/users" element={<UserList />} />
+              <Route path="system/users/new" element={<UserForm />} />
+              <Route path="system/users/:id/edit" element={<UserForm />} />
               <Route path="system/roles" element={<RoleList />} />
+              <Route path="system/roles/new" element={<RoleForm />} />
               <Route path="system/roles/:id" element={<RoleDetail />} />
+              <Route path="system/roles/:id/edit" element={<RoleForm />} />
+              <Route path="system/modules" element={<PermissionModuleList />} />
               <Route path="system/logs" element={<SystemLogs />} />
               <Route path="system/settings" element={<SystemSettings />} />
             </Route>

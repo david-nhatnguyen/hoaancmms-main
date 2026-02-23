@@ -7,10 +7,66 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-enum UserRole {
-  ADMIN
-  MANAGER
-  TECHNICIAN
+
+enum UserStatus {
+  ACTIVE
+  LOCKED
+}
+
+// ==========================================
+// ROLE & PERMISSION SYSTEM
+// ==========================================
+
+/// A "module" in the CMMS system (e.g., asset, work-order, checklist)
+model PermissionModule {
+  id          String @id // e.g., 'asset', 'checklist'
+  name        String // Display name
+  description String?
+  sortOrder   Int    @default(0)
+
+  permissions RolePermission[]
+
+  @@map("permission_modules")
+}
+
+/// Fine-grained permission per Role × Module combination
+model RolePermission {
+  id       String @id @default(uuid())
+  roleId   String
+  moduleId String
+
+  // Action flags
+  canView    Boolean @default(false)
+  canCreate  Boolean @default(false)
+  canEdit    Boolean @default(false)
+  canDelete  Boolean @default(false)
+  canExport  Boolean @default(false)
+  canApprove Boolean @default(false)
+  canLock    Boolean @default(false)
+
+  role   Role             @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  module PermissionModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, moduleId])
+  @@index([roleId])
+  @@index([moduleId])
+  @@map("role_permissions")
+}
+
+/// A named group of permissions (e.g., "Kỹ thuật viên", "Quản lý bảo trì")
+model Role {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+  isSystem    Boolean @default(false) // system roles cannot be deleted
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  permissions RolePermission[]
+  users       User[]
+
+  @@map("roles")
 }
 
 enum FactoryStatus {
@@ -53,17 +109,30 @@ enum ChecklistExecutionStatus {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  password  String
-  fullName  String
-  role      UserRole @default(TECHNICIAN)
-  avatarUrl String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String     @id @default(uuid())
+  username    String     @unique
+  password    String
+  fullName    String
+  email       String?    @unique
+  phone       String?
+  avatarUrl   String?
+  status      UserStatus @default(ACTIVE)
+  forcePasswordChange Boolean @default(false)
+  notes       String?
 
+  // Role assignment (optional FK)
+  roleId      String?
+  role        Role?      @relation(fields: [roleId], references: [id], onDelete: SetNull)
 
+  // Factory access (array of factory IDs; empty = no factory, ["all"] = all factories)
+  factoryIds  String[]   @default([])
 
+  lastLoginAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([status])
+  @@index([roleId])
   @@map("users")
 }
 

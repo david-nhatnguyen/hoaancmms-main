@@ -286,7 +286,7 @@ export function useChecklistColumns({
                 {template.status === ChecklistStatus.ACTIVE && (
                   <DropdownMenuItem
                     onClick={() => onDeactivate(template)}
-                    className="text-destructive focus:text-destructive"
+                    className="text-status-critical"
                   >
                     <Ban className="mr-2 h-4 w-4" />
                     Ngừng sử dụng
@@ -294,7 +294,7 @@ export function useChecklistColumns({
                 )}
                 <DropdownMenuItem
                   onClick={() => onDelete(template)}
-                  className="text-destructive focus:text-destructive"
+                  className="text-status-critical"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Xóa

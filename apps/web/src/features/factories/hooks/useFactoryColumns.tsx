@@ -245,7 +245,7 @@ export function useFactoryColumns(
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => handleDelete(factory)}
-                className="text-destructive focus:text-destructive"
+                className="text-status-critical"
               >
                 <Trash2 className="mr-2 h-4 w-4" /> Xóa
               </DropdownMenuItem>
