@@ -1,12 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsEmail,
-  IsArray,
-  MinLength,
-} from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsEmail, IsArray, MinLength } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'technician01' })
@@ -39,7 +32,10 @@ export class CreateUserDto {
   @IsOptional()
   roleId?: string;
 
-  @ApiPropertyOptional({ description: 'Factory IDs the user can access. Use ["all"] for all factories.', example: ['factory-uuid-1'] })
+  @ApiPropertyOptional({
+    description: 'Factory IDs the user can access. Use ["all"] for all factories.',
+    example: ['factory-uuid-1'],
+  })
   @IsArray()
   @IsOptional()
   factoryIds?: string[];

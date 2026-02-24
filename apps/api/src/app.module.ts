@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { AppController } from './app.controller';
@@ -12,6 +13,7 @@ import { FactoriesModule } from './modules/factories/factories.module';
 import { EquipmentsModule } from './modules/equipments/equipments.module';
 import { ChecklistsModule } from './modules/checklists/checklists.module';
 import { RolesModule } from './modules/roles/roles.module';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -40,8 +42,22 @@ import { RolesModule } from './modules/roles/roles.module';
     EquipmentsModule,
     ChecklistsModule, // Checklist Library API
     RolesModule, // Roles & Permissions API
+    // Best Practice: Rate Limiting (security-rate-limiting)
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100, // Limit each IP to 100 requests per ttl
+      },
+    ]),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // Apply Throttler globally
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

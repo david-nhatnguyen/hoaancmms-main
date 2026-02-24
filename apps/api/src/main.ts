@@ -1,6 +1,6 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe, Logger } from '@nestjs/common';
+import { ValidationPipe, Logger, ClassSerializerInterceptor } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -30,12 +30,17 @@ async function bootstrap() {
   });
 
   // 1. Security & Optimization
+  const corsOrigin = configService.get('CORS_ORIGIN') || 'http://localhost:5173';
+
   app.enableCors({
-    origin: [
-      'http://localhost:5173', // Vite default
-      'http://localhost:3001', // Current frontend
-      configService.get('CORS_ORIGIN') || 'http://localhost:5173',
-    ],
+    origin:
+      corsOrigin === '*'
+        ? true
+        : [
+            'http://localhost:5173', // Vite default
+            'http://localhost:3001', // Current frontend
+            ...corsOrigin.split(','),
+          ],
     credentials: true,
   });
   app.use(helmet());
@@ -43,6 +48,9 @@ async function bootstrap() {
 
   // 2. Global Prefix & Versioning
   app.setGlobalPrefix('api');
+
+  // Best Practice: API Versioning (api-versioning)
+  app.enableVersioning();
 
   // 3. Global Exception Filter (must be first)
   app.useGlobalFilters(new AllExceptionsFilter());
@@ -52,6 +60,7 @@ async function bootstrap() {
     new LoggingInterceptor(), // Log first
     new TimeoutInterceptor(), // Then check timeout
     new TransformInterceptor(), // Finally transform response
+    new ClassSerializerInterceptor(app.get(Reflector)), // Strip @Exclude() fields (api-use-dto-serialization)
   );
 
   // 5. Validation Pipe (auto-validate DTOs)
@@ -96,7 +105,10 @@ async function bootstrap() {
     },
   });
 
-  // 7. Start Server
+  // 7. DevOps & Start Server
+  // Best Practice: Graceful Shutdown (devops-graceful-shutdown)
+  app.enableShutdownHooks();
+
   const port = configService.get<number>('PORT') || 3000;
   await app.listen(port);
 

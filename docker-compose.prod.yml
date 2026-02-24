@@ -1,13 +1,14 @@
 version: '3.8'
 
-# This file is used for LOCAL DEVELOPMENT
-# It builds the application from source code
-# For production deployment, use docker-compose.prod.yml
+# This file is used specifically for PRODUCTION/TESTING server deployments
+# It pulls pre-built images from Docker Hub instead of building from source
+# For local development, use docker-compose.yml
 
 services:
   postgres:
     image: postgres:15-alpine
     container_name: cmms-postgres
+    restart: always # Ensure it reboots crash/server restart
     environment:
       POSTGRES_DB: ${DB_NAME:-cmms}
       POSTGRES_USER: ${DB_USER:-admin}
@@ -27,6 +28,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: cmms-redis
+    restart: always
     ports:
       - "6379:6379"
     volumes:
@@ -40,23 +42,22 @@ services:
       - app-network
 
   api:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
-    container_name: cmms-api-dev
+    image: ${DOCKERHUB_USERNAME}/cmms-api:latest
+    container_name: cmms-api
+    restart: always
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 3000
       DATABASE_URL: postgresql://${DB_USER:-admin}:${DB_PASSWORD:-password123}@postgres:5432/${DB_NAME:-cmms}?schema=public
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      JWT_SECRET: ${JWT_SECRET:-super_secret_dev_key}
-      CORS_ORIGIN: '*'
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ORIGIN: ${CORS_ORIGIN}
     ports:
       - "3000:3000"
     volumes:
@@ -65,23 +66,20 @@ services:
       - app-network
 
   web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-      args:
-        VITE_API_URL: http://localhost:3000/api
-    container_name: cmms-web-dev
+    image: ${DOCKERHUB_USERNAME}/cmms-web:latest
+    container_name: cmms-web
+    restart: always
     depends_on:
       - api
     ports:
-      - "5173:80"
+      - "80:80"
     networks:
       - app-network
 
 volumes:
   postgres_data:
   redis_data:
-  upload_data:
+  upload_data: # Persist uploaded user files across container updates
 
 networks:
   app-network:
