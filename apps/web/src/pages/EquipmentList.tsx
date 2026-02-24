@@ -30,22 +30,15 @@ import { ResponsivePageHeader } from '@/components/shared/layout/ResponsivePageH
 import { ResponsiveDataView } from '@/components/shared/layout/ResponsiveDataView';
 
 // Feature Components, Hooks & Handlers
-import {
-  useEquipmentColumns,
-  useEquipmentStats,
-  useEquipments,
-  useDeleteEquipment,
-  useBulkDeleteEquipment,
-  STATUS_OPTIONS,
-  useEquipmentTableState,
-} from '@/features/equipments/hooks';
+import { useEquipmentColumns } from '@/features/equipments/hooks/useEquipmentColumns';
+import { useEquipments, useEquipmentStats, useDeleteEquipment, useBulkDeleteEquipment } from '@/features/equipments/hooks/useEquipments';
+import { STATUS_OPTIONS } from '@/features/equipments/hooks/useEquipmentFilters';
+import { useEquipmentTableState } from '@/features/equipments/hooks/useEquipmentTableState';
 
-import {
-  EquipmentStats,
-  DeleteEquipmentDialog,
-  ImportEquipmentDialog,
-  EquipmentImportProgress,
-} from '@/features/equipments/components';
+import { EquipmentStats } from '@/features/equipments/components/EquipmentStats';
+import { DeleteEquipmentDialog } from '@/features/equipments/components/DeleteEquipmentDialog';
+import { ImportEquipmentDialog } from '@/features/equipments/components/ImportEquipmentDialog';
+import { EquipmentImportProgress } from '@/features/equipments/components/ImportProgress';
 import { BulkActionsToolbar } from '@/components/shared/table/BulkActionsToolbar';
 
 import type { Equipment } from '@/api/types/equipment.types';
@@ -222,14 +215,14 @@ export default function EquipmentList() {
       {/* Stats Cards */}
       <EquipmentStats stats={statsData?.data} isLoading={statsLoading} />
 
-      {activeImportId && (
+      {activeImportId ? (
         <EquipmentImportProgress
           key={activeImportId}
           jobId={activeImportId}
           fileName={activeImportFileName || undefined}
           onClose={handleCloseImport}
         />
-      )}
+      ) : null}
 
       <ResponsiveDataView
         isLoading={isLoading}

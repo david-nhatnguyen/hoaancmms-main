@@ -5,7 +5,7 @@ import {
   Building2,
   X,
 } from 'lucide-react';
-import { useEquipmentSearch } from '../hooks';
+import { useEquipmentSearch } from '../hooks/useEquipmentSearch';
 import { Equipment } from '../types/checklist.types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -74,7 +74,7 @@ export const EquipmentSearchInput: React.FC<EquipmentSearchInputProps> = ({
               "flex flex-1 min-w-0 transition-all duration-300 transform",
               value ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 absolute inset-x-3 pointer-events-none"
             )}>
-              {value && <EquipmentQuickView equipment={value} isCompact showImage={true} />}
+              {value ? <EquipmentQuickView equipment={value} isCompact showImage={true} /> : null}
             </div>
 
             {/* Empty State / Placeholder */}

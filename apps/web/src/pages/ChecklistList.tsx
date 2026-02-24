@@ -8,7 +8,6 @@ import {
   FileSpreadsheet,
   Download,
   ClipboardList,
-  CheckCircle2,
 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { RowSelectionState } from '@tanstack/react-table';
@@ -28,20 +27,16 @@ import { MobileCardActions } from '@/components/shared/table/MobileCardActions';
 import { MobileCard } from '@/components/shared/table/MobileCard';
 import { BulkActionsToolbar } from '@/components/shared/table/BulkActionsToolbar';
 
-// Feature Components, Hooks & Handlers
-import {
-  useChecklistTemplates,
-  useTemplateActions,
-  useChecklistTableState,
-  useChecklistColumns,
-  useDeleteTemplate,
-  useBulkDeleteTemplate,
-} from '@/features/checklists/hooks';
+import { useChecklistTemplates } from '@/features/checklists/hooks/useChecklistTemplates';
+import { useTemplateActions } from '@/features/checklists/hooks/useTemplateActions';
+import { useChecklistTableState } from '@/features/checklists/hooks/useChecklistTableState';
+import { useChecklistColumns } from '@/features/checklists/hooks/useChecklistColumns';
+import { useDeleteTemplate } from '@/features/checklists/hooks/useDeleteTemplate';
+import { useBulkDeleteTemplate } from '@/features/checklists/hooks/useBulkDeleteTemplate';
 import { DeleteChecklistDialog } from '@/features/checklists/components/DeleteChecklistDialog';
-import {
-  ImportChecklistDialog,
-  ImportChecklistProgress,
-} from '@/features/checklists/components';
+import { ImportChecklistDialog } from '@/features/checklists/components/ImportChecklistDialog';
+import { ImportChecklistProgress } from '@/features/checklists/components/ImportChecklistProgress';
+import { ChecklistStats } from '@/features/checklists/components/ChecklistStats';
 
 
 
@@ -228,50 +223,21 @@ export default function ChecklistList() {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="stat-card flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Tổng cộng</p>
-            <p className="text-3xl font-bold">
-              {isLoading ? '-' : templates.length}
-            </p>
-          </div>
-          <div className="stat-card-icon bg-primary/20">
-            <ClipboardList className="h-5 w-5 text-primary" />
-          </div>
-        </div>
-        <div className="stat-card flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Áp dụng</p>
-            <p className="text-3xl font-bold text-[hsl(var(--status-active))]">
-              {isLoading ? '-' : activeCount}
-            </p>
-          </div>
-          <div className="stat-card-icon bg-status-active/20">
-            <CheckCircle2 className="h-5 w-5 text-[hsl(var(--status-active))]" />
-          </div>
-        </div>
-        <div className="stat-card flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Bản nháp</p>
-            <p className="text-3xl font-bold text-muted-foreground">
-              {isLoading ? '-' : draftCount}
-            </p>
-          </div>
-          <div className="stat-card-icon bg-muted">
-            <ClipboardList className="h-5 w-5 text-muted-foreground" />
-          </div>
-        </div>
-      </div>
+      <ChecklistStats
+        total={templates.length}
+        active={activeCount}
+        draft={draftCount}
+        isLoading={isLoading}
+      />
 
-      {activeImportId && (
+      {activeImportId ? (
         <ImportChecklistProgress
           key={activeImportId}
           jobId={activeImportId}
           fileName={activeImportFileName || undefined}
           onClose={handleCloseImport}
         />
-      )}
+      ) : null}
 
       <ResponsiveDataView
         isLoading={isLoading}

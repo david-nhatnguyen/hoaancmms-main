@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Check, ChevronsUpDown, Loader2, Factory } from "lucide-react"
+import { Check, Loader2, Factory } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -105,7 +105,7 @@ export function FactorySelector({
         >
             <div className="flex items-center gap-2 truncate">
                 <Factory className="h-4 w-4 shrink-0 opacity-70" />
-                {isLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> : null}
                 <span className="truncate">
                     {!isLoading && (selectedLabel || placeholder)}
                 </span>

@@ -28,9 +28,9 @@ export function QuickAccessFilters({
     >
       {filters.map((filter, index) => (
         <div key={filter.id} className="flex items-center gap-3">
-          {index > 0 && <div className="h-6 w-px bg-border/50" />}
+          {index > 0 ? <div className="h-6 w-px bg-border/50" /> : null}
           {filter.label && (
-             <span className="text-sm font-medium text-muted-foreground">{filter.label}</span>
+            <span className="text-sm font-medium text-muted-foreground">{filter.label}</span>
           )}
           {filter.component}
         </div>

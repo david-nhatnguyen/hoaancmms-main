@@ -113,11 +113,11 @@ export function useChecklistColumns({
           <span className="font-medium truncate" title={row.original.name}>
             {row.original.name}
           </span>
-          {row.original.description && (
+          {row.original.description ? (
             <span className="text-[11px] text-muted-foreground truncate" title={row.original.description}>
               {row.original.description}
             </span>
-          )}
+          ) : null}
         </div>
       ),
       render: (t) => (
@@ -125,11 +125,11 @@ export function useChecklistColumns({
           <span className="font-medium">
             {t.name}
           </span>
-          {t.description && (
+          {t.description ? (
             <span className="text-[11px] text-muted-foreground truncate">
               {t.description}
             </span>
-          )}
+          ) : null}
         </div>
       ),
       mobilePriority: 'secondary',
@@ -283,7 +283,7 @@ export function useChecklistColumns({
                   <Copy className="mr-2 h-4 w-4" />
                   Sao chép
                 </DropdownMenuItem>
-                {template.status === ChecklistStatus.ACTIVE && (
+                {template.status === ChecklistStatus.ACTIVE ? (
                   <DropdownMenuItem
                     onClick={() => onDeactivate(template)}
                     className="text-status-critical"
@@ -291,7 +291,7 @@ export function useChecklistColumns({
                     <Ban className="mr-2 h-4 w-4" />
                     Ngừng sử dụng
                   </DropdownMenuItem>
-                )}
+                ) : null}
                 <DropdownMenuItem
                   onClick={() => onDelete(template)}
                   className="text-status-critical"

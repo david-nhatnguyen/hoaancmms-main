@@ -29,7 +29,7 @@ export const EquipmentInfoCard = ({ equipment }: EquipmentInfoCardProps) => {
         "flex items-center gap-2 text-muted-foreground",
         isMobile ? "text-xs" : "w-1/3 text-sm"
       )}>
-        {Icon && <Icon className="h-4 w-4 shrink-0 opacity-70" />}
+        {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-70" /> : null}
         {label}
       </div>
       <div className={cn(

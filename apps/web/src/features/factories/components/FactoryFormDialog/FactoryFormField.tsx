@@ -25,14 +25,14 @@ export function FactoryFormField({
 }: FactoryFormFieldProps) {
     return (
         <div className={cn("grid gap-2", className)}>
-            <Label 
-                htmlFor={id} 
+            <Label
+                htmlFor={id}
                 className={cn(
                     "text-sm font-medium transition-colors",
                     error && "text-destructive"
                 )}
             >
-                {label} {required && <span className="text-destructive">*</span>}
+                {label} {required ? <span className="text-destructive">*</span> : null}
             </Label>
             {children}
             {error && (

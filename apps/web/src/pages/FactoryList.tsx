@@ -26,21 +26,17 @@ import { ResponsiveDataView } from '@/components/shared/layout/ResponsiveDataVie
 import { ResponsiveFormSheet } from '@/components/shared/layout/ResponsiveFormSheet';
 
 // Feature Components & Hooks
-import {
-  useFactoryForm,
-  useFactoryColumns,
-  useFactoryTableStats,
-  useFactories,
-  useCreateFactory,
-  useUpdateFactory,
-  useDeleteFactory,
-  useBulkDeleteFactories,
-} from '@/features/factories/hooks';
+import { useFactoryForm } from '@/features/factories/hooks/useFactoryForm';
+import { useFactoryColumns } from '@/features/factories/hooks/useFactoryColumns';
+import { useFactoryTableStats } from '@/features/factories/hooks/useFactoryTableStats';
+import { useFactories } from '@/features/factories/hooks/useFactories';
+import { useCreateFactory } from '@/features/factories/hooks/useCreateFactory';
+import { useUpdateFactory } from '@/features/factories/hooks/useUpdateFactory';
+import { useDeleteFactory } from '@/features/factories/hooks/useDeleteFactory';
+import { useBulkDeleteFactories } from '@/features/factories/hooks/useBulkDeleteFactories';
 import { useFactoryTableState } from '@/features/factories/hooks/useFactoryTableState';
-import {
-  FactoryStatsCards,
-  DeleteFactoryDialog,
-} from '@/features/factories/components';
+import { FactoryStatsCards } from '@/features/factories/components/FactoryStatsCards/FactoryStatsCards';
+import { DeleteFactoryDialog } from '@/features/factories/components/DeleteFactoryDialog';
 import { FactoryFormFields } from '@/features/factories/components/FactoryFormDialog/FactoryFormFields';
 import { STATUS_OPTIONS } from '@/features/factories/handlers/factory-table.handlers';
 import type { Factory } from '@/api/types/factory.types';

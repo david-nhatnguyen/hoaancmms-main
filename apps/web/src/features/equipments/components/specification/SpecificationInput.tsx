@@ -37,7 +37,7 @@ export const SpecificationInput: React.FC<SpecificationInputProps> = ({
             render={({ field }) => (
                 <FormItem className={className}>
                     <FormLabel>
-                        {label} {required && <span className="text-destructive">*</span>}
+                        {label} {required ? <span className="text-destructive">*</span> : null}
                     </FormLabel>
                     <FormControl>
                         <Input

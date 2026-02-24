@@ -24,9 +24,9 @@ interface StatsGridProps {
   };
 }
 
-export function StatsGrid({ 
-  stats, 
-  loading, 
+export function StatsGrid({
+  stats,
+  loading,
   children,
   className,
   columns = { mobile: 2, tablet: 3, desktop: 4 }
@@ -35,17 +35,31 @@ export function StatsGrid({
 
   // Loading State
   if (loading) {
-     if (isMobile) {
-       return (
-        <div className={cn("grid grid-cols-2 gap-2 mb-3", className)}>
-          {[1, 2, 3, 4].map((i) => (
+    if (isMobile) {
+      return (
+        <div className={cn(
+          "grid gap-2 mb-3",
+          columns.mobile === 2 && "grid-cols-2",
+          columns.mobile === 3 && "grid-cols-3",
+          columns.mobile === 1 && "grid-cols-1",
+          className
+        )}>
+          {Array.from({ length: columns.mobile || 2 }).map((_, i) => (
             <div key={i} className="h-16 rounded-lg bg-muted/50 animate-pulse" />
           ))}
         </div>
-       );
-     }
+      );
+    }
     return (
-      <div className={cn("grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6", className)}>
+      <div className={cn(
+        "grid gap-4 mb-6",
+        columns.desktop === 2 ? "lg:grid-cols-2" :
+          columns.desktop === 3 ? "lg:grid-cols-3" :
+            columns.desktop === 1 ? "lg:grid-cols-1" : "lg:grid-cols-4",
+        columns.tablet === 2 ? "sm:grid-cols-2" :
+          columns.tablet === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2",
+        className
+      )}>
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="h-32 rounded-xl bg-muted/50 animate-pulse" />
         ))}
