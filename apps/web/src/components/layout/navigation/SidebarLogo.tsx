@@ -19,7 +19,7 @@ export function SidebarLogo({ isCollapsed, onToggle, showToggle = true }: Sideba
                     <span className="text-primary-foreground font-black text-xs">CM</span>
                 </div>
                 {!isCollapsed && (
-                    <div className="flex flex-col min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
+                    <div className="flex flex-col min-w-0">
                         <span className="font-bold text-sidebar-accent-foreground text-sm tracking-tight truncate">CMMS PRO</span>
                         <span className="text-[10px] text-primary font-bold uppercase tracking-widest">Asset Management</span>
                     </div>

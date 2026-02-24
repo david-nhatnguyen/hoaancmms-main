@@ -295,7 +295,7 @@ export default function PermissionModuleList() {
 
             {/* ── Info note ── */}
             {!isLoading && modules.length > 0 && (
-                <div className="mt-4 flex items-start gap-2 text-xs text-muted-foreground animate-in fade-in duration-500 delay-200">
+                <div className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
                     <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-500/70" />
                     <span>
                         Module đang được dùng bởi ít nhất một vai trò không thể xóa.

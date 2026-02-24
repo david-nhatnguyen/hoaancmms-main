@@ -154,7 +154,6 @@ const FormMessage = React.forwardRef<
       className={cn(
         "text-[11px] font-medium text-destructive transition-all duration-300 ease-in-out",
         body ? "opacity-100 translate-y-0 h-auto mt-1" : "opacity-0 -translate-y-1 h-0 overflow-hidden",
-        "animate-in fade-in-0 slide-in-from-top-1",
         className
       )}
       {...props}

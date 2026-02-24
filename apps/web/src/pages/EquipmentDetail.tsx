@@ -99,17 +99,17 @@ export default function EquipmentDetail() {
         </TabsList>
 
         {/* General Info Tab */}
-        <TabsContent value="info" className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 mt-6">
+        <TabsContent value="info" className="mt-6">
           <EquipmentInfoCard equipment={equipment} />
         </TabsContent>
 
         {/* Documents Tab */}
-        <TabsContent value="documents" className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 mt-6">
+        <TabsContent value="documents" className="mt-6">
           <EquipmentDocumentsTab equipment={equipment} />
         </TabsContent>
 
         {/* History Tab */}
-        <TabsContent value="history" className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 mt-6">
+        <TabsContent value="history" className="mt-6">
           <EquipmentHistoryTabs equipmentId={equipment.id} />
         </TabsContent>
       </Tabs>

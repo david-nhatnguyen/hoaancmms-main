@@ -182,7 +182,7 @@ export default function RoleDetail() {
   return (
     <div
       className={cn(
-        'animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-full overflow-x-hidden',
+        'max-w-full overflow-x-hidden',
         isMobile ? 'px-4 py-3' : 'p-6',
       )}
     >
@@ -284,7 +284,7 @@ export default function RoleDetail() {
       <div className={cn('grid gap-6', isMobile ? 'grid-cols-1' : 'grid-cols-1 xl:grid-cols-3')}>
         {/* ── Left: Permission Matrix ── */}
         <div className={cn(isMobile ? '' : 'xl:col-span-2')}>
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+          <div>
             <Card className="border border-border/60 shadow-sm bg-card overflow-hidden">
               <CardHeader className="pb-4 border-b border-border/30">
                 <div className="flex items-center justify-between">
@@ -407,7 +407,7 @@ export default function RoleDetail() {
 
         {/* ── Right: Users in role ── */}
         <div>
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+          <div>
             <Card className="border border-border/60 shadow-sm bg-card">
               <CardHeader className="pb-4 border-b border-border/30">
                 <div className="flex items-center justify-between gap-2">

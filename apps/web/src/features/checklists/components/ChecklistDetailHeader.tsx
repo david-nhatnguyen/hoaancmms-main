@@ -29,7 +29,7 @@ export const ChecklistDetailHeader: React.FC<ChecklistDetailHeaderProps> = ({
       onGoBack={onGoBack}
       icon={<ClipboardList className="h-6 w-6 text-primary" />}
       badges={
-        <div className="flex items-center gap-2 flex-wrap animate-in fade-in zoom-in-95 duration-300 delay-200">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="font-mono text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">
             {checklist.code}
           </span>
@@ -48,7 +48,7 @@ export const ChecklistDetailHeader: React.FC<ChecklistDetailHeaderProps> = ({
         </div>
       }
       actions={
-        <div className="flex items-center gap-2 w-full sm:w-auto mt-4 sm:mt-0 animate-in fade-in slide-in-from-right-4 duration-500 delay-300">
+        <div className="flex items-center gap-2 w-full sm:w-auto mt-4 sm:mt-0">
           <Button variant="outline" onClick={onCopy} className="flex-1 sm:flex-none gap-2">
             <Copy className="h-4 w-4" />
             <span className="hidden sm:inline">Sao chép</span>

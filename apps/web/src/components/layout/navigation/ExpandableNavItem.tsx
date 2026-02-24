@@ -93,7 +93,7 @@ export function ExpandableNavItem({
         <div className="space-y-0.5">
             {trigger}
             {isExpanded && (
-                <div className="ml-5 pl-4 border-l border-sidebar-border/40 space-y-0.5 animate-in slide-in-from-left-2 duration-200">
+                <div className="ml-5 pl-4 border-l border-sidebar-border/40 space-y-0.5">
                     {children.map(child => (
                         <NavLink
                             key={child.path}

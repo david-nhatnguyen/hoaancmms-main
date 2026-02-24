@@ -272,7 +272,7 @@ export function ChecklistItemsTable({
       </CardHeader>
       <CardContent className={isMobile ? "p-0" : "p-2"}>
         {form.formState.errors.items && 'root' in form.formState.errors.items && (
-          <div className="m-4 p-3 bg-destructive/10 border border-destructive rounded-md text-sm text-destructive font-medium animate-in fade-in slide-in-from-top-2">
+          <div className="m-4 p-3 bg-destructive/10 border border-destructive rounded-md text-sm text-destructive font-medium">
             {(form.formState.errors.items as any).root?.message}
           </div>
         )}

@@ -192,7 +192,7 @@ export default function RoleList() {
       {/* Permission Matrix Preview */}
       <div className="mt-8 hidden sm:block">
         <h2 className="text-lg font-semibold mb-4 text-foreground/90">Ma trận phân quyền tổng quan</h2>
-        <div className="bg-card rounded-xl border border-border/60 p-6 text-center text-muted-foreground shadow-sm animate-in fade-in duration-500 delay-300">
+        <div className="bg-card rounded-xl border border-border/60 p-6 text-center text-muted-foreground shadow-sm">
           <p>Chọn hoặc tìm kiếm một vai trò để tiến hành xem chi tiết ma trận phân quyền hệ thống</p>
         </div>
       </div>

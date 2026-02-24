@@ -36,7 +36,7 @@ export function FactoryFormField({
             </Label>
             {children}
             {error && (
-                <p className="text-sm text-destructive font-medium animate-in fade-in slide-in-from-top-1">
+                <p className="text-sm text-destructive font-medium">
                     {error}
                 </p>
             )}

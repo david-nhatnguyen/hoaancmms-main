@@ -228,8 +228,7 @@ export function DataTable<TData, TValue>({
                   onClick={() => onRowClick?.(row.original)}
                   className={cn(
                     "group transition-colors h-16 border-border/40",
-                    onRowClick ? "cursor-pointer hover:bg-muted/30" : "hover:bg-muted/10",
-                    "animate-in fade-in slide-in-from-top-1 duration-300"
+                    onRowClick ? "cursor-pointer hover:bg-muted/30" : "hover:bg-muted/10"
                   )}
                 >
                   {row.getVisibleCells().map((cell) => {
@@ -273,7 +272,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-[400px] text-center"
                 >
-                  <div className="flex flex-col items-center justify-center gap-4 animate-in fade-in zoom-in-95 duration-500">
+                  <div className="flex flex-col items-center justify-center gap-4">
                     <div className="p-4 rounded-full bg-muted/40 border border-border/10 shadow-inner">
                       <svg className="h-10 w-10 text-muted-foreground opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />

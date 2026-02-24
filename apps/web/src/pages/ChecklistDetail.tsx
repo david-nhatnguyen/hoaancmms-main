@@ -91,7 +91,7 @@ export default function ChecklistDetail() {
     <PageContainer>
       <div className="max-w-7xl mx-auto pb-20 space-y-8">
         {/* Header Section */}
-        <div className="animate-in fade-in slide-in-from-top-4 duration-500">
+        <div>
           <ChecklistDetailHeader
             checklist={checklist}
             onGoBack={handlers.handleGoBack}
@@ -101,7 +101,7 @@ export default function ChecklistDetail() {
         </div>
 
         {/* Content Tabs */}
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+        <div>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="bg-muted/50 p-1 border border-border/40 inline-flex w-full sm:w-auto h-auto">
               <TabsTrigger
@@ -120,11 +120,11 @@ export default function ChecklistDetail() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="preview" className="outline-none mt-0 space-y-6 animate-in fade-in duration-300">
+            <TabsContent value="preview" className="outline-none mt-0 space-y-6">
               <ChecklistPreviewTab checklist={checklist} />
             </TabsContent>
 
-            <TabsContent value="info" className="outline-none mt-0 space-y-6 animate-in fade-in duration-300">
+            <TabsContent value="info" className="outline-none mt-0 space-y-6">
               <ChecklistInfoTab checklist={checklist} />
             </TabsContent>
           </Tabs>

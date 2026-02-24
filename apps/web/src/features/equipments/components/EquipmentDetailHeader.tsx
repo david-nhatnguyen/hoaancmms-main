@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pencil, Cpu, QrCode, Image as ImageIcon, Maximize2, X } from 'lucide-react';
+import { Pencil, Cpu, QrCode, Maximize2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Equipment } from '@/api/types/equipment.types';
 import { cn } from '@/lib/utils';
@@ -55,7 +55,7 @@ export const EquipmentDetailHeader: React.FC<EquipmentDetailHeaderProps> = ({
                                 <>
                                     <img src={fullImageUrl} alt={equipment.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                     <div className="absolute inset-0 bg-primary/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 backdrop-blur-[2px]">
-                                        <Maximize2 className="text-white h-5 w-5 animate-in zoom-in-50 duration-300" />
+                                        <Maximize2 className="text-white h-5 w-5" />
                                     </div>
                                 </>
                             ) : (
@@ -65,7 +65,7 @@ export const EquipmentDetailHeader: React.FC<EquipmentDetailHeaderProps> = ({
                     </div>
                 }
                 badges={
-                    <div className="flex items-center gap-2.5 flex-wrap animate-in fade-in slide-in-from-left-4 duration-700 delay-200">
+                    <div className="flex items-center gap-2.5 flex-wrap">
                         <span className="font-mono text-[10px] font-bold text-primary bg-primary/5 px-3 py-1.5 rounded-full border border-primary/20 tracking-wider">
                             {equipment.code}
                         </span>
@@ -81,7 +81,7 @@ export const EquipmentDetailHeader: React.FC<EquipmentDetailHeaderProps> = ({
                     </div>
                 }
                 actions={
-                    <div className="flex items-center gap-3 w-full sm:w-auto mt-6 sm:mt-0 animate-in fade-in slide-in-from-right-4 duration-700 delay-300">
+                    <div className="flex items-center gap-3 w-full sm:w-auto mt-6 sm:mt-0">
                         <Button
                             variant="outline"
                             onClick={() => setIsQROpen(true)}

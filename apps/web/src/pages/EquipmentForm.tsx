@@ -48,7 +48,7 @@ export default function EquipmentForm() {
             />
 
             {/* Identity Information Section */}
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+            <div>
               <EquipmentIdentitySection
                 form={form as any}
                 isSubmitting={isSubmitting}
@@ -58,7 +58,7 @@ export default function EquipmentForm() {
             </div>
 
             {/* Specifications & Image Section */}
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+            <div>
               <EquipmentSpecificationSection
                 form={form as any}
                 isSubmitting={isSubmitting}

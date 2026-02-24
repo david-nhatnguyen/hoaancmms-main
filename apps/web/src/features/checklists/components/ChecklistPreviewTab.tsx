@@ -59,7 +59,7 @@ export const ChecklistPreviewTab: React.FC<ChecklistPreviewTabProps> = ({ checkl
   return (
     <div className="grid grid-cols-1 gap-6">
       {/* General Info */}
-      <div className="animate-in fade-in slide-in-from-top-2 duration-500">
+      <div>
         <GeneralInfoCard
           title="Thông tin cơ bản"
           subtitle="Chi tiết và ngữ cảnh của checklist"
@@ -69,7 +69,7 @@ export const ChecklistPreviewTab: React.FC<ChecklistPreviewTabProps> = ({ checkl
       </div>
 
       {/* Checklist items */}
-      <div className="animate-in fade-in slide-in-from-bottom-6 duration-500 delay-150">
+      <div>
         <ChecklistItemsCard items={checklist.items} />
       </div>
     </div>

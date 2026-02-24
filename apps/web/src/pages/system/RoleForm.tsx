@@ -330,12 +330,12 @@ export default function RoleForm() {
     return (
         <div
             className={cn(
-                'animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-full overflow-x-hidden',
+                'max-w-full overflow-x-hidden',
                 isMobile ? 'px-4 py-3' : 'p-6',
             )}
         >
             {/* ── Header ── */}
-            <div className="mb-6">
+            < div className="mb-6" >
                 <Button
                     variant="ghost"
                     size="sm"
@@ -378,10 +378,10 @@ export default function RoleForm() {
                         </Button>
                     </div>
                 </div>
-            </div>
+            </div >
 
             {/* ── Role Info Card ── */}
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 mb-6">
+            < div className="mb-6" >
                 <Card className="border border-border/60 shadow-sm bg-card">
                     <CardHeader className="pb-4 border-b border-border/30">
                         <div className="flex items-center gap-3">
@@ -426,10 +426,10 @@ export default function RoleForm() {
                         </div>
                     </CardContent>
                 </Card>
-            </div>
+            </div >
 
             {/* ── Permission Matrix Card ── */}
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+            < div >
                 <Card className="border border-border/60 shadow-sm bg-card overflow-hidden">
                     <CardHeader className="pb-4 border-b border-border/30">
                         <div className="flex items-center justify-between flex-wrap gap-3">
@@ -612,29 +612,31 @@ export default function RoleForm() {
                         </div>
                     </div>
                 </Card>
-            </div>
+            </div >
 
             {/* Bottom action bar for mobile */}
-            {isMobile && (
-                <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border/50 p-4 flex gap-2 z-50">
-                    <Button
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => navigate('/system/roles')}
-                        disabled={isSaving}
-                    >
-                        Hủy
-                    </Button>
-                    <Button
-                        className="flex-1 action-btn-primary"
-                        onClick={handleSave}
-                        disabled={isSaving}
-                    >
-                        {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                        {isEdit ? 'Lưu' : 'Tạo vai trò'}
-                    </Button>
-                </div>
-            )}
-        </div>
+            {
+                isMobile && (
+                    <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border/50 p-4 flex gap-2 z-50">
+                        <Button
+                            variant="outline"
+                            className="flex-1"
+                            onClick={() => navigate('/system/roles')}
+                            disabled={isSaving}
+                        >
+                            Hủy
+                        </Button>
+                        <Button
+                            className="flex-1 action-btn-primary"
+                            onClick={handleSave}
+                            disabled={isSaving}
+                        >
+                            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                            {isEdit ? 'Lưu' : 'Tạo vai trò'}
+                        </Button>
+                    </div>
+                )
+            }
+        </div >
     );
 }

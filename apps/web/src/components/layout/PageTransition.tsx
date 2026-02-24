@@ -8,9 +8,9 @@ interface PageTransitionProps {
 
 export function PageTransition({ children, className }: PageTransitionProps) {
   return (
-    <div 
+    <div
       className={cn(
-        "animate-in fade-in-0 slide-in-from-right-2 duration-200 ease-out",
+        "duration-200 ease-out",
         className
       )}
     >

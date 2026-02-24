@@ -10,35 +10,35 @@ interface BulkActionsToolbarProps {
   isDeleting?: boolean;
 }
 
-export function BulkActionsToolbar({ 
-  selectedCount, 
-  onClear, 
+export function BulkActionsToolbar({
+  selectedCount,
+  onClear,
   onDelete,
-  isDeleting 
+  isDeleting
 }: BulkActionsToolbarProps) {
   if (selectedCount === 0) return null;
 
   return (
-    <div className="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 z-50">
       <div className={cn(
         "flex items-center gap-4 min-w-[300px] md:min-w-[400px] px-4 py-3 rounded-2xl shadow-2xl border",
         "bg-popover/95 dark:bg-slate-900/95 backdrop-blur-md",
         "text-popover-foreground dark:text-slate-50 border-border dark:border-slate-800"
       )}>
         <div className="flex items-center gap-2 border-r border-border dark:border-slate-800 pr-4">
-          <Badge 
-            variant="default" 
+          <Badge
+            variant="default"
             className="bg-primary hover:bg-primary text-primary-foreground rounded-full h-6 w-6 flex items-center justify-center p-0 font-bold"
           >
             {selectedCount}
           </Badge>
           <span className="text-sm font-semibold whitespace-nowrap">Đã chọn</span>
         </div>
-        
+
         <div className="flex-1 flex items-center gap-2">
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onDelete}
             disabled={isDeleting}
             className={cn(
@@ -53,9 +53,9 @@ export function BulkActionsToolbar({
           </Button>
         </div>
 
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={onClear}
           className="text-muted-foreground hover:text-foreground dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 rounded-full h-8 w-8"
         >

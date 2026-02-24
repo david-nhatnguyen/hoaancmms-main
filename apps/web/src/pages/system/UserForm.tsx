@@ -128,7 +128,7 @@ export default function UserForm() {
     return (
         <div
             className={cn(
-                'animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-full overflow-x-hidden',
+                'max-w-full overflow-x-hidden',
                 isMobile ? 'px-4 py-3 pb-24' : 'p-6',
             )}
         >
@@ -178,7 +178,7 @@ export default function UserForm() {
 
             <div className="space-y-6 max-w-4xl">
                 {/* ── Basic Info ── */}
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+                <div>
                     <Card className="border border-border/60 shadow-sm bg-card">
                         <CardHeader className="pb-4 border-b border-border/30">
                             <div className="flex items-center gap-3">
@@ -305,7 +305,7 @@ export default function UserForm() {
                 </div>
 
                 {/* ── Role & Factory ── */}
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+                <div>
                     <Card className="border border-border/60 shadow-sm bg-card">
                         <CardHeader className="pb-4 border-b border-border/30">
                             <div className="flex items-center gap-3">

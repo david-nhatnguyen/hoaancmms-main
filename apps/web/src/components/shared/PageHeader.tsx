@@ -30,7 +30,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
     <div className={cn("space-y-4 mb-6", className)}>
       {/* Back Button & Breadcrumbs */}
       {(onGoBack || breadcrumbs) && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground animate-in fade-in slide-in-from-left-2 duration-300">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           {onGoBack && (
             <Button
               variant="ghost"
@@ -47,7 +47,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         </div>
       )}
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="flex items-start gap-4">
           {icon && (
             <div className="hidden md:flex h-14 w-14 rounded-xl bg-primary/10 items-center justify-center shrink-0 border border-primary/20">

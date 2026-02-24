@@ -59,7 +59,7 @@ export const ChecklistInfoTab: React.FC<ChecklistInfoTabProps> = ({ checklist })
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* General Info - Takes 2/3 space */}
-      <div className="col-span-1 lg:col-span-2 animate-in fade-in slide-in-from-left-4 duration-500">
+      <div className="col-span-1 lg:col-span-2">
         <GeneralInfoCard
           title="Thông tin chung"
           subtitle="Chi tiết và ngữ cảnh của checklist"
@@ -69,7 +69,7 @@ export const ChecklistInfoTab: React.FC<ChecklistInfoTabProps> = ({ checklist })
       </div>
 
       {/* Version History - Takes 1/3 space */}
-      <div className="col-span-1 animate-in fade-in slide-in-from-right-4 duration-500 delay-100">
+      <div className="col-span-1">
         <ChecklistVersionHistoryCard checklist={checklist} />
       </div>
     </div>

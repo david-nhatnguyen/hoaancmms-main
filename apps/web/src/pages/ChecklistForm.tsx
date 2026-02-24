@@ -47,12 +47,12 @@ export default function ChecklistForm() {
             />
 
             {/* General Info Section */}
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+            <div>
               <ChecklistGeneralInfo form={form as any} />
             </div>
 
             {/* Checklist Items Table Section */}
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+            <div>
               <ChecklistItemsTable
                 form={form as any}
                 fields={fields}

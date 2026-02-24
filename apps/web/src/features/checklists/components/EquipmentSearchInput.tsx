@@ -148,7 +148,7 @@ export const EquipmentSearchInput: React.FC<EquipmentSearchInputProps> = ({
                 </div>
               )}
               {!isLoading && equipments.length === 0 && (
-                <CommandEmpty className="py-16 flex flex-col items-center justify-center gap-3 leading-none transition-all animate-in fade-in zoom-in-95">
+                <CommandEmpty className="py-16 flex flex-col items-center justify-center gap-3 leading-none transition-all">
                   <div className="p-4 rounded-full bg-muted/50 border border-border/20 shadow-inner">
                     <Building2 className="h-8 w-8 text-muted-foreground opacity-30" />
                   </div>

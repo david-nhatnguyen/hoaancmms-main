@@ -70,30 +70,30 @@ function TablePagination({
   // Generate page numbers to show
   const getVisiblePages = () => {
     const pages: (number | 'ellipsis')[] = [];
-    
+
     if (totalPages <= 5) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       // Always show first page
       pages.push(1);
-      
+
       if (currentPage > 3) {
         pages.push('ellipsis');
       }
-      
+
       // Show pages around current
       for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
         if (!pages.includes(i)) pages.push(i);
       }
-      
+
       if (currentPage < totalPages - 2) {
         pages.push('ellipsis');
       }
-      
+
       // Always show last page
       if (!pages.includes(totalPages)) pages.push(totalPages);
     }
-    
+
     return pages;
   };
 
@@ -213,7 +213,7 @@ export function ResponsiveTable<T>({
   const items = useMemo(() => {
     // If controlled or hidden pagination, render data as is
     if (isControlled || !showPagination) return data;
-    
+
     // Client-side pagination logic
     const startIndex = (internalPage - 1) * pageSize;
     return data.slice(startIndex, startIndex + pageSize);
@@ -256,12 +256,12 @@ export function ResponsiveTable<T>({
 
     if (data.length === 0) {
       return (
-        <div className="bg-card rounded-xl border border-border/50 p-16 text-center h-[400px] flex items-center justify-center animate-in fade-in zoom-in-95 duration-500">
+        <div className="bg-card rounded-xl border border-border/50 p-16 text-center h-[400px] flex items-center justify-center">
           <div className="flex flex-col items-center justify-center gap-3">
             <div className="p-4 rounded-full bg-muted/30">
-               <svg className="h-10 w-10 text-muted-foreground opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-10 w-10 text-muted-foreground opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-               </svg>
+              </svg>
             </div>
             <p className="text-base font-semibold text-foreground/80">{emptyMessage}</p>
             {emptyMessage.includes('kết quả') && (
@@ -301,37 +301,37 @@ export function ResponsiveTable<T>({
             const imageCol = columns.find(c => c.key === 'image' || c.mobilePriority === 'image' as any);
             const qrCol = columns.find(c => c.key === 'qrCode' || c.mobilePriority === 'qr' as any);
             const statusCol = columns.find(c => c.key === 'status' || c.mobilePriority === 'status' as any);
-            
-            const metadataCols = columns.filter(c => 
+
+            const metadataCols = columns.filter(c =>
               (c.mobilePriority === 'metadata' || (!c.mobilePriority && !c.hiddenOnMobile)) &&
-              c !== primaryCol && 
-              c !== secondaryCol && 
-              c !== imageCol && 
-              c !== qrCol && 
-              c !== statusCol && 
-              c.key !== 'actions' && 
+              c !== primaryCol &&
+              c !== secondaryCol &&
+              c !== imageCol &&
+              c !== qrCol &&
+              c !== statusCol &&
+              c.key !== 'actions' &&
               c.key !== 'select'
             );
 
             return (
-              <div key={keyExtractor(item)} className="animate-in fade-in slide-in-from-top-1 duration-300">
+              <div key={keyExtractor(item)}>
                 <MobileCard
                   key={keyExtractor(item)}
-                title={primaryCol?.mobileRender?.(item) ?? primaryCol?.render(item)}
-                subtitle={secondaryCol ? (secondaryCol.mobileRender?.(item) ?? secondaryCol.render(item)) : undefined}
-                status={statusCol?.render(item)}
-                image={imageCol?.mobileRender?.(item) ?? imageCol?.render(item)}
-                data={metadataCols.map(col => ({
-                  label: typeof col.header === 'string' ? col.header : (col.mobileLabel || col.key),
-                  value: col.mobileRender?.(item) ?? col.render(item)
-                }))}
-                actionSlot={qrCol ? (qrCol.mobileRender?.(item) ?? qrCol.render(item)) : undefined}
-                footerActions={mobileCardAction?.(item)}
-                isSelected={selectedIdsSet.has(keyExtractor(item))}
-                onToggleSelection={() => toggleSelectItem(keyExtractor(item))}
-                onClick={() => onRowClick?.(item)}
-                renderSelection={isSelectable}
-              />
+                  title={primaryCol?.mobileRender?.(item) ?? primaryCol?.render(item)}
+                  subtitle={secondaryCol ? (secondaryCol.mobileRender?.(item) ?? secondaryCol.render(item)) : undefined}
+                  status={statusCol?.render(item)}
+                  image={imageCol?.mobileRender?.(item) ?? imageCol?.render(item)}
+                  data={metadataCols.map(col => ({
+                    label: typeof col.header === 'string' ? col.header : (col.mobileLabel || col.key),
+                    value: col.mobileRender?.(item) ?? col.render(item)
+                  }))}
+                  actionSlot={qrCol ? (qrCol.mobileRender?.(item) ?? qrCol.render(item)) : undefined}
+                  footerActions={mobileCardAction?.(item)}
+                  isSelected={selectedIdsSet.has(keyExtractor(item))}
+                  onToggleSelection={() => toggleSelectItem(keyExtractor(item))}
+                  onClick={() => onRowClick?.(item)}
+                  renderSelection={isSelectable}
+                />
               </div>
             );
           })}
@@ -354,97 +354,97 @@ export function ResponsiveTable<T>({
   return (
     <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
       <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent border-border/50">
-              {isSelectable && (
-                <TableHead className="w-[40px] px-4">
-                  <Checkbox 
-                    checked={items.length > 0 && items.every(item => selectedIdsSet.has(keyExtractor(item)))}
-                    onCheckedChange={toggleSelectAll}
-                    className="border-border/50 data-[state=checked]:bg-primary"
-                  />
-                </TableHead>
-              )}
-              {columns.map(col => (
-                <TableHead 
-                  key={col.key} 
-                  className={cn(
-                    "table-header-cell",
-                    col.width,
-                    col.align === 'center' && "text-center",
-                    col.align === 'right' && "text-right"
-                  )}
-                >
-                  {typeof col.header === 'function' ? (col.mobileLabel || col.key) : (col.header || col.mobileLabel || col.key)}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-               // Loading Skeletons for Desktop
-               Array.from({ length: pageSize }).map((_, i) => (
-                <TableRow key={`esk-${i}`} className="border-border/40 h-16">
-                  {isSelectable && <TableCell className="w-[40px] px-4"><div className="h-4 w-4 bg-muted rounded animate-pulse" /></TableCell>}
-                  {columns.map((_, j) => (
-                    <TableCell key={`ecell-${i}-${j}`}>
-                      <div className="h-5 bg-muted rounded w-3/4 animate-pulse" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : items.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={columns.length + (isSelectable ? 1 : 0)} className="h-[400px] text-center text-muted-foreground">
-                  <div className="flex flex-col items-center justify-center gap-4 animate-in fade-in zoom-in-95 duration-500">
-                    <div className="p-4 rounded-full bg-muted/40 border border-border/10">
-                      <svg className="h-10 w-10 text-muted-foreground opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-lg font-semibold text-foreground/80">{emptyMessage}</p>
-                      <p className="text-sm text-muted-foreground">Vui lòng điều chỉnh lại bộ lọc</p>
-                    </div>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              items.map((item) => (
-                <TableRow
-                  key={keyExtractor(item)}
-                  onClick={() => onRowClick?.(item)}
-                  className={cn(
-                    "table-row-interactive h-16 group border-border/40 animate-in fade-in slide-in-from-top-1 duration-300",
-                    onRowClick && "cursor-pointer",
-                    selectedIdsSet.has(keyExtractor(item)) && "bg-primary/[0.03] dark:bg-primary/[0.05]"
-                  )}
-                >
-                  {isSelectable && (
-                    <TableCell className="w-[40px] px-4" onClick={e => e.stopPropagation()}>
-                      <Checkbox 
-                        checked={selectedIdsSet.has(keyExtractor(item))}
-                        onCheckedChange={() => toggleSelectItem(keyExtractor(item))}
-                        className="border-border/50 data-[state=checked]:bg-primary"
-                      />
-                    </TableCell>
-                  )}
-                  {columns.map(col => (
-                    <TableCell 
-                      key={col.key}
-                      className={cn(
-                        col.align === 'center' && "text-center",
-                        col.align === 'right' && "text-right"
-                      )}
-                    >
-                      {col.render(item)}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+        <TableHeader>
+          <TableRow className="hover:bg-transparent border-border/50">
+            {isSelectable && (
+              <TableHead className="w-[40px] px-4">
+                <Checkbox
+                  checked={items.length > 0 && items.every(item => selectedIdsSet.has(keyExtractor(item)))}
+                  onCheckedChange={toggleSelectAll}
+                  className="border-border/50 data-[state=checked]:bg-primary"
+                />
+              </TableHead>
             )}
-          </TableBody>
-        </Table>
+            {columns.map(col => (
+              <TableHead
+                key={col.key}
+                className={cn(
+                  "table-header-cell",
+                  col.width,
+                  col.align === 'center' && "text-center",
+                  col.align === 'right' && "text-right"
+                )}
+              >
+                {typeof col.header === 'function' ? (col.mobileLabel || col.key) : (col.header || col.mobileLabel || col.key)}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {isLoading ? (
+            // Loading Skeletons for Desktop
+            Array.from({ length: pageSize }).map((_, i) => (
+              <TableRow key={`esk-${i}`} className="border-border/40 h-16">
+                {isSelectable && <TableCell className="w-[40px] px-4"><div className="h-4 w-4 bg-muted rounded animate-pulse" /></TableCell>}
+                {columns.map((_, j) => (
+                  <TableCell key={`ecell-${i}-${j}`}>
+                    <div className="h-5 bg-muted rounded w-3/4 animate-pulse" />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : items.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={columns.length + (isSelectable ? 1 : 0)} className="h-[400px] text-center text-muted-foreground">
+                <div className="flex flex-col items-center justify-center gap-4">
+                  <div className="p-4 rounded-full bg-muted/40 border border-border/10">
+                    <svg className="h-10 w-10 text-muted-foreground opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-lg font-semibold text-foreground/80">{emptyMessage}</p>
+                    <p className="text-sm text-muted-foreground">Vui lòng điều chỉnh lại bộ lọc</p>
+                  </div>
+                </div>
+              </TableCell>
+            </TableRow>
+          ) : (
+            items.map((item) => (
+              <TableRow
+                key={keyExtractor(item)}
+                onClick={() => onRowClick?.(item)}
+                className={cn(
+                  "table-row-interactive h-16 group border-border/40",
+                  onRowClick && "cursor-pointer",
+                  selectedIdsSet.has(keyExtractor(item)) && "bg-primary/[0.03] dark:bg-primary/[0.05]"
+                )}
+              >
+                {isSelectable && (
+                  <TableCell className="w-[40px] px-4" onClick={e => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selectedIdsSet.has(keyExtractor(item))}
+                      onCheckedChange={() => toggleSelectItem(keyExtractor(item))}
+                      className="border-border/50 data-[state=checked]:bg-primary"
+                    />
+                  </TableCell>
+                )}
+                {columns.map(col => (
+                  <TableCell
+                    key={col.key}
+                    className={cn(
+                      col.align === 'center' && "text-center",
+                      col.align === 'right' && "text-right"
+                    )}
+                  >
+                    {col.render(item)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
 
       {/* Desktop Pagination */}
       {showPagination && totalPages > 1 && (

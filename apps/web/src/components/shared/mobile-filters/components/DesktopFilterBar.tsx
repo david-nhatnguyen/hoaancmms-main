@@ -19,7 +19,7 @@ export function DesktopFilterBar({
     <div className="space-y-3 mb-4">
       {desktopFilters}
       {activeFilterTags && activeFiltersCount > 0 && (
-        <div className="flex flex-wrap items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Đang lọc:</span>
           {activeFilterTags}
           <Button

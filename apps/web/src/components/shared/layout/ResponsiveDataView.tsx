@@ -28,7 +28,7 @@ export function ResponsiveDataView({
 
   // If empty and not filtered, show empty state
   if (isEmpty && !isLoading) {
-    return <div className="animate-in fade-in zoom-in-95 duration-500">{emptyState}</div>;
+    return <div>{emptyState}</div>;
   }
 
   if (isMobile) {
@@ -37,7 +37,7 @@ export function ResponsiveDataView({
         {mobileFilters}
         <PullToRefresh
           onRefresh={async () => {
-             if(onRefresh) await onRefresh();
+            if (onRefresh) await onRefresh();
           }}
           isPullable={!!onRefresh}
           pullingContent={

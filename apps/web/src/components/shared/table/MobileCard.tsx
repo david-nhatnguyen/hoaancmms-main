@@ -1,8 +1,7 @@
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import {
-  MoreHorizontal,
-  MoreVertical
+  MoreHorizontal
 } from 'lucide-react';
 import { useMobileCard } from './hooks/use-mobile-card';
 import {
@@ -124,7 +123,7 @@ export function MobileCard({
                 : "border-muted-foreground/20 bg-background rotate-12 scale-90"
             )}>
               {isSelected && (
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="animate-in zoom-in-50 duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               )}

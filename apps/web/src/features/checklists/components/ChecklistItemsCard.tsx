@@ -38,10 +38,7 @@ export const ChecklistItemsCard: React.FC<ChecklistItemsCardProps> = ({
                 {hasItems ? (
                     <div className="space-y-4">
                         {items.map((item) => (
-                            <div
-                                key={item.id}
-                                className="animate-in fade-in slide-in-from-bottom-4 duration-500"
-                            >
+                            <div key={item.id}>
                                 <ChecklistItemCard item={item} />
                             </div>
                         ))}

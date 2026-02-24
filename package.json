@@ -8,7 +8,8 @@
   "packageManager": "yarn@1.22.22",
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev:infra": "docker compose up -d postgres redis",
+    "dev": "yarn dev:infra && turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "test:e2e": "playwright test",

@@ -160,7 +160,7 @@ export function ImportProgress({
 
     // ──────────────────────────────────────────────────────────────────────────
     return (
-        <Card className="w-full mb-8 relative overflow-hidden border-border/40 bg-card/30 backdrop-blur-md shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 rounded-2xl">
+        <Card className="w-full mb-8 relative overflow-hidden border-border/40 bg-card/30 backdrop-blur-md shadow-sm rounded-2xl">
             {/* Ambient glow */}
             <div
                 className={cn(
