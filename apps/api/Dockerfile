@@ -20,7 +20,7 @@ COPY apps/api ./apps/api
 
 # Generate Prisma Client & Build
 WORKDIR /app/apps/api
-RUN npx prisma generate
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
 RUN rm -f tsconfig.tsbuildinfo && yarn build
 
 # --- Stage 2: Runner ---
