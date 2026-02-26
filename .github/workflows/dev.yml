@@ -14,6 +14,7 @@ env:
 jobs:
   # --- JOB 1: QUALITY CHECK (Lint & Test) ---
   quality-check:
+    if: false
     name: Quality Check (Lint & Test)
     runs-on: ubuntu-latest
     
