@@ -49,7 +49,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             # Navigate to the compose directory on the server
-            cd /path/to/your/deployment
+            cd /opt/deployments/clients/hoaancmms-main
             
             # Pull new images
             docker-compose pull

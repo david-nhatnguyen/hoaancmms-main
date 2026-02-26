@@ -43,7 +43,7 @@ services:
 
   api:
     image: ${DOCKERHUB_USERNAME}/cmms-api:latest
-    container_name: cmms-api
+    container_name: cmms-api-${TENANT_NAME:-prod}
     restart: always
     depends_on:
       postgres:
@@ -58,23 +58,23 @@ services:
       REDIS_PORT: 6379
       JWT_SECRET: ${JWT_SECRET}
       CORS_ORIGIN: ${CORS_ORIGIN}
-    ports:
-      - "3000:3000"
+    # REMOVED ports mapping to avoid collision in Multi-tenant. Nginx proxy will talk to this container internally on port 3000.
     volumes:
       - upload_data:/app/uploads
     networks:
       - app-network
+      - global-proxy-network
 
   web:
     image: ${DOCKERHUB_USERNAME}/cmms-web:latest
-    container_name: cmms-web
+    container_name: cmms-web-${TENANT_NAME:-prod}
     restart: always
     depends_on:
       - api
-    ports:
-      - "80:80"
+    # REMOVED ports mapping to avoid collision in Multi-tenant. Nginx proxy will talk to this container internally on port 80.
     networks:
       - app-network
+      - global-proxy-network
 
 volumes:
   postgres_data:
@@ -84,3 +84,5 @@ volumes:
 networks:
   app-network:
     driver: bridge
+  global-proxy-network:
+    external: true
