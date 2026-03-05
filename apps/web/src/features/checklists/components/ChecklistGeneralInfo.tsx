@@ -1,32 +1,29 @@
+import { UseFormReturn } from "react-hook-form";
+import { ClipboardList } from "lucide-react";
 
-import { UseFormReturn } from 'react-hook-form';
-import { ClipboardList } from 'lucide-react';
-
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { EquipmentSearchInput } from '@/features/checklists/components/EquipmentSearchInput';
-import { ChecklistCycle, ChecklistStatus, CYCLE_LABELS, STATUS_LABELS } from '@/features/checklists/types/checklist.types';
-import { ChecklistFormValues } from '@/features/checklists/hooks/useChecklistForm';
+} from "@/components/ui/select";
+import { EquipmentSearchInput } from "@/features/checklists/components/EquipmentSearchInput";
+import {
+  ChecklistCycle,
+  ChecklistStatus,
+  CYCLE_LABELS,
+  STATUS_LABELS,
+} from "@/features/checklists/types/checklist.types";
+import { ChecklistFormValues } from "@/features/checklists/hooks/useChecklistForm";
 
 interface ChecklistGeneralInfoProps {
   form: UseFormReturn<ChecklistFormValues>;
 }
-
 
 export function ChecklistGeneralInfo({ form }: ChecklistGeneralInfoProps) {
   return (
@@ -38,12 +35,13 @@ export function ChecklistGeneralInfo({ form }: ChecklistGeneralInfoProps) {
           </div>
           <div className="space-y-0.5">
             <CardTitle className="text-lg">Thông tin cơ bản</CardTitle>
-            <p className="text-sm text-muted-foreground">Các thông tin chung và bối cảnh lập checklist</p>
+            <p className="text-sm text-muted-foreground">
+              Các thông tin chung và bối cảnh lập checklist
+            </p>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-8">
-        
         {/* Zone 1: Identity */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           <FormField
@@ -111,9 +109,9 @@ export function ChecklistGeneralInfo({ form }: ChecklistGeneralInfoProps) {
                       value={field.value}
                       onChange={(equipment) => {
                         field.onChange(equipment);
-                        form.setValue('equipmentId', equipment?.id || '');
+                        form.setValue("equipmentId", equipment?.id || "");
                         if (equipment?.id) {
-                          form.clearErrors('equipmentId');
+                          form.clearErrors("equipmentId");
                         }
                       }}
                       required
@@ -184,10 +182,10 @@ export function ChecklistGeneralInfo({ form }: ChecklistGeneralInfoProps) {
               <FormItem>
                 <FormLabel>Mô tả</FormLabel>
                 <FormControl>
-                  <Textarea 
-                    placeholder="Mô tả chi tiết về quy trình checklist này..." 
-                    rows={2} 
-                    {...field} 
+                  <Textarea
+                    placeholder="Mô tả chi tiết về quy trình checklist này..."
+                    rows={2}
+                    {...field}
                     className="resize-none"
                   />
                 </FormControl>
@@ -203,11 +201,11 @@ export function ChecklistGeneralInfo({ form }: ChecklistGeneralInfoProps) {
               <FormItem>
                 <FormLabel>Ghi chú bổ sung</FormLabel>
                 <FormControl>
-                  <Textarea 
-                    placeholder="Lưu ý đặc biệt khi thực hiện..." 
-                    rows={2} 
-                    {...field} 
-                     className="resize-none"
+                  <Textarea
+                    placeholder="Lưu ý đặc biệt khi thực hiện..."
+                    rows={2}
+                    {...field}
+                    className="resize-none"
                   />
                 </FormControl>
                 <FormMessage />
@@ -215,9 +213,7 @@ export function ChecklistGeneralInfo({ form }: ChecklistGeneralInfoProps) {
             )}
           />
         </div>
-
       </CardContent>
     </Card>
   );
 }
-

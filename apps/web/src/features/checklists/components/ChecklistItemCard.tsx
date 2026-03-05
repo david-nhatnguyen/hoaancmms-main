@@ -1,8 +1,8 @@
-import React from 'react';
-import { Camera, CheckCircle, XCircle, MinusCircle, MessageSquare } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { ChecklistTemplateItem } from '../types/checklist.types';
+import React from "react";
+import { Camera, CheckCircle, XCircle, MinusCircle, MessageSquare } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ChecklistTemplateItem } from "../types/checklist.types";
 
 interface ChecklistItemCardProps {
   item: ChecklistTemplateItem;
@@ -85,7 +85,9 @@ export const ChecklistItemCard: React.FC<ChecklistItemCardProps> = ({ item }) =>
                 <span className="text-xs font-semibold text-muted-foreground block mb-1">
                   Kết quả mong đợi
                 </span>
-                <p className="text-sm text-foreground/90 text-primary font-semibold">{item.expectedResult}</p>
+                <p className="text-sm text-foreground/90 text-primary font-semibold">
+                  {item.expectedResult}
+                </p>
               </div>
             )}
           </div>

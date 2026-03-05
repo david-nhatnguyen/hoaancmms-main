@@ -1,12 +1,12 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Job } from 'bullmq';
-import { Logger } from '@nestjs/common';
-import { QUEUE_NAMES } from '@/common/constants';
-import * as ExcelJS from 'exceljs';
-import * as fs from 'fs';
-import * as path from 'path';
-import { PrismaService } from '@/database/prisma.service';
-import { ChecklistCycle, ChecklistStatus } from '@prisma/generated/prisma';
+import { Processor, WorkerHost } from "@nestjs/bullmq";
+import { Job } from "bullmq";
+import { Logger } from "@nestjs/common";
+import { QUEUE_NAMES } from "@/common/constants";
+import * as ExcelJS from "exceljs";
+import * as fs from "fs";
+import * as path from "path";
+import { PrismaService } from "@/database/prisma.service";
+import { ChecklistCycle, ChecklistStatus } from "@prisma/generated/prisma";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Column constants
@@ -67,12 +67,12 @@ const CYCLE_MAP: Record<string, ChecklistCycle> = {
   QUARTERLY: ChecklistCycle.QUARTERLY,
   SEMI_ANNUALLY: ChecklistCycle.SEMI_ANNUALLY,
   YEARLY: ChecklistCycle.YEARLY,
-  'HẰNG NGÀY': ChecklistCycle.DAILY,
-  'HẰNG TUẦN': ChecklistCycle.WEEKLY,
-  'HẰNG THÁNG': ChecklistCycle.MONTHLY,
-  'HÀNG QUÝ': ChecklistCycle.QUARTERLY,
-  '6 THÁNG/LẦN': ChecklistCycle.SEMI_ANNUALLY,
-  'HẰNG NĂM': ChecklistCycle.YEARLY,
+  "HẰNG NGÀY": ChecklistCycle.DAILY,
+  "HẰNG TUẦN": ChecklistCycle.WEEKLY,
+  "HẰNG THÁNG": ChecklistCycle.MONTHLY,
+  "HÀNG QUÝ": ChecklistCycle.QUARTERLY,
+  "6 THÁNG/LẦN": ChecklistCycle.SEMI_ANNUALLY,
+  "HẰNG NĂM": ChecklistCycle.YEARLY,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -88,7 +88,7 @@ const CYCLE_MAP: Record<string, ChecklistCycle> = {
 @Processor(QUEUE_NAMES.CHECKLIST_IMPORT)
 export class ChecklistImportProcessor extends WorkerHost {
   private readonly logger = new Logger(ChecklistImportProcessor.name);
-  private readonly ERROR_DIR = './uploads/imports/errors';
+  private readonly ERROR_DIR = "./uploads/imports/errors";
 
   constructor(private readonly prisma: PrismaService) {
     super();
@@ -110,17 +110,17 @@ export class ChecklistImportProcessor extends WorkerHost {
     this.logger.log(`🔍 [Checklist Import] Job: ${job.id} | History: ${importHistoryId}`);
 
     try {
-      await this.updateStatus(importHistoryId, 'PROCESSING');
+      await this.updateStatus(importHistoryId, "PROCESSING");
 
       if (!fs.existsSync(filePath)) {
-        throw new Error('Không tìm thấy file upload');
+        throw new Error("Không tìm thấy file upload");
       }
 
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.readFile(filePath);
 
       if (workbook.worksheets.length === 0) {
-        throw new Error('File không có sheet dữ liệu nào');
+        throw new Error("File không có sheet dữ liệu nào");
       }
 
       await job.updateProgress(10);
@@ -189,7 +189,7 @@ export class ChecklistImportProcessor extends WorkerHost {
    * DOES NOT stop on errors. Collects ALL errors.
    */
   private parseSheet(sheet: ExcelJS.Worksheet): ParsedTemplate {
-    const getCellB = (rowNum: number) => sheet.getRow(rowNum).getCell(2).text?.trim() ?? '';
+    const getCellB = (rowNum: number) => sheet.getRow(rowNum).getCell(2).text?.trim() ?? "";
 
     const name = getCellB(1);
     const department = getCellB(2) || undefined;
@@ -200,11 +200,11 @@ export class ChecklistImportProcessor extends WorkerHost {
 
     // ── Metadata validation ────────────────────────────────────────────────
     if (!name) {
-      metadataErrors.set(1, 'Tên checklist không được để trống');
+      metadataErrors.set(1, "Tên checklist không được để trống");
     }
 
     if (!equipmentCode) {
-      metadataErrors.set(3, 'Thiết bị áp dụng không được để trống');
+      metadataErrors.set(3, "Thiết bị áp dụng không được để trống");
     }
 
     const cycle = this.parseCycle(cycleRaw);
@@ -218,7 +218,7 @@ export class ChecklistImportProcessor extends WorkerHost {
     const base: ParsedTemplate = {
       sheetName: sheet.name,
       name: name || sheet.name,
-      equipmentCode: equipmentCode ?? '',
+      equipmentCode: equipmentCode ?? "",
       department,
       cycle: cycle ?? ChecklistCycle.MONTHLY, // Default to avoid null, error already recorded
       status: ChecklistStatus.ACTIVE,
@@ -257,7 +257,7 @@ export class ChecklistImportProcessor extends WorkerHost {
       if (!expectedResult) fieldErrors.push('Không được bỏ trống "Kết quả mong đợi"');
 
       if (fieldErrors.length > 0) {
-        itemErrors.set(i, fieldErrors.join('\n'));
+        itemErrors.set(i, fieldErrors.join("\n"));
         continue;
       }
 
@@ -269,11 +269,11 @@ export class ChecklistImportProcessor extends WorkerHost {
         inspectionMethod: inspectionMethod!,
         maintenanceContent: maintenanceContent!,
         expectedResult: expectedResult!,
-        isRequired: ['YES', '1', 'TRUE', 'CÓ'].includes(
-          row.getCell(7).text?.trim()?.toUpperCase() ?? '',
+        isRequired: ["YES", "1", "TRUE", "CÓ"].includes(
+          row.getCell(7).text?.trim()?.toUpperCase() ?? "",
         ),
-        requiresImage: ['YES', '1', 'TRUE', 'CÓ'].includes(
-          row.getCell(8).text?.trim()?.toUpperCase() ?? '',
+        requiresImage: ["YES", "1", "TRUE", "CÓ"].includes(
+          row.getCell(8).text?.trim()?.toUpperCase() ?? "",
         ),
       });
     }
@@ -301,7 +301,7 @@ export class ChecklistImportProcessor extends WorkerHost {
 
     const codes = [...new Set(needsResolution.map((t) => t.equipmentCode))];
     const equipments = await this.prisma.equipment.findMany({
-      where: { code: { in: codes, mode: 'insensitive' } },
+      where: { code: { in: codes, mode: "insensitive" } },
       select: { id: true, code: true },
     });
 
@@ -363,7 +363,7 @@ export class ChecklistImportProcessor extends WorkerHost {
     const count = await this.prisma.checklistTemplate.count({
       where: { code: { startsWith: prefix } },
     });
-    return `${prefix}-${String(count + 1).padStart(3, '0')}`;
+    return `${prefix}-${String(count + 1).padStart(3, "0")}`;
   }
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -378,18 +378,18 @@ export class ChecklistImportProcessor extends WorkerHost {
     const history = await this.prisma.importHistory.findUnique({
       where: { id: importHistoryId },
     });
-    const originalName = history?.fileName ?? 'import';
+    const originalName = history?.fileName ?? "import";
     const baseName = path.parse(originalName).name;
 
-    const errorFont: Partial<ExcelJS.Font> = { color: { argb: 'FFCC0000' }, italic: true };
+    const errorFont: Partial<ExcelJS.Font> = { color: { argb: "FFCC0000" }, italic: true };
     const errorHeaderFont: Partial<ExcelJS.Font> = {
       bold: true,
-      color: { argb: 'FFCC0000' },
+      color: { argb: "FFCC0000" },
     };
     const errorFill: ExcelJS.Fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FFFFF0F0' }, // light red tint
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFFFF0F0" }, // light red tint
     };
 
     for (const t of templates) {
@@ -414,16 +414,16 @@ export class ChecklistImportProcessor extends WorkerHost {
       if (hasItemErrors) {
         // Write "Lỗi" header in row 6 col I (column-header row)
         const headerErrorCell = sheet.getRow(6).getCell(ITEM_ERROR_COL);
-        headerErrorCell.value = 'Lỗi';
+        headerErrorCell.value = "Lỗi";
         headerErrorCell.font = errorHeaderFont;
         headerErrorCell.fill = errorFill;
         headerErrorCell.border = {
-          top: { style: 'thin' },
-          left: { style: 'thin' },
-          bottom: { style: 'thin' },
-          right: { style: 'thin' },
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
         };
-        headerErrorCell.alignment = { vertical: 'middle', horizontal: 'center' };
+        headerErrorCell.alignment = { vertical: "middle", horizontal: "center" };
 
         t.itemErrors.forEach((msg, rowNum) => {
           const cell = sheet.getRow(rowNum).getCell(ITEM_ERROR_COL);
@@ -432,15 +432,15 @@ export class ChecklistImportProcessor extends WorkerHost {
           cell.font = errorFont;
           cell.fill = errorFill;
           cell.border = {
-            top: { style: 'thin' },
-            left: { style: 'thin' },
-            bottom: { style: 'thin' },
-            right: { style: 'thin' },
+            top: { style: "thin" },
+            left: { style: "thin" },
+            bottom: { style: "thin" },
+            right: { style: "thin" },
           };
           // wrapText so each "Không được bỏ trống…" line is visible
-          cell.alignment = { vertical: 'top', wrapText: true };
+          cell.alignment = { vertical: "top", wrapText: true };
           // Auto-height: ~18px per line
-          const lineCount = msg.split('\n').length;
+          const lineCount = msg.split("\n").length;
           const row = sheet.getRow(rowNum);
           row.height = Math.max(row.height ?? 20, lineCount * 18);
         });
@@ -469,7 +469,7 @@ export class ChecklistImportProcessor extends WorkerHost {
     await this.prisma.importHistory.update({
       where: { id },
       data: {
-        status: 'COMPLETED',
+        status: "COMPLETED",
         totalRecords: total,
         processedRecords: total,
         successCount: success,
@@ -486,7 +486,7 @@ export class ChecklistImportProcessor extends WorkerHost {
       where: { id },
       data: {
         status: status as any,
-        startedAt: status === 'PROCESSING' ? new Date() : undefined,
+        startedAt: status === "PROCESSING" ? new Date() : undefined,
       },
     });
   }
@@ -496,7 +496,7 @@ export class ChecklistImportProcessor extends WorkerHost {
     if (id) {
       await this.prisma.importHistory.update({
         where: { id },
-        data: { status: 'FAILED', finishedAt: new Date() },
+        data: { status: "FAILED", finishedAt: new Date() },
       });
     }
     if (filePath && fs.existsSync(filePath)) fs.unlinkSync(filePath);
@@ -514,11 +514,11 @@ export class ChecklistImportProcessor extends WorkerHost {
   private sanitize(filename: string): string {
     return filename
       .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/đ/g, 'd')
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/[^a-z0-9]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
   }
 }

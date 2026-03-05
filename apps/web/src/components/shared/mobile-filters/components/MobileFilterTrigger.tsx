@@ -1,7 +1,6 @@
-
-import { Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Filter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export interface MobileFilterTriggerProps {
   activeCount: number;
@@ -9,11 +8,7 @@ export interface MobileFilterTriggerProps {
   className?: string;
 }
 
-export function MobileFilterTrigger({
-  activeCount,
-  onClick,
-  className
-}: MobileFilterTriggerProps) {
+export function MobileFilterTrigger({ activeCount, onClick, className }: MobileFilterTriggerProps) {
   return (
     <Button
       variant="outline"
@@ -22,7 +17,7 @@ export function MobileFilterTrigger({
       className={cn(
         "h-10 w-10 shrink-0 relative transition-colors",
         activeCount > 0 && "border-primary bg-primary/10 text-primary hover:bg-primary/20",
-        className
+        className,
       )}
     >
       <Filter className="h-4 w-4" />

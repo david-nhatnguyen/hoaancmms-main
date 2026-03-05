@@ -1,12 +1,8 @@
-import { useState } from 'react';
-import { X, ChevronDown, Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { useState } from "react";
+import { X, ChevronDown, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -14,10 +10,10 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { CYCLE_LABELS, CHECKLIST_STATUS_LABELS } from '@/data/checklistData';
-import { EQUIPMENT_GROUPS, MACHINE_TYPES } from '@/data/mockData';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/command";
+import { CYCLE_LABELS, CHECKLIST_STATUS_LABELS } from "@/data/checklistData";
+import { EQUIPMENT_GROUPS, MACHINE_TYPES } from "@/data/mockData";
+import { cn } from "@/lib/utils";
 
 interface FilterState {
   machineTypes: string[];
@@ -32,14 +28,13 @@ interface ChecklistFiltersProps {
 
 const CYCLE_OPTIONS = Object.entries(CYCLE_LABELS).map(([key, label]) => ({ id: key, label }));
 const STATUS_OPTIONS = [
-  { id: 'active', label: 'Áp dụng', color: 'bg-status-active' },
-  { id: 'draft', label: 'Nháp', color: 'bg-muted-foreground' },
-  { id: 'inactive', label: 'Ngừng SD', color: 'bg-status-inactive' }
+  { id: "active", label: "Áp dụng", color: "bg-status-active" },
+  { id: "draft", label: "Nháp", color: "bg-muted-foreground" },
+  { id: "inactive", label: "Ngừng SD", color: "bg-status-inactive" },
 ];
 
 export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersProps) {
   const [machineTypeOpen, setMachineTypeOpen] = useState(false);
-
 
   const updateFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
     onFiltersChange({ ...filters, [key]: value });
@@ -47,41 +42,44 @@ export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersP
 
   const toggleMachineType = (type: string) => {
     const current = filters.machineTypes;
-    const updated = current.includes(type)
-      ? current.filter(t => t !== type)
-      : [...current, type];
-    updateFilter('machineTypes', updated);
+    const updated = current.includes(type) ? current.filter((t) => t !== type) : [...current, type];
+    updateFilter("machineTypes", updated);
   };
 
   const toggleCycle = (cycle: string) => {
     const current = filters.cycle;
     const updated = current.includes(cycle)
-      ? current.filter(c => c !== cycle)
+      ? current.filter((c) => c !== cycle)
       : [...current, cycle];
-    updateFilter('cycle', updated);
+    updateFilter("cycle", updated);
   };
 
   const toggleStatus = (status: string) => {
     const current = filters.status;
     const updated = current.includes(status)
-      ? current.filter(s => s !== status)
+      ? current.filter((s) => s !== status)
       : [...current, status];
-    updateFilter('status', updated);
+    updateFilter("status", updated);
   };
 
-  const removeFilter = (type: 'machineTypes' | 'cycle' | 'status', value: string) => {
-    updateFilter(type, filters[type].filter(v => v !== value));
+  const removeFilter = (type: "machineTypes" | "cycle" | "status", value: string) => {
+    updateFilter(
+      type,
+      filters[type].filter((v) => v !== value),
+    );
   };
 
   const clearAllFilters = () => {
     onFiltersChange({ machineTypes: [], cycle: [], status: [] });
   };
 
-  const hasActiveFilters = filters.machineTypes.length > 0 || filters.cycle.length > 0 || filters.status.length > 0;
+  const hasActiveFilters =
+    filters.machineTypes.length > 0 || filters.cycle.length > 0 || filters.status.length > 0;
 
-  const getFilterLabel = (type: 'machineTypes' | 'cycle' | 'status', value: string) => {
-    if (type === 'cycle') return CYCLE_LABELS[value as keyof typeof CYCLE_LABELS];
-    if (type === 'status') return CHECKLIST_STATUS_LABELS[value as keyof typeof CHECKLIST_STATUS_LABELS];
+  const getFilterLabel = (type: "machineTypes" | "cycle" | "status", value: string) => {
+    if (type === "cycle") return CYCLE_LABELS[value as keyof typeof CYCLE_LABELS];
+    if (type === "status")
+      return CHECKLIST_STATUS_LABELS[value as keyof typeof CHECKLIST_STATUS_LABELS];
     return value;
   };
 
@@ -97,7 +95,7 @@ export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersP
               size="sm"
               className={cn(
                 "h-9 border-border bg-secondary/50 hover:bg-secondary",
-                filters.machineTypes.length > 0 && "border-primary/50 bg-primary/10"
+                filters.machineTypes.length > 0 && "border-primary/50 bg-primary/10",
               )}
             >
               Loại máy
@@ -120,16 +118,18 @@ export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersP
                     heading={EQUIPMENT_GROUPS[groupId as keyof typeof EQUIPMENT_GROUPS]?.name}
                     className="text-muted-foreground"
                   >
-                    {types.map(type => (
+                    {types.map((type) => (
                       <CommandItem
                         key={type}
                         onSelect={() => toggleMachineType(type)}
                         className="cursor-pointer"
                       >
-                        <div className={cn(
-                          "mr-2 h-4 w-4 rounded border border-muted-foreground flex items-center justify-center",
-                          filters.machineTypes.includes(type) && "bg-primary border-primary"
-                        )}>
+                        <div
+                          className={cn(
+                            "mr-2 h-4 w-4 rounded border border-muted-foreground flex items-center justify-center",
+                            filters.machineTypes.includes(type) && "bg-primary border-primary",
+                          )}
+                        >
                           {filters.machineTypes.includes(type) && (
                             <Check className="h-3 w-3 text-primary-foreground" />
                           )}
@@ -146,7 +146,7 @@ export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersP
 
         {/* Cycle - Segmented Buttons */}
         <div className="flex items-center rounded-lg bg-secondary/50 p-0.5">
-          {CYCLE_OPTIONS.map(option => (
+          {CYCLE_OPTIONS.map((option) => (
             <button
               key={option.id}
               onClick={() => toggleCycle(option.id)}
@@ -154,7 +154,7 @@ export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersP
                 "px-3 py-1.5 text-xs font-medium rounded-md transition-all",
                 filters.cycle.includes(option.id)
                   ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               {option.label}
@@ -164,7 +164,7 @@ export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersP
 
         {/* Status - Colored Chips */}
         <div className="flex items-center gap-1">
-          {STATUS_OPTIONS.map(option => (
+          {STATUS_OPTIONS.map((option) => (
             <button
               key={option.id}
               onClick={() => toggleStatus(option.id)}
@@ -172,7 +172,7 @@ export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersP
                 "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-all border",
                 filters.status.includes(option.id)
                   ? "border-primary bg-primary/20 text-foreground"
-                  : "border-border bg-transparent text-muted-foreground hover:border-muted-foreground"
+                  : "border-border bg-transparent text-muted-foreground hover:border-muted-foreground",
               )}
             >
               <span className={cn("h-2 w-2 rounded-full", option.color)} />
@@ -187,7 +187,7 @@ export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersP
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground">Đang lọc:</span>
 
-          {filters.machineTypes.map(type => (
+          {filters.machineTypes.map((type) => (
             <Badge
               key={type}
               variant="secondary"
@@ -195,7 +195,7 @@ export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersP
             >
               {type}
               <button
-                onClick={() => removeFilter('machineTypes', type)}
+                onClick={() => removeFilter("machineTypes", type)}
                 className="ml-1 hover:bg-muted rounded-full p-0.5"
                 title="Xóa lọc"
               >
@@ -204,15 +204,15 @@ export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersP
             </Badge>
           ))}
 
-          {filters.cycle.map(c => (
+          {filters.cycle.map((c) => (
             <Badge
               key={c}
               variant="secondary"
               className="bg-primary/20 text-primary gap-1 pl-2 pr-1 py-0.5"
             >
-              {getFilterLabel('cycle', c)}
+              {getFilterLabel("cycle", c)}
               <button
-                onClick={() => removeFilter('cycle', c)}
+                onClick={() => removeFilter("cycle", c)}
                 className="ml-1 hover:bg-primary/30 rounded-full p-0.5"
                 title="Xóa lọc"
               >
@@ -221,15 +221,15 @@ export function ChecklistFilters({ filters, onFiltersChange }: ChecklistFiltersP
             </Badge>
           ))}
 
-          {filters.status.map(s => (
+          {filters.status.map((s) => (
             <Badge
               key={s}
               variant="secondary"
               className="bg-secondary text-foreground gap-1 pl-2 pr-1 py-0.5"
             >
-              {getFilterLabel('status', s)}
+              {getFilterLabel("status", s)}
               <button
-                onClick={() => removeFilter('status', s)}
+                onClick={() => removeFilter("status", s)}
                 className="ml-1 hover:bg-muted rounded-full p-0.5"
                 title="Xóa lọc"
               >

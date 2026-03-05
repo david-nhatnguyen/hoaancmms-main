@@ -3,15 +3,15 @@ import {
   NotFoundException,
   ConflictException,
   BadRequestException,
-} from '@nestjs/common';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
-import { PrismaService } from '../../../database/prisma.service';
-import { CreateTemplateDto, UpdateTemplateDto, QueryTemplateDto } from './dto';
-import { ChecklistStatus } from '@prisma/generated/prisma';
-import { QUEUE_NAMES } from '@/common/constants';
-import * as ExcelJS from 'exceljs';
-import * as fs from 'fs';
+} from "@nestjs/common";
+import { InjectQueue } from "@nestjs/bullmq";
+import { Queue } from "bullmq";
+import { PrismaService } from "../../../database/prisma.service";
+import { CreateTemplateDto, UpdateTemplateDto, QueryTemplateDto } from "./dto";
+import { ChecklistStatus } from "@prisma/generated/prisma";
+import { QUEUE_NAMES } from "@/common/constants";
+import * as ExcelJS from "exceljs";
+import * as fs from "fs";
 
 @Injectable()
 export class TemplatesService {
@@ -50,17 +50,17 @@ export class TemplatesService {
     // Create the import history record
     const importHistory = await this.prisma.importHistory.create({
       data: {
-        fileName: filePath.split('/').pop() ?? 'unknown.xlsx',
+        fileName: filePath.split("/").pop() ?? "unknown.xlsx",
         fileSize: fs.statSync(filePath).size,
         totalRecords,
-        status: 'PENDING',
-        importType: 'CHECKLIST',
+        status: "PENDING",
+        importType: "CHECKLIST",
       },
     });
 
     // Push to checklist-specific queue
     await this.importQueue.add(
-      'import-checklists',
+      "import-checklists",
       { filePath, importHistoryId: importHistory.id },
       { removeOnComplete: true, removeOnFail: false },
     );
@@ -70,7 +70,7 @@ export class TemplatesService {
       importId: importHistory.id,
       totalRecords,
       estimatedDuration,
-      message: 'Import job started',
+      message: "Import job started",
     };
   }
 
@@ -116,7 +116,7 @@ export class TemplatesService {
 
     // Validate items
     if (!dto.items || dto.items.length === 0) {
-      throw new BadRequestException('Checklist phải có ít nhất 1 hạng mục');
+      throw new BadRequestException("Checklist phải có ít nhất 1 hạng mục");
     }
 
     // Create template with items
@@ -137,7 +137,7 @@ export class TemplatesService {
       },
       include: {
         items: {
-          orderBy: { order: 'asc' },
+          orderBy: { order: "asc" },
         },
         equipment: {
           select: {
@@ -169,8 +169,8 @@ export class TemplatesService {
       search,
       page = 1,
       limit = 20,
-      sortBy = 'createdAt',
-      sortOrder = 'desc',
+      sortBy = "createdAt",
+      sortOrder = "desc",
     } = query;
 
     const where: any = {};
@@ -185,11 +185,11 @@ export class TemplatesService {
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { code: { contains: search, mode: 'insensitive' } },
-        { equipment: { name: { contains: search, mode: 'insensitive' } } },
-        { equipment: { code: { contains: search, mode: 'insensitive' } } },
-        { equipment: { factory: { name: { contains: search, mode: 'insensitive' } } } },
+        { name: { contains: search, mode: "insensitive" } },
+        { code: { contains: search, mode: "insensitive" } },
+        { equipment: { name: { contains: search, mode: "insensitive" } } },
+        { equipment: { code: { contains: search, mode: "insensitive" } } },
+        { equipment: { factory: { name: { contains: search, mode: "insensitive" } } } },
       ];
     }
 
@@ -197,7 +197,7 @@ export class TemplatesService {
     let orderBy: any = { [sortBy]: sortOrder };
 
     // Handle nested sorting if needed (e.g., equipmentCategory)
-    if (sortBy === 'equipmentCategory') {
+    if (sortBy === "equipmentCategory") {
       orderBy = { equipment: { category: sortOrder } };
     }
 
@@ -206,7 +206,7 @@ export class TemplatesService {
         where,
         include: {
           items: {
-            orderBy: { order: 'asc' },
+            orderBy: { order: "asc" },
           },
           equipment: {
             select: {
@@ -256,7 +256,7 @@ export class TemplatesService {
       where: { id },
       include: {
         items: {
-          orderBy: { order: 'asc' },
+          orderBy: { order: "asc" },
         },
         equipment: {
           select: {
@@ -319,7 +319,7 @@ export class TemplatesService {
 
     // Validate items if provided
     if (dto.items && dto.items.length === 0) {
-      throw new BadRequestException('Checklist phải có ít nhất 1 hạng mục');
+      throw new BadRequestException("Checklist phải có ít nhất 1 hạng mục");
     }
 
     // Delete old items if new items are provided
@@ -348,7 +348,7 @@ export class TemplatesService {
       },
       include: {
         items: {
-          orderBy: { order: 'asc' },
+          orderBy: { order: "asc" },
         },
         equipment: {
           select: {
@@ -377,7 +377,7 @@ export class TemplatesService {
     // Cannot delete ACTIVE templates
     if (template.status === ChecklistStatus.ACTIVE) {
       throw new BadRequestException(
-        'Không thể xóa checklist đang áp dụng. Vui lòng ngừng sử dụng trước.',
+        "Không thể xóa checklist đang áp dụng. Vui lòng ngừng sử dụng trước.",
       );
     }
 
@@ -387,14 +387,14 @@ export class TemplatesService {
     });
 
     if (executionCount > 0) {
-      throw new BadRequestException('Không thể xóa checklist đã có lịch sử thực hiện');
+      throw new BadRequestException("Không thể xóa checklist đã có lịch sử thực hiện");
     }
 
     await this.prisma.checklistTemplate.delete({
       where: { id },
     });
 
-    return { message: 'Đã xóa checklist thành công' };
+    return { message: "Đã xóa checklist thành công" };
   }
 
   /**
@@ -404,7 +404,7 @@ export class TemplatesService {
     const template = await this.findOne(id);
 
     if (template.status === ChecklistStatus.ACTIVE) {
-      throw new BadRequestException('Checklist đã được áp dụng');
+      throw new BadRequestException("Checklist đã được áp dụng");
     }
 
     return this.prisma.checklistTemplate.update({
@@ -412,7 +412,7 @@ export class TemplatesService {
       data: { status: ChecklistStatus.ACTIVE },
       include: {
         items: {
-          orderBy: { order: 'asc' },
+          orderBy: { order: "asc" },
         },
         equipment: {
           select: {
@@ -439,7 +439,7 @@ export class TemplatesService {
     const template = await this.findOne(id);
 
     if (template.status !== ChecklistStatus.ACTIVE) {
-      throw new BadRequestException('Chỉ có thể ngừng sử dụng checklist đang áp dụng');
+      throw new BadRequestException("Chỉ có thể ngừng sử dụng checklist đang áp dụng");
     }
 
     return this.prisma.checklistTemplate.update({
@@ -447,7 +447,7 @@ export class TemplatesService {
       data: { status: ChecklistStatus.INACTIVE },
       include: {
         items: {
-          orderBy: { order: 'asc' },
+          orderBy: { order: "asc" },
         },
         equipment: {
           select: {
@@ -501,7 +501,7 @@ export class TemplatesService {
       },
       include: {
         items: {
-          orderBy: { order: 'asc' },
+          orderBy: { order: "asc" },
         },
         equipment: {
           select: {
@@ -562,7 +562,7 @@ export class TemplatesService {
       },
       include: {
         items: {
-          orderBy: { order: 'asc' },
+          orderBy: { order: "asc" },
         },
         equipment: {
           select: {
@@ -596,6 +596,6 @@ export class TemplatesService {
       },
     });
 
-    return `${prefix}-${String(count + 1).padStart(3, '0')}`;
+    return `${prefix}-${String(count + 1).padStart(3, "0")}`;
   }
 }

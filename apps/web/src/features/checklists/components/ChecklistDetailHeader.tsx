@@ -1,9 +1,9 @@
-import React from 'react';
-import { Copy, Pencil, ClipboardList } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ChecklistTemplate, CYCLE_LABELS, STATUS_LABELS } from '../types/checklist.types';
-import { cn } from '@/lib/utils';
-import { PageHeader } from '@/components/shared/PageHeader';
+import React from "react";
+import { Copy, Pencil, ClipboardList } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ChecklistTemplate, CYCLE_LABELS, STATUS_LABELS } from "../types/checklist.types";
+import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/shared/PageHeader";
 
 interface ChecklistDetailHeaderProps {
   checklist: ChecklistTemplate;
@@ -33,15 +33,21 @@ export const ChecklistDetailHeader: React.FC<ChecklistDetailHeaderProps> = ({
           <span className="font-mono text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">
             {checklist.code}
           </span>
-          <span className={cn(
-            'text-xs font-medium px-2 py-1 rounded-full border',
-            checklist.status === 'ACTIVE' && 'bg-status-active/10 text-status-active border-status-active/20',
-            checklist.status === 'DRAFT' && 'bg-muted text-muted-foreground border-border',
-            checklist.status === 'INACTIVE' && 'bg-status-inactive/10 text-status-inactive border-status-inactive/20'
-          )}>
+          <span
+            className={cn(
+              "text-xs font-medium px-2 py-1 rounded-full border",
+              checklist.status === "ACTIVE" &&
+                "bg-status-active/10 text-status-active border-status-active/20",
+              checklist.status === "DRAFT" && "bg-muted text-muted-foreground border-border",
+              checklist.status === "INACTIVE" &&
+                "bg-status-inactive/10 text-status-inactive border-status-inactive/20",
+            )}
+          >
             {STATUS_LABELS[checklist.status]}
           </span>
-          <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">v{checklist.version}</span>
+          <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+            v{checklist.version}
+          </span>
           <span className="text-xs font-medium bg-secondary text-secondary-foreground px-2 py-1 rounded border border-border/50">
             {CYCLE_LABELS[checklist.cycle]}
           </span>

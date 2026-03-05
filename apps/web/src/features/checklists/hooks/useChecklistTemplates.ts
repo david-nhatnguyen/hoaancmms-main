@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
-import { checklistTemplatesApi } from '../api/checklist-templates.api';
-import type { QueryTemplateParams } from '../types/checklist.types';
+import { useQuery } from "@tanstack/react-query";
+import { checklistTemplatesApi } from "../api/checklist-templates.api";
+import type { QueryTemplateParams } from "../types/checklist.types";
 
 /**
  * Custom hook to fetch checklist templates with filtering and pagination
@@ -8,7 +8,7 @@ import type { QueryTemplateParams } from '../types/checklist.types';
  */
 export const useChecklistTemplates = (params?: QueryTemplateParams) => {
   return useQuery({
-    queryKey: ['checklist-templates', params],
+    queryKey: ["checklist-templates", params],
     queryFn: () => checklistTemplatesApi.getAll(params),
     staleTime: 30000, // Consider data fresh for 30 seconds
     gcTime: 300000, // Keep in cache for 5 minutes (renamed from cacheTime)
@@ -20,7 +20,7 @@ export const useChecklistTemplates = (params?: QueryTemplateParams) => {
  */
 export const useChecklistTemplate = (id: string) => {
   return useQuery({
-    queryKey: ['checklist-template', id],
+    queryKey: ["checklist-template", id],
     queryFn: () => checklistTemplatesApi.getById(id),
     enabled: !!id, // Only run query if ID is provided
     staleTime: 60000, // Individual templates can be cached longer

@@ -1,29 +1,22 @@
-import React from 'react';
-import { ClipboardList, History, Loader2, AlertCircle } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { PageContainer } from '@/components/shared/PageContainer';
-import { Card, CardContent } from '@/components/ui/card';
+import React from "react";
+import { ClipboardList, History, Loader2, AlertCircle } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { PageContainer } from "@/components/shared/PageContainer";
+import { Card, CardContent } from "@/components/ui/card";
 
 // Atomic Components
-import { ChecklistDetailHeader } from '@/features/checklists/components/ChecklistDetailHeader';
-import { ChecklistPreviewTab } from '@/features/checklists/components/ChecklistPreviewTab';
-import { ChecklistInfoTab } from '@/features/checklists/components/ChecklistInfoTab';
+import { ChecklistDetailHeader } from "@/features/checklists/components/ChecklistDetailHeader";
+import { ChecklistPreviewTab } from "@/features/checklists/components/ChecklistPreviewTab";
+import { ChecklistInfoTab } from "@/features/checklists/components/ChecklistInfoTab";
 
 // Logic Hook
-import { useChecklistDetail } from '@/features/checklists/hooks/useChecklistDetail';
+import { useChecklistDetail } from "@/features/checklists/hooks/useChecklistDetail";
 
 export default function ChecklistDetail() {
-  const {
-    checklist,
-    isLoading,
-    error,
-    refetch,
-    activeTab,
-    setActiveTab,
-    handlers,
-  } = useChecklistDetail();
+  const { checklist, isLoading, error, refetch, activeTab, setActiveTab, handlers } =
+    useChecklistDetail();
 
   // 1. Loading State - Standardized Full Screen
   if (isLoading) {
@@ -46,7 +39,7 @@ export default function ChecklistDetail() {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle className="mb-2">Không thể tải checklist</AlertTitle>
             <AlertDescription>
-              {error.message || 'Có lỗi xảy ra khi kết nối với máy chủ. Vui lòng thử lại sau.'}
+              {error.message || "Có lỗi xảy ra khi kết nối với máy chủ. Vui lòng thử lại sau."}
             </AlertDescription>
             <div className="mt-4 flex gap-3">
               <Button variant="outline" onClick={handlers.handleGoBack} className="bg-background">
@@ -74,7 +67,8 @@ export default function ChecklistDetail() {
               </div>
               <h2 className="text-xl font-semibold mb-2">Không tìm thấy checklist</h2>
               <p className="text-muted-foreground mb-6 max-w-sm">
-                Checklist bạn đang tìm kiếm không tồn tại, đã bị xóa hoặc bạn không có quyền truy cập.
+                Checklist bạn đang tìm kiếm không tồn tại, đã bị xóa hoặc bạn không có quyền truy
+                cập.
               </p>
               <Button onClick={handlers.handleGoBack} variant="outline" className="min-w-[140px]">
                 Quay lại danh sách

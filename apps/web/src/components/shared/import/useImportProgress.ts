@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { useState, useEffect, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type ImportJobStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+export type ImportJobStatus = "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
 
 export interface ImportJobHistory {
   id: string;
@@ -67,7 +67,7 @@ export function useImportProgress({
   jobId,
   getStatus,
   invalidateKeys = [],
-  storagePrefix = 'import',
+  storagePrefix = "import",
   messages,
 }: UseImportProgressOptions) {
   // Start at 1 so ImportProgress renders immediately (avoids the `progress===0`
@@ -136,7 +136,7 @@ export function useImportProgress({
           const data: ImportJobHistory = (res as any)?.data ?? res;
           setHistory(data);
 
-          if (data.status === 'COMPLETED' || data.status === 'FAILED') {
+          if (data.status === "COMPLETED" || data.status === "FAILED") {
             // ✅ Stop polling — job is done
             if (pollingRef.current) {
               clearInterval(pollingRef.current);
@@ -148,20 +148,20 @@ export function useImportProgress({
               queryClient.invalidateQueries({ queryKey: [key] });
             }
 
-            if (data.status === 'COMPLETED') {
+            if (data.status === "COMPLETED") {
               if (data.failedCount > 0) {
                 const warnMsg =
                   messagesRef.current?.warning?.(data.failedCount) ??
                   `Hoàn tất: ${data.failedCount} dòng lỗi`;
                 toast.warning(warnMsg);
               } else {
-                const successMsg = messagesRef.current?.success ?? 'Import thành công!';
+                const successMsg = messagesRef.current?.success ?? "Import thành công!";
                 toast.success(successMsg);
               }
             }
           }
         } catch (err) {
-          console.error('[useImportProgress] Polling error:', err);
+          console.error("[useImportProgress] Polling error:", err);
         }
       };
 

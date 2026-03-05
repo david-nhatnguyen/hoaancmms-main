@@ -1,6 +1,6 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { ROLES_KEY } from '../decorators/roles.decorator';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { ROLES_KEY } from "../decorators/roles.decorator";
 
 /**
  * Roles Guard
@@ -55,7 +55,7 @@ export class RolesGuard implements CanActivate {
 
     // If no user (shouldn't happen if JwtAuthGuard ran first)
     if (!user) {
-      throw new ForbiddenException('User not authenticated');
+      throw new ForbiddenException("User not authenticated");
     }
 
     // Check if user's role ID matches required roles
@@ -63,7 +63,7 @@ export class RolesGuard implements CanActivate {
 
     if (!hasRole) {
       throw new ForbiddenException(
-        `Insufficient permissions. Required roles: ${requiredRoles.join(', ')}`,
+        `Insufficient permissions. Required roles: ${requiredRoles.join(", ")}`,
       );
     }
 

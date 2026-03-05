@@ -1,9 +1,8 @@
-
-import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useDataTableState } from '@/features/shared/table/hooks/use-table-state';
-import { updateColumnFilters } from '@/features/shared/table/handlers/table-logic.handlers';
-import { FactoryQueryParams, FactoryStatus } from '@/api/types/factory.types';
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useDataTableState } from "@/features/shared/table/hooks/use-table-state";
+import { updateColumnFilters } from "@/features/shared/table/handlers/table-logic.handlers";
+import { FactoryQueryParams, FactoryStatus } from "@/api/types/factory.types";
 
 /**
  * Custom hook to manage Factory Table state with URL synchronization
@@ -16,28 +15,28 @@ export function useFactoryTableState() {
     initialParams: {
       page: 1,
       limit: 10,
-      sortBy: 'createdAt',
-      sortOrder: 'desc',
+      sortBy: "createdAt",
+      sortOrder: "desc",
       status: [] as FactoryStatus[],
-    }
+    },
   });
 
   const { setColumnFilters, setSearchQuery } = tableState;
 
   // URL Parameter Sync (Initial load and searchParams changes)
   useEffect(() => {
-    const status = searchParams.get('status');
-    const search = searchParams.get('search');
+    const status = searchParams.get("status");
+    const search = searchParams.get("search");
 
     if (search) {
       setSearchQuery(search);
     }
 
-    setColumnFilters(prev => {
+    setColumnFilters((prev) => {
       let next = prev;
-      
+
       if (status) {
-         next = updateColumnFilters(next, 'status', [status]);
+        next = updateColumnFilters(next, "status", [status]);
       }
 
       return next;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Download,
   Calendar,
@@ -9,17 +9,17 @@ import {
   AlertTriangle,
   Clock,
   Activity,
-  FileText
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
+  FileText,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   LineChart,
   Line,
@@ -33,12 +33,12 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend
-} from 'recharts';
-import { KPICard } from '@/features/dashboard/KPICard';
-import { RiskTable } from '@/features/dashboard/RiskTable';
-import { ActionCenter } from '@/features/dashboard/ActionCenter';
-import { InsightPanel } from '@/features/dashboard/InsightPanel';
+  Legend,
+} from "recharts";
+import { KPICard } from "@/features/dashboard/KPICard";
+import { RiskTable } from "@/features/dashboard/RiskTable";
+import { ActionCenter } from "@/features/dashboard/ActionCenter";
+import { InsightPanel } from "@/features/dashboard/InsightPanel";
 import {
   kpiCards,
   riskEquipments,
@@ -49,34 +49,36 @@ import {
   incidentsByCause,
   downtimeData,
   downtimeByGroup,
-  managementInsights
-} from '@/data/dashboardData';
-import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
+  managementInsights,
+} from "@/data/dashboardData";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-const PIE_COLORS = ['#10b981', '#f59e0b', '#ef4444'];
+const PIE_COLORS = ["#10b981", "#f59e0b", "#ef4444"];
 
 export default function Dashboard() {
-  const [selectedMonth, setSelectedMonth] = useState('12');
-  const [selectedYear, setSelectedYear] = useState('2026');
-  const [selectedFactory, setSelectedFactory] = useState('all');
-  const [selectedGroup, setSelectedGroup] = useState('all');
-  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedMonth, setSelectedMonth] = useState("12");
+  const [selectedYear, setSelectedYear] = useState("2026");
+  const [selectedFactory, setSelectedFactory] = useState("all");
+  const [selectedGroup, setSelectedGroup] = useState("all");
+  const [activeTab, setActiveTab] = useState("overview");
 
   const isMobile = useIsMobile();
 
   return (
-    <div className={cn(
-      "animate-fade-in",
-      isMobile
-        ? "px-4 py-3 max-w-full overflow-x-hidden"
-        : "p-6 overflow-x-hidden"
-    )}>
+    <div
+      className={cn(
+        "animate-fade-in",
+        isMobile ? "px-4 py-3 max-w-full overflow-x-hidden" : "p-6 overflow-x-hidden",
+      )}
+    >
       {/* Page Header */}
       <div className={cn("mb-3", !isMobile && "mb-6")}>
         <p className={cn("page-subtitle", isMobile && "text-[10px]")}>DASHBOARD & KPI</p>
         <div className="flex items-center justify-between gap-2 min-w-0">
-          <h1 className={cn("page-title truncate", isMobile && "text-base")}>Quản lý & Ra quyết định</h1>
+          <h1 className={cn("page-title truncate", isMobile && "text-base")}>
+            Quản lý & Ra quyết định
+          </h1>
           {!isMobile && (
             <Button variant="outline" size="sm" className="action-btn-secondary shrink-0">
               <Download className="h-4 w-4" />
@@ -167,19 +169,20 @@ export default function Dashboard() {
       )}
 
       {/* Dashboard Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className={cn("space-y-3", !isMobile && "space-y-6")}>
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className={cn("space-y-3", !isMobile && "space-y-6")}
+      >
         {/* Mobile-optimized tabs - wrap to next line instead of scroll */}
-        <TabsList className={cn(
-          "bg-secondary/50 p-1",
-          isMobile
-            ? "w-full grid grid-cols-4 h-auto"
-            : ""
-        )}>
+        <TabsList
+          className={cn("bg-secondary/50 p-1", isMobile ? "w-full grid grid-cols-4 h-auto" : "")}
+        >
           <TabsTrigger
             value="overview"
             className={cn(
               "gap-1.5",
-              isMobile && "text-[11px] px-1.5 py-2 flex-col h-auto [&>svg]:mb-0.5"
+              isMobile && "text-[11px] px-1.5 py-2 flex-col h-auto [&>svg]:mb-0.5",
             )}
           >
             <Activity className={cn("h-4 w-4", isMobile && "h-3.5 w-3.5")} />
@@ -189,7 +192,7 @@ export default function Dashboard() {
             value="performance"
             className={cn(
               "gap-1.5",
-              isMobile && "text-[11px] px-1.5 py-2 flex-col h-auto [&>svg]:mb-0.5"
+              isMobile && "text-[11px] px-1.5 py-2 flex-col h-auto [&>svg]:mb-0.5",
             )}
           >
             <TrendingUp className={cn("h-4 w-4", isMobile && "h-3.5 w-3.5")} />
@@ -199,7 +202,7 @@ export default function Dashboard() {
             value="risk"
             className={cn(
               "gap-1.5",
-              isMobile && "text-[11px] px-1.5 py-2 flex-col h-auto [&>svg]:mb-0.5"
+              isMobile && "text-[11px] px-1.5 py-2 flex-col h-auto [&>svg]:mb-0.5",
             )}
           >
             <AlertTriangle className={cn("h-4 w-4", isMobile && "h-3.5 w-3.5")} />
@@ -209,7 +212,7 @@ export default function Dashboard() {
             value="incidents"
             className={cn(
               "gap-1.5",
-              isMobile && "text-[11px] px-1.5 py-2 flex-col h-auto [&>svg]:mb-0.5"
+              isMobile && "text-[11px] px-1.5 py-2 flex-col h-auto [&>svg]:mb-0.5",
             )}
           >
             <Clock className={cn("h-4 w-4", isMobile && "h-3.5 w-3.5")} />
@@ -233,21 +236,20 @@ export default function Dashboard() {
         <TabsContent value="overview" className={cn("space-y-3", !isMobile && "space-y-6")}>
           {/* KPI Cards - 2 columns on mobile */}
           <section>
-            <div className={cn(
-              "grid gap-2",
-              isMobile ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
-            )}>
-              {kpiCards.slice(0, isMobile ? 4 : kpiCards.length).map(kpi => (
+            <div
+              className={cn(
+                "grid gap-2",
+                isMobile ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4",
+              )}
+            >
+              {kpiCards.slice(0, isMobile ? 4 : kpiCards.length).map((kpi) => (
                 <KPICard key={kpi.id} data={kpi} />
               ))}
             </div>
           </section>
 
           {/* Risk + Actions - Single column on mobile */}
-          <section className={cn(
-            "grid gap-3",
-            isMobile ? "grid-cols-1" : "lg:grid-cols-12 gap-6"
-          )}>
+          <section className={cn("grid gap-3", isMobile ? "grid-cols-1" : "lg:grid-cols-12 gap-6")}>
             {/* Risk Table */}
             <div className={cn(!isMobile && "lg:col-span-7 flex flex-col")}>
               <RiskTable data={riskEquipments} compact className="flex-1" />
@@ -260,10 +262,7 @@ export default function Dashboard() {
           </section>
 
           {/* Insights - Single column on mobile */}
-          <section className={cn(
-            "grid gap-2",
-            isMobile ? "grid-cols-1" : "md:grid-cols-3 gap-4"
-          )}>
+          <section className={cn("grid gap-2", isMobile ? "grid-cols-1" : "md:grid-cols-3 gap-4")}>
             <InsightPanel
               title="Hiệu suất bảo dưỡng"
               insights={managementInsights.performance}
@@ -299,9 +298,9 @@ export default function Dashboard() {
                   <YAxis stroke="hsl(var(--muted-foreground))" domain={[80, 100]} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
+                      backgroundColor: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px",
                     }}
                   />
                   <Line
@@ -309,7 +308,7 @@ export default function Dashboard() {
                     dataKey="pmCompletion"
                     stroke="hsl(var(--primary))"
                     strokeWidth={3}
-                    dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
                     name="Tỷ lệ hoàn thành (%)"
                   />
                 </LineChart>
@@ -334,17 +333,32 @@ export default function Dashboard() {
                 <BarChart data={performanceByGroup} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
-                  <YAxis dataKey="group" type="category" stroke="hsl(var(--muted-foreground))" width={120} />
+                  <YAxis
+                    dataKey="group"
+                    type="category"
+                    stroke="hsl(var(--muted-foreground))"
+                    width={120}
+                  />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
+                      backgroundColor: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px",
                     }}
                   />
                   <Legend />
-                  <Bar dataKey="onTime" fill="hsl(var(--status-active))" name="Đúng hạn" radius={[0, 4, 4, 0]} />
-                  <Bar dataKey="late" fill="hsl(var(--destructive))" name="Trễ hạn" radius={[0, 4, 4, 0]} />
+                  <Bar
+                    dataKey="onTime"
+                    fill="hsl(var(--status-active))"
+                    name="Đúng hạn"
+                    radius={[0, 4, 4, 0]}
+                  />
+                  <Bar
+                    dataKey="late"
+                    fill="hsl(var(--destructive))"
+                    name="Trễ hạn"
+                    radius={[0, 4, 4, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -358,14 +372,25 @@ export default function Dashboard() {
                   <YAxis stroke="hsl(var(--muted-foreground))" />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
+                      backgroundColor: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px",
                     }}
                   />
                   <Legend />
-                  <Bar dataKey="pmOnTime" stackId="a" fill="hsl(var(--status-active))" name="Đúng hạn" />
-                  <Bar dataKey="pmLate" stackId="a" fill="hsl(var(--destructive))" name="Trễ hạn" radius={[4, 4, 0, 0]} />
+                  <Bar
+                    dataKey="pmOnTime"
+                    stackId="a"
+                    fill="hsl(var(--status-active))"
+                    name="Đúng hạn"
+                  />
+                  <Bar
+                    dataKey="pmLate"
+                    stackId="a"
+                    fill="hsl(var(--destructive))"
+                    name="Trễ hạn"
+                    radius={[4, 4, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -383,9 +408,9 @@ export default function Dashboard() {
               <InsightPanel
                 title="Đánh giá rủi ro"
                 insights={[
-                  'IMM-01 có điểm rủi ro cao nhất (85/100)',
-                  '3 thiết bị ở mức rủi ro cao',
-                  'Cần ưu tiên xử lý PM trễ hạn'
+                  "IMM-01 có điểm rủi ro cao nhất (85/100)",
+                  "3 thiết bị ở mức rủi ro cao",
+                  "Cần ưu tiên xử lý PM trễ hạn",
                 ]}
                 type="warning"
               />
@@ -398,7 +423,7 @@ export default function Dashboard() {
                     <span className="text-sm text-muted-foreground">Cao</span>
                     <div className="flex items-center gap-2">
                       <div className="w-24 h-2 bg-secondary rounded-full overflow-hidden">
-                        <div className="h-full bg-destructive" style={{ width: '50%' }} />
+                        <div className="h-full bg-destructive" style={{ width: "50%" }} />
                       </div>
                       <span className="text-sm font-medium">3</span>
                     </div>
@@ -407,7 +432,7 @@ export default function Dashboard() {
                     <span className="text-sm text-muted-foreground">Trung bình</span>
                     <div className="flex items-center gap-2">
                       <div className="w-24 h-2 bg-secondary rounded-full overflow-hidden">
-                        <div className="h-full bg-status-maintenance" style={{ width: '33%' }} />
+                        <div className="h-full bg-status-maintenance" style={{ width: "33%" }} />
                       </div>
                       <span className="text-sm font-medium">2</span>
                     </div>
@@ -416,7 +441,7 @@ export default function Dashboard() {
                     <span className="text-sm text-muted-foreground">Thấp</span>
                     <div className="flex items-center gap-2">
                       <div className="w-24 h-2 bg-secondary rounded-full overflow-hidden">
-                        <div className="h-full bg-status-active" style={{ width: '17%' }} />
+                        <div className="h-full bg-status-active" style={{ width: "17%" }} />
                       </div>
                       <span className="text-sm font-medium">1</span>
                     </div>
@@ -440,15 +465,36 @@ export default function Dashboard() {
                   <YAxis stroke="hsl(var(--muted-foreground))" />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
+                      backgroundColor: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px",
                     }}
                   />
                   <Legend />
-                  <Line type="monotone" dataKey="total" stroke="hsl(var(--primary))" strokeWidth={3} name="Tổng" dot={{ r: 4 }} />
-                  <Line type="monotone" dataKey="high" stroke="hsl(var(--destructive))" strokeWidth={2} name="Nặng" dot={{ r: 3 }} />
-                  <Line type="monotone" dataKey="medium" stroke="hsl(var(--status-maintenance))" strokeWidth={2} name="Trung bình" dot={{ r: 3 }} />
+                  <Line
+                    type="monotone"
+                    dataKey="total"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={3}
+                    name="Tổng"
+                    dot={{ r: 4 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="high"
+                    stroke="hsl(var(--destructive))"
+                    strokeWidth={2}
+                    name="Nặng"
+                    dot={{ r: 3 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="medium"
+                    stroke="hsl(var(--status-maintenance))"
+                    strokeWidth={2}
+                    name="Trung bình"
+                    dot={{ r: 3 }}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -460,9 +506,9 @@ export default function Dashboard() {
                 <PieChart>
                   <Pie
                     data={[
-                      { name: 'Nhẹ', value: 3 },
-                      { name: 'Trung bình', value: 3 },
-                      { name: 'Nặng', value: 2 }
+                      { name: "Nhẹ", value: 3 },
+                      { name: "Trung bình", value: 3 },
+                      { name: "Nặng", value: 2 },
                     ]}
                     cx="50%"
                     cy="50%"
@@ -490,15 +536,25 @@ export default function Dashboard() {
                 <BarChart data={incidentsByCause} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
-                  <YAxis dataKey="cause" type="category" stroke="hsl(var(--muted-foreground))" width={150} />
+                  <YAxis
+                    dataKey="cause"
+                    type="category"
+                    stroke="hsl(var(--muted-foreground))"
+                    width={150}
+                  />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
+                      backgroundColor: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px",
                     }}
                   />
-                  <Bar dataKey="count" fill="hsl(var(--primary))" name="Số lượng" radius={[0, 4, 4, 0]} />
+                  <Bar
+                    dataKey="count"
+                    fill="hsl(var(--primary))"
+                    name="Số lượng"
+                    radius={[0, 4, 4, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -521,16 +577,26 @@ export default function Dashboard() {
                 <BarChart data={downtimeData} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis type="number" stroke="hsl(var(--muted-foreground))" unit="h" />
-                  <YAxis dataKey="equipmentCode" type="category" stroke="hsl(var(--muted-foreground))" width={80} />
+                  <YAxis
+                    dataKey="equipmentCode"
+                    type="category"
+                    stroke="hsl(var(--muted-foreground))"
+                    width={80}
+                  />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
+                      backgroundColor: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px",
                     }}
-                    formatter={(value: number) => [`${value} giờ`, 'Downtime']}
+                    formatter={(value: number) => [`${value} giờ`, "Downtime"]}
                   />
-                  <Bar dataKey="totalDowntime" fill="hsl(var(--destructive))" name="Downtime (giờ)" radius={[0, 4, 4, 0]} />
+                  <Bar
+                    dataKey="totalDowntime"
+                    fill="hsl(var(--destructive))"
+                    name="Downtime (giờ)"
+                    radius={[0, 4, 4, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -574,44 +640,63 @@ export default function Dashboard() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border/50 bg-secondary/30">
-                  <th className="text-left p-4 text-sm font-medium text-muted-foreground">Thiết bị</th>
+                  <th className="text-left p-4 text-sm font-medium text-muted-foreground">
+                    Thiết bị
+                  </th>
                   <th className="text-left p-4 text-sm font-medium text-muted-foreground">Nhóm</th>
-                  <th className="text-center p-4 text-sm font-medium text-muted-foreground">Downtime</th>
-                  <th className="text-center p-4 text-sm font-medium text-muted-foreground">Số lần dừng</th>
-                  <th className="text-center p-4 text-sm font-medium text-muted-foreground">Xu hướng</th>
-                  <th className="text-left p-4 text-sm font-medium text-muted-foreground">Khuyến nghị</th>
+                  <th className="text-center p-4 text-sm font-medium text-muted-foreground">
+                    Downtime
+                  </th>
+                  <th className="text-center p-4 text-sm font-medium text-muted-foreground">
+                    Số lần dừng
+                  </th>
+                  <th className="text-center p-4 text-sm font-medium text-muted-foreground">
+                    Xu hướng
+                  </th>
+                  <th className="text-left p-4 text-sm font-medium text-muted-foreground">
+                    Khuyến nghị
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {downtimeData.map((eq) => (
-                  <tr key={eq.equipmentCode} className="border-b border-border/50 hover:bg-secondary/20">
+                  <tr
+                    key={eq.equipmentCode}
+                    className="border-b border-border/50 hover:bg-secondary/20"
+                  >
                     <td className="p-4">
                       <p className="font-medium">{eq.equipmentCode}</p>
                       <p className="text-xs text-muted-foreground">{eq.equipmentName}</p>
                     </td>
                     <td className="p-4 text-sm text-muted-foreground">{eq.equipmentGroup}</td>
                     <td className="p-4 text-center">
-                      <span className={cn(
-                        "font-bold",
-                        eq.totalDowntime > 4 && "text-destructive"
-                      )}>
+                      <span className={cn("font-bold", eq.totalDowntime > 4 && "text-destructive")}>
                         {eq.totalDowntime}h
                       </span>
                     </td>
                     <td className="p-4 text-center font-medium">{eq.incidents}</td>
                     <td className="p-4 text-center">
-                      <span className={cn(
-                        "text-xs px-2 py-1 rounded-full",
-                        eq.trend === 'up' && "bg-destructive/20 text-destructive",
-                        eq.trend === 'down' && "bg-status-active/20 text-[hsl(var(--status-active))]",
-                        eq.trend === 'stable' && "bg-muted text-muted-foreground"
-                      )}>
-                        {eq.trend === 'up' ? '↑ Tăng' : eq.trend === 'down' ? '↓ Giảm' : '→ Ổn định'}
+                      <span
+                        className={cn(
+                          "text-xs px-2 py-1 rounded-full",
+                          eq.trend === "up" && "bg-destructive/20 text-destructive",
+                          eq.trend === "down" &&
+                            "bg-status-active/20 text-[hsl(var(--status-active))]",
+                          eq.trend === "stable" && "bg-muted text-muted-foreground",
+                        )}
+                      >
+                        {eq.trend === "up"
+                          ? "↑ Tăng"
+                          : eq.trend === "down"
+                            ? "↓ Giảm"
+                            : "→ Ổn định"}
                       </span>
                     </td>
                     <td className="p-4">
                       {eq.recommendation && (
-                        <span className="text-sm text-primary font-medium">{eq.recommendation}</span>
+                        <span className="text-sm text-primary font-medium">
+                          {eq.recommendation}
+                        </span>
                       )}
                     </td>
                   </tr>
@@ -627,20 +712,20 @@ export default function Dashboard() {
             {/* Report Cards */}
             {[
               {
-                title: 'Báo cáo hiệu quả bảo trì',
-                description: 'Tổng hợp KPI, xu hướng PM và đánh giá hiệu suất',
-                icon: BarChart3
+                title: "Báo cáo hiệu quả bảo trì",
+                description: "Tổng hợp KPI, xu hướng PM và đánh giá hiệu suất",
+                icon: BarChart3,
               },
               {
-                title: 'Báo cáo rủi ro thiết bị',
-                description: 'Phân tích rủi ro, thiết bị cần ưu tiên',
-                icon: AlertTriangle
+                title: "Báo cáo rủi ro thiết bị",
+                description: "Phân tích rủi ro, thiết bị cần ưu tiên",
+                icon: AlertTriangle,
               },
               {
-                title: 'Báo cáo Downtime',
-                description: 'Thống kê downtime, xu hướng và tác động',
-                icon: Clock
-              }
+                title: "Báo cáo Downtime",
+                description: "Thống kê downtime, xu hướng và tác động",
+                icon: Clock,
+              },
             ].map((report) => (
               <div
                 key={report.title}

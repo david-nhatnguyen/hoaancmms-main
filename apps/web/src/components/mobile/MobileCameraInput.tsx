@@ -1,7 +1,7 @@
-import React, { useRef, useState } from 'react';
-import { Camera, X, Image as ImageIcon, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import React, { useRef, useState } from "react";
+import { Camera, X, Image as ImageIcon, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface MobileCameraInputProps {
   onImageCaptured: (file: File) => void;
@@ -9,7 +9,11 @@ interface MobileCameraInputProps {
   className?: string;
 }
 
-export function MobileCameraInput({ onImageCaptured, label = "Chụp ảnh báo cáo", className }: MobileCameraInputProps) {
+export function MobileCameraInput({
+  onImageCaptured,
+  label = "Chụp ảnh báo cáo",
+  className,
+}: MobileCameraInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -23,7 +27,7 @@ export function MobileCameraInput({ onImageCaptured, label = "Chụp ảnh báo 
     // Tạo preview ngay lập tức
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
-    
+
     // Giả lập nén ảnh (Trong thực tế nên dùng browser-image-compression ở đây)
     setTimeout(() => {
       onImageCaptured(file);
@@ -34,7 +38,7 @@ export function MobileCameraInput({ onImageCaptured, label = "Chụp ảnh báo 
   const handleRemove = () => {
     setPreview(null);
     if (inputRef.current) {
-      inputRef.current.value = '';
+      inputRef.current.value = "";
     }
   };
 
@@ -54,9 +58,9 @@ export function MobileCameraInput({ onImageCaptured, label = "Chụp ảnh báo 
       />
 
       {!preview ? (
-        <Button 
-          type="button" 
-          variant="outline" 
+        <Button
+          type="button"
+          variant="outline"
           className="w-full h-32 border-dashed border-2 flex flex-col gap-2 hover:bg-secondary/50 active:scale-95 transition-transform"
           onClick={triggerCamera}
         >
@@ -65,12 +69,8 @@ export function MobileCameraInput({ onImageCaptured, label = "Chụp ảnh báo 
         </Button>
       ) : (
         <div className="relative rounded-lg overflow-hidden border bg-background">
-          <img 
-            src={preview} 
-            alt="Preview" 
-            className="w-full h-48 object-cover" 
-          />
-          
+          <img src={preview} alt="Preview" className="w-full h-48 object-cover" />
+
           {isProcessing && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
               <Loader2 className="h-8 w-8 text-white animate-spin" />
@@ -86,7 +86,7 @@ export function MobileCameraInput({ onImageCaptured, label = "Chụp ảnh báo 
           >
             <X className="h-4 w-4" />
           </Button>
-          
+
           <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded-md flex items-center gap-1">
             <ImageIcon className="h-3 w-3" /> Ảnh đã chụp
           </div>

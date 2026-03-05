@@ -1,6 +1,6 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsEnum } from 'class-validator';
-import { FactoryStatus } from '@prisma/generated/prisma';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsString, IsNotEmpty, IsOptional, IsEnum } from "class-validator";
+import { FactoryStatus } from "@prisma/generated/prisma";
 
 /**
  * Create Factory DTO
@@ -20,35 +20,35 @@ import { FactoryStatus } from '@prisma/generated/prisma';
  */
 export class CreateFactoryDto {
   @ApiProperty({
-    description: 'Factory code',
-    example: 'F01',
+    description: "Factory code",
+    example: "F01",
   })
   @IsString()
-  @IsNotEmpty({ message: 'Mã nhà máy không được để trống' })
+  @IsNotEmpty({ message: "Mã nhà máy không được để trống" })
   code: string;
 
   @ApiProperty({
-    description: 'Factory name',
-    example: 'Nhà máy A',
+    description: "Factory name",
+    example: "Nhà máy A",
   })
   @IsString()
-  @IsNotEmpty({ message: 'Tên nhà máy không được để trống' })
+  @IsNotEmpty({ message: "Tên nhà máy không được để trống" })
   name: string;
 
   @ApiPropertyOptional({
-    description: 'Factory location/address',
-    example: 'Bình Dương',
+    description: "Factory location/address",
+    example: "Bình Dương",
   })
   @IsString()
   @IsOptional()
   location?: string;
 
   @ApiPropertyOptional({
-    description: 'Factory status',
+    description: "Factory status",
     enum: FactoryStatus,
     default: FactoryStatus.ACTIVE,
   })
-  @IsEnum(FactoryStatus, { message: 'Trạng thái không hợp lệ' })
+  @IsEnum(FactoryStatus, { message: "Trạng thái không hợp lệ" })
   @IsOptional()
   status?: FactoryStatus;
 }

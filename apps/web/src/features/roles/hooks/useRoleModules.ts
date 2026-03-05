@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { rolesApi } from '../api/roles.api';
+import { useQuery } from "@tanstack/react-query";
+import { rolesApi } from "../api/roles.api";
 
 /**
  * Fetches all permission modules from the backend.
@@ -9,7 +9,7 @@ import { rolesApi } from '../api/roles.api';
  */
 export function useRoleModules() {
   return useQuery({
-    queryKey: ['role-modules'],
+    queryKey: ["role-modules"],
     queryFn: () => rolesApi.getModules(),
     // Modules rarely change — cache for 10 minutes
     staleTime: 10 * 60 * 1000,

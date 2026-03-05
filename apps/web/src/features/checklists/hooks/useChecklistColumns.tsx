@@ -1,31 +1,24 @@
-import { useMemo, ReactNode } from 'react';
-import { ColumnDef } from '@tanstack/react-table';
-import {
-  Eye,
-  Pencil,
-  Copy,
-  Ban,
-  MoreHorizontal,
-  Trash2,
-} from 'lucide-react';
+import { useMemo, ReactNode } from "react";
+import { ColumnDef } from "@tanstack/react-table";
+import { Eye, Pencil, Copy, Ban, MoreHorizontal, Trash2 } from "lucide-react";
 import {
   ChecklistTemplate,
   ChecklistStatus,
   ChecklistCycle,
   CYCLE_LABELS,
-  STATUS_LABELS
-} from '../types/checklist.types';
-import { Button } from '@/components/ui/button';
+  STATUS_LABELS,
+} from "../types/checklist.types";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Link } from 'react-router-dom';
-import { EquipmentQuickView } from '../components/EquipmentQuickView';
-import { cn } from '@/lib/utils';
-import { Checkbox } from '@/components/ui/checkbox';
+} from "@/components/ui/dropdown-menu";
+import { Link } from "react-router-dom";
+import { EquipmentQuickView } from "../components/EquipmentQuickView";
+import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface UseChecklistColumnsOptions {
   onView: (template: ChecklistTemplate) => void;
@@ -42,271 +35,266 @@ export function useChecklistColumns({
   onDeactivate,
   onDelete,
 }: UseChecklistColumnsOptions) {
-  const columns = useMemo<(ColumnDef<ChecklistTemplate> & {
-    key: string;
-    render: (item: ChecklistTemplate) => ReactNode;
-    mobilePriority?: 'primary' | 'secondary' | 'metadata';
-    width?: string;
-    align?: 'left' | 'center' | 'right';
-    truncate?: boolean;
-    tooltip?: boolean;
-  })[]>(() => [
-    {
-      id: "select",
-      key: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-          className="translate-y-[2px]"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-          className="translate-y-[2px]"
-        />
-      ),
-      render: () => null,
-      enableSorting: false,
-      enableHiding: false,
-      size: 40,
-      minSize: 40,
-      maxSize: 40,
-    },
-    {
-      accessorKey: 'code',
-      key: 'code',
-      header: 'Mã',
-      size: 120,
-      cell: ({ row }) => (
-        <Link
-          to={`/checklists/${row.original.id}`}
-          className="font-mono font-medium text-primary uppercase hover:underline"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {row.getValue('code')}
-        </Link>
-      ),
-      render: (t) => (
-        <Link
-          to={`/checklists/${t.id}`}
-          className="font-mono font-medium text-primary uppercase"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {t.code}
-        </Link>
-      ),
-      mobilePriority: 'primary',
-    },
-    {
-      accessorKey: 'name',
-      key: 'name',
-      header: 'Tên checklist',
-      size: 300,
-      minSize: 200,
-      cell: ({ row }) => (
-        <div className="flex flex-col max-w-[500px]">
-          <span className="font-medium truncate" title={row.original.name}>
-            {row.original.name}
-          </span>
-          {row.original.description ? (
-            <span className="text-[11px] text-muted-foreground truncate" title={row.original.description}>
-              {row.original.description}
+  const columns = useMemo<
+    (ColumnDef<ChecklistTemplate> & {
+      key: string;
+      render: (item: ChecklistTemplate) => ReactNode;
+      mobilePriority?: "primary" | "secondary" | "metadata";
+      width?: string;
+      align?: "left" | "center" | "right";
+      truncate?: boolean;
+      tooltip?: boolean;
+    })[]
+  >(
+    () => [
+      {
+        id: "select",
+        key: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={table.getIsAllPageRowsSelected()}
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            aria-label="Select all"
+            className="translate-y-[2px]"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+            className="translate-y-[2px]"
+          />
+        ),
+        render: () => null,
+        enableSorting: false,
+        enableHiding: false,
+        size: 40,
+        minSize: 40,
+        maxSize: 40,
+      },
+      {
+        accessorKey: "code",
+        key: "code",
+        header: "Mã",
+        size: 120,
+        cell: ({ row }) => (
+          <Link
+            to={`/checklists/${row.original.id}`}
+            className="font-mono font-medium text-primary uppercase hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {row.getValue("code")}
+          </Link>
+        ),
+        render: (t) => (
+          <Link
+            to={`/checklists/${t.id}`}
+            className="font-mono font-medium text-primary uppercase"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {t.code}
+          </Link>
+        ),
+        mobilePriority: "primary",
+      },
+      {
+        accessorKey: "name",
+        key: "name",
+        header: "Tên checklist",
+        size: 300,
+        minSize: 200,
+        cell: ({ row }) => (
+          <div className="flex flex-col max-w-[500px]">
+            <span className="font-medium truncate" title={row.original.name}>
+              {row.original.name}
             </span>
-          ) : null}
-        </div>
-      ),
-      render: (t) => (
-        <div className="flex flex-col">
-          <span className="font-medium">
-            {t.name}
-          </span>
-          {t.description ? (
-            <span className="text-[11px] text-muted-foreground truncate">
-              {t.description}
-            </span>
-          ) : null}
-        </div>
-      ),
-      mobilePriority: 'secondary',
-    },
-    {
-      id: 'equipment',
-      key: 'equipment',
-      header: 'Thiết bị áp dụng',
-      size: 180,
-      accessorFn: (row) => row.equipment?.name,
-      cell: ({ row }) => {
-        const equipment = row.original.equipment;
-        if (!equipment) return <span className="text-muted-foreground">—</span>;
-        return (
-          <div className="max-w-[180px] truncate">
-            <EquipmentQuickView equipment={equipment} isCompact showImage={false} />
+            {row.original.description ? (
+              <span
+                className="text-[11px] text-muted-foreground truncate"
+                title={row.original.description}
+              >
+                {row.original.description}
+              </span>
+            ) : null}
           </div>
-        );
+        ),
+        render: (t) => (
+          <div className="flex flex-col">
+            <span className="font-medium">{t.name}</span>
+            {t.description ? (
+              <span className="text-[11px] text-muted-foreground truncate">{t.description}</span>
+            ) : null}
+          </div>
+        ),
+        mobilePriority: "secondary",
       },
-      render: (t) => {
-        if (!t.equipment) return <span className="text-muted-foreground">—</span>;
-        return <EquipmentQuickView equipment={t.equipment} isCompact showImage={false} />;
+      {
+        id: "equipment",
+        key: "equipment",
+        header: "Thiết bị áp dụng",
+        size: 180,
+        accessorFn: (row) => row.equipment?.name,
+        cell: ({ row }) => {
+          const equipment = row.original.equipment;
+          if (!equipment) return <span className="text-muted-foreground">—</span>;
+          return (
+            <div className="max-w-[180px] truncate">
+              <EquipmentQuickView equipment={equipment} isCompact showImage={false} />
+            </div>
+          );
+        },
+        render: (t) => {
+          if (!t.equipment) return <span className="text-muted-foreground">—</span>;
+          return <EquipmentQuickView equipment={t.equipment} isCompact showImage={false} />;
+        },
+        mobilePriority: "metadata",
       },
-      mobilePriority: 'metadata',
-    },
 
-    {
-      accessorKey: 'department',
-      key: 'department',
-      header: 'Bộ phận sử dụng',
-      size: 140,
-      cell: ({ row }) => (
-        <div
-          className="text-sm truncate max-w-[150px]"
-          title={row.original.department || ''}
-        >
-          {row.original.department || '—'}
-        </div>
-      ),
-      render: (t) => (
-        <span className="text-sm">
-          {t.department || '—'}
-        </span>
-      ),
-      mobilePriority: 'metadata',
-    },
-    {
-      accessorKey: 'cycle',
-      key: 'cycle',
-      tooltip: false,
-      truncate: false,
-      header: () => <div className="text-center">Chu kỳ</div>,
-      size: 100,
-      cell: ({ row }) => {
-        const cycle = row.getValue('cycle') as ChecklistCycle;
-        return (
-          <div className="flex justify-center">
-            <span className="px-2 py-1 rounded-md bg-secondary text-[11px] font-medium whitespace-nowrap">
-              {CYCLE_LABELS[cycle]}
-            </span>
+      {
+        accessorKey: "department",
+        key: "department",
+        header: "Bộ phận sử dụng",
+        size: 140,
+        cell: ({ row }) => (
+          <div className="text-sm truncate max-w-[150px]" title={row.original.department || ""}>
+            {row.original.department || "—"}
           </div>
-        );
+        ),
+        render: (t) => <span className="text-sm">{t.department || "—"}</span>,
+        mobilePriority: "metadata",
       },
-      render: (t) => (
-        <span className="px-2 py-1 rounded-md bg-secondary text-[11px] font-medium whitespace-nowrap">
-          {CYCLE_LABELS[t.cycle]}
-        </span>
-      ),
-      mobilePriority: 'metadata',
-    },
-    {
-      accessorKey: 'version',
-      key: 'version',
-      tooltip: false,
-      truncate: false,
-      header: () => <div className="text-center">Phiên bản</div>,
-      size: 80,
-      cell: ({ row }) => (
-        <div className="text-center font-mono text-xs text-muted-foreground">
-          v{row.getValue('version')}
-        </div>
-      ),
-      render: (t) => (
-        <span className="font-mono text-xs text-muted-foreground">
-          v{t.version}
-        </span>
-      ),
-      mobilePriority: 'metadata',
-    },
-    {
-      accessorKey: 'status',
-      key: 'status',
-      truncate: false,
-      tooltip: false,
-      header: () => <div className="text-center">Trạng thái</div>,
-      size: 120,
-      cell: ({ row }) => {
-        const status = row.getValue('status') as ChecklistStatus;
-        const styles = {
-          [ChecklistStatus.DRAFT]: 'bg-muted text-muted-foreground',
-          [ChecklistStatus.ACTIVE]: 'bg-status-active/20 text-[hsl(var(--status-active))]',
-          [ChecklistStatus.INACTIVE]: 'bg-status-inactive/20 text-[hsl(var(--status-inactive))]',
-        };
-        return (
-          <div className="flex justify-center min-w-[100px]">
-            <span className={cn('status-badge text-[10px]', styles[status])}>
-              {STATUS_LABELS[status]}
-            </span>
-          </div>
-        );
-      },
-      render: (t) => {
-        const styles = {
-          [ChecklistStatus.DRAFT]: 'bg-muted text-muted-foreground',
-          [ChecklistStatus.ACTIVE]: 'bg-status-active/20 text-[hsl(var(--status-active))]',
-          [ChecklistStatus.INACTIVE]: 'bg-status-inactive/20 text-[hsl(var(--status-inactive))]',
-        };
-        return (
-          <span className={cn('status-badge text-[10px]', styles[t.status])}>
-            {STATUS_LABELS[t.status]}
+      {
+        accessorKey: "cycle",
+        key: "cycle",
+        tooltip: false,
+        truncate: false,
+        header: () => <div className="text-center">Chu kỳ</div>,
+        size: 100,
+        cell: ({ row }) => {
+          const cycle = row.getValue("cycle") as ChecklistCycle;
+          return (
+            <div className="flex justify-center">
+              <span className="px-2 py-1 rounded-md bg-secondary text-[11px] font-medium whitespace-nowrap">
+                {CYCLE_LABELS[cycle]}
+              </span>
+            </div>
+          );
+        },
+        render: (t) => (
+          <span className="px-2 py-1 rounded-md bg-secondary text-[11px] font-medium whitespace-nowrap">
+            {CYCLE_LABELS[t.cycle]}
           </span>
-        );
+        ),
+        mobilePriority: "metadata",
       },
-    },
-    {
-      id: 'actions',
-      key: 'actions',
-      size: 50,
-      truncate: false,
-      cell: ({ row }) => {
-        const template = row.original;
-        return (
-          <div className="text-right" onClick={(e) => e.stopPropagation()}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[160px]">
-                <DropdownMenuItem onClick={() => onView(template)}>
-                  <Eye className="mr-2 h-4 w-4" />
-                  Xem chi tiết
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onEdit(template)}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Chỉnh sửa
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onCopy(template)}>
-                  <Copy className="mr-2 h-4 w-4" />
-                  Sao chép
-                </DropdownMenuItem>
-                {template.status === ChecklistStatus.ACTIVE ? (
+      {
+        accessorKey: "version",
+        key: "version",
+        tooltip: false,
+        truncate: false,
+        header: () => <div className="text-center">Phiên bản</div>,
+        size: 80,
+        cell: ({ row }) => (
+          <div className="text-center font-mono text-xs text-muted-foreground">
+            v{row.getValue("version")}
+          </div>
+        ),
+        render: (t) => (
+          <span className="font-mono text-xs text-muted-foreground">v{t.version}</span>
+        ),
+        mobilePriority: "metadata",
+      },
+      {
+        accessorKey: "status",
+        key: "status",
+        truncate: false,
+        tooltip: false,
+        header: () => <div className="text-center">Trạng thái</div>,
+        size: 120,
+        cell: ({ row }) => {
+          const status = row.getValue("status") as ChecklistStatus;
+          const styles = {
+            [ChecklistStatus.DRAFT]: "bg-muted text-muted-foreground",
+            [ChecklistStatus.ACTIVE]: "bg-status-active/20 text-[hsl(var(--status-active))]",
+            [ChecklistStatus.INACTIVE]: "bg-status-inactive/20 text-[hsl(var(--status-inactive))]",
+          };
+          return (
+            <div className="flex justify-center min-w-[100px]">
+              <span className={cn("status-badge text-[10px]", styles[status])}>
+                {STATUS_LABELS[status]}
+              </span>
+            </div>
+          );
+        },
+        render: (t) => {
+          const styles = {
+            [ChecklistStatus.DRAFT]: "bg-muted text-muted-foreground",
+            [ChecklistStatus.ACTIVE]: "bg-status-active/20 text-[hsl(var(--status-active))]",
+            [ChecklistStatus.INACTIVE]: "bg-status-inactive/20 text-[hsl(var(--status-inactive))]",
+          };
+          return (
+            <span className={cn("status-badge text-[10px]", styles[t.status])}>
+              {STATUS_LABELS[t.status]}
+            </span>
+          );
+        },
+      },
+      {
+        id: "actions",
+        key: "actions",
+        size: 50,
+        truncate: false,
+        cell: ({ row }) => {
+          const template = row.original;
+          return (
+            <div className="text-right" onClick={(e) => e.stopPropagation()}>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[160px]">
+                  <DropdownMenuItem onClick={() => onView(template)}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    Xem chi tiết
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onEdit(template)}>
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Chỉnh sửa
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onCopy(template)}>
+                    <Copy className="mr-2 h-4 w-4" />
+                    Sao chép
+                  </DropdownMenuItem>
+                  {template.status === ChecklistStatus.ACTIVE ? (
+                    <DropdownMenuItem
+                      onClick={() => onDeactivate(template)}
+                      className="text-status-critical"
+                    >
+                      <Ban className="mr-2 h-4 w-4" />
+                      Ngừng sử dụng
+                    </DropdownMenuItem>
+                  ) : null}
                   <DropdownMenuItem
-                    onClick={() => onDeactivate(template)}
+                    onClick={() => onDelete(template)}
                     className="text-status-critical"
                   >
-                    <Ban className="mr-2 h-4 w-4" />
-                    Ngừng sử dụng
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Xóa
                   </DropdownMenuItem>
-                ) : null}
-                <DropdownMenuItem
-                  onClick={() => onDelete(template)}
-                  className="text-status-critical"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Xóa
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        );
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
+        render: () => null,
       },
-      render: () => null,
-    },
-  ], [onView, onEdit, onCopy, onDeactivate, onDelete]);
+    ],
+    [onView, onEdit, onCopy, onDeactivate, onDelete],
+  );
 
   return { columns };
 }

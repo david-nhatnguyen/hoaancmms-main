@@ -1,8 +1,8 @@
-import { cn } from '@/lib/utils';
-import { AlertTriangle, AlertCircle, CheckCircle } from 'lucide-react';
-import { PRIORITY_LABELS } from '@/data/mockData';
+import { cn } from "@/lib/utils";
+import { AlertTriangle, AlertCircle, CheckCircle } from "lucide-react";
+import { PRIORITY_LABELS } from "@/data/mockData";
 
-type PriorityType = 'high' | 'medium' | 'low';
+type PriorityType = "high" | "medium" | "low";
 
 interface PriorityIndicatorProps {
   priority: PriorityType;
@@ -10,26 +10,33 @@ interface PriorityIndicatorProps {
   className?: string;
 }
 
-export function PriorityIndicator({ priority, showLabel = true, className }: PriorityIndicatorProps) {
-  const Icon = priority === 'high' ? AlertTriangle : priority === 'medium' ? AlertCircle : CheckCircle;
-  
+export function PriorityIndicator({
+  priority,
+  showLabel = true,
+  className,
+}: PriorityIndicatorProps) {
+  const Icon =
+    priority === "high" ? AlertTriangle : priority === "medium" ? AlertCircle : CheckCircle;
+
   return (
     <div className={cn("flex items-center gap-1.5", className)}>
-      <Icon 
+      <Icon
         className={cn(
           "h-4 w-4",
-          priority === 'high' && "priority-high",
-          priority === 'medium' && "priority-medium",
-          priority === 'low' && "priority-low"
-        )} 
+          priority === "high" && "priority-high",
+          priority === "medium" && "priority-medium",
+          priority === "low" && "priority-low",
+        )}
       />
       {showLabel && (
-        <span className={cn(
-          "text-sm",
-          priority === 'high' && "priority-high",
-          priority === 'medium' && "priority-medium",
-          priority === 'low' && "priority-low"
-        )}>
+        <span
+          className={cn(
+            "text-sm",
+            priority === "high" && "priority-high",
+            priority === "medium" && "priority-medium",
+            priority === "low" && "priority-low",
+          )}
+        >
           {PRIORITY_LABELS[priority]}
         </span>
       )}

@@ -1,5 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import {
   IsString,
   IsNotEmpty,
@@ -7,10 +7,10 @@ import {
   IsBoolean,
   IsArray,
   ValidateNested,
-} from 'class-validator';
+} from "class-validator";
 
 export class PermissionDto {
-  @ApiProperty({ example: 'asset' })
+  @ApiProperty({ example: "asset" })
   @IsString()
   @IsNotEmpty()
   moduleId: string;
@@ -25,12 +25,12 @@ export class PermissionDto {
 }
 
 export class CreateRoleDto {
-  @ApiProperty({ example: 'Kỹ thuật viên' })
+  @ApiProperty({ example: "Kỹ thuật viên" })
   @IsString()
-  @IsNotEmpty({ message: 'Tên vai trò không được để trống' })
+  @IsNotEmpty({ message: "Tên vai trò không được để trống" })
   name: string;
 
-  @ApiPropertyOptional({ example: 'Thực hiện công việc bảo trì' })
+  @ApiPropertyOptional({ example: "Thực hiện công việc bảo trì" })
   @IsString()
   @IsOptional()
   description?: string;

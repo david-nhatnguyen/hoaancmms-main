@@ -1,14 +1,9 @@
-import React, { useState } from 'react';
-import {
-  Check,
-  ChevronsUpDown,
-  Building2,
-  X,
-} from 'lucide-react';
-import { useEquipmentSearch } from '../hooks/useEquipmentSearch';
-import { Equipment } from '../types/checklist.types';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import React, { useState } from "react";
+import { Check, ChevronsUpDown, Building2, X } from "lucide-react";
+import { useEquipmentSearch } from "../hooks/useEquipmentSearch";
+import { Equipment } from "../types/checklist.types";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -16,14 +11,10 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Skeleton } from '@/components/ui/skeleton';
-import { EquipmentQuickView } from './EquipmentQuickView';
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EquipmentQuickView } from "./EquipmentQuickView";
 
 interface EquipmentSearchInputProps {
   value?: Equipment | null;
@@ -32,7 +23,6 @@ interface EquipmentSearchInputProps {
   required?: boolean;
 }
 
-
 export const EquipmentSearchInput: React.FC<EquipmentSearchInputProps> = ({
   value,
   onChange,
@@ -40,13 +30,13 @@ export const EquipmentSearchInput: React.FC<EquipmentSearchInputProps> = ({
   required = false,
 }) => {
   const [open, setOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const { data: equipments = [], isLoading } = useEquipmentSearch(searchQuery);
 
   const handleSelect = (equipment: Equipment) => {
     onChange(equipment);
     setOpen(false);
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   const handleClear = (e: React.MouseEvent) => {
@@ -66,38 +56,52 @@ export const EquipmentSearchInput: React.FC<EquipmentSearchInputProps> = ({
               "w-full justify-between h-auto min-h-[72px] py-3 px-3 items-center text-left relative overflow-hidden transition-all duration-300",
               "flex [&>span]:flex-1 [&>span]:w-full",
               error && "border-destructive text-destructive",
-              value && "bg-primary/5 hover:bg-primary/10 border-primary/20 shadow-sm"
+              value && "bg-primary/5 hover:bg-primary/10 border-primary/20 shadow-sm",
             )}
           >
             {/* Selected State */}
-            <div className={cn(
-              "flex flex-1 min-w-0 transition-all duration-300 transform",
-              value ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 absolute inset-x-3 pointer-events-none"
-            )}>
+            <div
+              className={cn(
+                "flex flex-1 min-w-0 transition-all duration-300 transform",
+                value
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 -translate-y-4 absolute inset-x-3 pointer-events-none",
+              )}
+            >
               {value ? <EquipmentQuickView equipment={value} isCompact showImage={true} /> : null}
             </div>
 
             {/* Empty State / Placeholder */}
-            <div className={cn(
-              "flex flex-1 min-w-0 items-center gap-2 transition-all duration-300 transform",
-              !value ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 absolute inset-x-3 pointer-events-none"
-            )}>
+            <div
+              className={cn(
+                "flex flex-1 min-w-0 items-center gap-2 transition-all duration-300 transform",
+                !value
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-4 absolute inset-x-3 pointer-events-none",
+              )}
+            >
               <div className="p-2 rounded-lg bg-muted/50">
                 <Building2 className="h-5 w-5 text-muted-foreground opacity-50" />
               </div>
               <div className="flex flex-col">
                 <span className="font-medium text-sm text-foreground/80">
-                  {`Tìm thiết bị${required ? ' *' : ''}`}
+                  {`Tìm thiết bị${required ? " *" : ""}`}
                 </span>
-                <span className="text-[10px] text-muted-foreground">Nhấp để tìm kiếm và chọn thiết bị</span>
+                <span className="text-[10px] text-muted-foreground">
+                  Nhấp để tìm kiếm và chọn thiết bị
+                </span>
               </div>
             </div>
 
             <div className="flex items-center ml-2 shrink-0 self-center z-10">
-              <div className={cn(
-                "flex items-center transition-all duration-300",
-                value ? "opacity-100 scale-100 w-auto" : "opacity-0 scale-50 w-0 overflow-hidden pointer-events-none"
-              )}>
+              <div
+                className={cn(
+                  "flex items-center transition-all duration-300",
+                  value
+                    ? "opacity-100 scale-100 w-auto"
+                    : "opacity-0 scale-50 w-0 overflow-hidden pointer-events-none",
+                )}
+              >
                 <div
                   onClick={handleClear}
                   className="p-1.5 hover:bg-destructive/10 hover:text-destructive rounded-full mr-1 transition-colors"
@@ -153,8 +157,12 @@ export const EquipmentSearchInput: React.FC<EquipmentSearchInputProps> = ({
                     <Building2 className="h-8 w-8 text-muted-foreground opacity-30" />
                   </div>
                   <div className="text-center space-y-1">
-                    <p className="text-sm font-medium text-foreground/80">Không tìm thấy thiết bị nào</p>
-                    <p className="text-[11px] text-muted-foreground">Thử tìm kiếm với tên hoặc mã khác</p>
+                    <p className="text-sm font-medium text-foreground/80">
+                      Không tìm thấy thiết bị nào
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Thử tìm kiếm với tên hoặc mã khác
+                    </p>
                   </div>
                 </CommandEmpty>
               )}

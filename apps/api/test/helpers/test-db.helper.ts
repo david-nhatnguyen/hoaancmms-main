@@ -1,5 +1,5 @@
-import { PrismaService } from '@/database/prisma.service';
-import { FactoryStatus } from '@prisma/generated/prisma';
+import { PrismaService } from "@/database/prisma.service";
+import { FactoryStatus } from "@prisma/generated/prisma";
 
 /**
  * Clean all data from test database
@@ -26,8 +26,8 @@ export async function seedFactory(
   return prisma.client.factory.create({
     data: {
       code: data.code || `F${Date.now()}`,
-      name: data.name || 'Test Factory',
-      location: data.location || 'Test Location',
+      name: data.name || "Test Factory",
+      location: data.location || "Test Location",
       status: data.status || FactoryStatus.ACTIVE,
     },
   });

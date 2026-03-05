@@ -1,4 +1,4 @@
-import { SetMetadata } from '@nestjs/common';
+import { SetMetadata } from "@nestjs/common";
 
 /**
  * @Roles Decorator
@@ -11,5 +11,5 @@ import { SetMetadata } from '@nestjs/common';
  * @Delete(':id')
  * async deleteFactory(@Param('id') id: string) { ... }
  */
-export const ROLES_KEY = 'roles';
+export const ROLES_KEY = "roles";
 export const Roles = (...roles: string[]) => SetMetadata(ROLES_KEY, roles);

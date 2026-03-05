@@ -34,11 +34,14 @@ export function DeleteEquipmentDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Xóa Thiết bị?</AlertDialogTitle>
           <AlertDialogDescription>
-            {equipment.id === 'bulk' ? (
-              <>Bạn có chắc chắn muốn xóa <span className="font-semibold text-foreground">{equipment.name}</span>?</>
+            {equipment.id === "bulk" ? (
+              <>
+                Bạn có chắc chắn muốn xóa{" "}
+                <span className="font-semibold text-foreground">{equipment.name}</span>?
+              </>
             ) : (
               <>
-                Bạn có chắc chắn muốn xóa thiết bị{' '}
+                Bạn có chắc chắn muốn xóa thiết bị{" "}
                 <span className="font-semibold text-foreground">
                   {equipment.code} - {equipment.name}
                 </span>
@@ -46,7 +49,7 @@ export function DeleteEquipmentDialog({
               </>
             )}
           </AlertDialogDescription>
-           <p className="text-sm text-muted-foreground mt-2">Hành động này không thể hoàn tác.</p>
+          <p className="text-sm text-muted-foreground mt-2">Hành động này không thể hoàn tác.</p>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting}>Hủy</AlertDialogCancel>

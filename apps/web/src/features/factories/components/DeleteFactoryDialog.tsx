@@ -34,11 +34,14 @@ export function DeleteFactoryDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Xóa Nhà máy?</AlertDialogTitle>
           <AlertDialogDescription>
-            {factory.id === 'bulk' ? (
-              <>Bạn có chắc chắn muốn xóa <span className="font-semibold text-foreground">{factory.name}</span>?</>
+            {factory.id === "bulk" ? (
+              <>
+                Bạn có chắc chắn muốn xóa{" "}
+                <span className="font-semibold text-foreground">{factory.name}</span>?
+              </>
             ) : (
               <>
-                Bạn có chắc chắn muốn xóa nhà máy{' '}
+                Bạn có chắc chắn muốn xóa nhà máy{" "}
                 <span className="font-semibold text-foreground">
                   {factory.code} - {factory.name}
                 </span>
@@ -46,7 +49,7 @@ export function DeleteFactoryDialog({
               </>
             )}
           </AlertDialogDescription>
-           <p className="text-sm text-muted-foreground mt-2">Hành động này không thể hoàn tác.</p>
+          <p className="text-sm text-muted-foreground mt-2">Hành động này không thể hoàn tác.</p>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting}>Hủy</AlertDialogCancel>

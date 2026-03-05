@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   Pencil,
@@ -13,21 +13,11 @@ import {
   Mail,
   Copy,
   Loader2,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -35,7 +25,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Command,
   CommandEmpty,
@@ -43,52 +33,52 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { toast } from 'sonner';
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { toast } from "sonner";
 import {
   useRole,
   useRoleModules,
   useRoleUsers,
   useAssignUserRole,
   useUserSearch,
-} from '@/features/roles';
+} from "@/features/roles";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const ACTIONS = ['view', 'create', 'edit', 'delete', 'export', 'approve', 'lock'] as const;
-type Action = typeof ACTIONS[number];
+const ACTIONS = ["view", "create", "edit", "delete", "export", "approve", "lock"] as const;
+type Action = (typeof ACTIONS)[number];
 
 const ACTION_LABELS: Record<Action, string> = {
-  view: 'Xem',
-  create: 'Tạo',
-  edit: 'Sửa',
-  delete: 'Xóa',
-  export: 'Xuất',
-  approve: 'Duyệt',
-  lock: 'Khóa',
+  view: "Xem",
+  create: "Tạo",
+  edit: "Sửa",
+  delete: "Xóa",
+  export: "Xuất",
+  approve: "Duyệt",
+  lock: "Khóa",
 };
 
 const ACTION_COLORS: Record<Action, string> = {
-  view: 'bg-blue-500/20 text-blue-400',
-  create: 'bg-emerald-500/20 text-emerald-400',
-  edit: 'bg-amber-500/20 text-amber-400',
-  delete: 'bg-red-500/20 text-red-400',
-  export: 'bg-purple-500/20 text-purple-400',
-  approve: 'bg-cyan-500/20 text-cyan-400',
-  lock: 'bg-orange-500/20 text-orange-400',
+  view: "bg-blue-500/20 text-blue-400",
+  create: "bg-emerald-500/20 text-emerald-400",
+  edit: "bg-amber-500/20 text-amber-400",
+  delete: "bg-red-500/20 text-red-400",
+  export: "bg-purple-500/20 text-purple-400",
+  approve: "bg-cyan-500/20 text-cyan-400",
+  lock: "bg-orange-500/20 text-orange-400",
 };
 
 // Map API field names → Action keys for reading
 const API_KEY_TO_ACTION: Record<string, Action> = {
-  canView: 'view',
-  canCreate: 'create',
-  canEdit: 'edit',
-  canDelete: 'delete',
-  canExport: 'export',
-  canApprove: 'approve',
-  canLock: 'lock',
+  canView: "view",
+  canCreate: "create",
+  canEdit: "edit",
+  canDelete: "delete",
+  canExport: "export",
+  canApprove: "approve",
+  canLock: "lock",
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -114,7 +104,9 @@ function RoleDetailSkeleton() {
       <div className="h-8 w-40 bg-muted rounded" />
       <div className="h-20 w-full bg-muted rounded" />
       <div className="grid grid-cols-3 gap-3">
-        {[1, 2, 3].map((i) => (<div key={i} className="h-20 bg-muted rounded" />))}
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-20 bg-muted rounded" />
+        ))}
       </div>
       <div className="h-64 w-full bg-muted rounded" />
     </div>
@@ -128,9 +120,9 @@ export default function RoleDetail() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-  const [userSearch, setUserSearch] = useState('');
+  const [userSearch, setUserSearch] = useState("");
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
-  const [searchForAssign, setSearchForAssign] = useState('');
+  const [searchForAssign, setSearchForAssign] = useState("");
 
   // ── Data fetching ────────────────────────────────────────────────
   const { data: role, isLoading: isLoadingRole } = useRole(id);
@@ -139,7 +131,7 @@ export default function RoleDetail() {
   const { data: searchResults = [], isLoading: isSearching } = useUserSearch(searchForAssign);
 
   // ── Mutations ────────────────────────────────────────────────────
-  const assignUser = useAssignUserRole(id ?? '');
+  const assignUser = useAssignUserRole(id ?? "");
 
   // ── Loading / not-found states ───────────────────────────────────
   if (isLoadingRole) {
@@ -150,7 +142,7 @@ export default function RoleDetail() {
     return (
       <div className="p-6 text-center">
         <p className="text-muted-foreground">Không tìm thấy vai trò</p>
-        <Button variant="outline" onClick={() => navigate('/system/roles')} className="mt-4">
+        <Button variant="outline" onClick={() => navigate("/system/roles")} className="mt-4">
           Quay lại danh sách
         </Button>
       </div>
@@ -164,13 +156,11 @@ export default function RoleDetail() {
     (u) =>
       !userSearch ||
       u.fullName.toLowerCase().includes(userSearch.toLowerCase()) ||
-      (u.email ?? '').toLowerCase().includes(userSearch.toLowerCase()),
+      (u.email ?? "").toLowerCase().includes(userSearch.toLowerCase()),
   );
 
   // Users NOT in this role — from search results
-  const unassignedUsers = searchResults.filter(
-    (u: any) => u.roleId !== id,
-  );
+  const unassignedUsers = searchResults.filter((u: any) => u.roleId !== id);
 
   const totalEnabledPermissions = role.permissions.reduce(
     (sum, p) => sum + getEnabledActions(p as any).length,
@@ -180,18 +170,13 @@ export default function RoleDetail() {
   // ─── Render ──────────────────────────────────────────────────────
 
   return (
-    <div
-      className={cn(
-        'max-w-full overflow-x-hidden',
-        isMobile ? 'px-4 py-3' : 'p-6',
-      )}
-    >
+    <div className={cn("max-w-full overflow-x-hidden", isMobile ? "px-4 py-3" : "p-6")}>
       {/* ── Header ── */}
       <div className="mb-6">
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate('/system/roles')}
+          onClick={() => navigate("/system/roles")}
           className="-ml-2 mb-3 text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="mr-1 h-4 w-4" />
@@ -200,12 +185,16 @@ export default function RoleDetail() {
 
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3">
-            <div className={cn('p-2.5 rounded-xl', isAdmin ? 'bg-destructive/20' : 'bg-primary/10')}>
-              <Shield className={cn('h-6 w-6', isAdmin ? 'text-destructive' : 'text-primary')} />
+            <div
+              className={cn("p-2.5 rounded-xl", isAdmin ? "bg-destructive/20" : "bg-primary/10")}
+            >
+              <Shield className={cn("h-6 w-6", isAdmin ? "text-destructive" : "text-primary")} />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium">VAI TRÒ</p>
-              <h1 className={cn('font-bold', isMobile ? 'text-lg' : 'page-title')}>{role.name}</h1>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium">
+                VAI TRÒ
+              </p>
+              <h1 className={cn("font-bold", isMobile ? "text-lg" : "page-title")}>{role.name}</h1>
               <p className="text-sm text-muted-foreground">{role.description}</p>
             </div>
           </div>
@@ -216,8 +205,8 @@ export default function RoleDetail() {
               size="sm"
               className="action-btn-secondary"
               onClick={() => {
-                toast.success('Đã sao chép vai trò');
-                navigate('/system/roles/new');
+                toast.success("Đã sao chép vai trò");
+                navigate("/system/roles/new");
               }}
             >
               <Copy className="h-4 w-4" />
@@ -238,13 +227,18 @@ export default function RoleDetail() {
       </div>
 
       {/* ── Stats Row ── */}
-      <div className={cn('grid gap-3 mb-6', isMobile ? 'grid-cols-3' : 'grid-cols-3')}>
-        <div className={cn('stat-card flex items-center justify-between', isMobile && 'p-2.5')}>
+      <div className={cn("grid gap-3 mb-6", isMobile ? "grid-cols-3" : "grid-cols-3")}>
+        <div className={cn("stat-card flex items-center justify-between", isMobile && "p-2.5")}>
           <div>
-            <p className={cn('text-muted-foreground mb-0.5', isMobile ? 'text-[10px]' : 'text-sm mb-1')}>
+            <p
+              className={cn(
+                "text-muted-foreground mb-0.5",
+                isMobile ? "text-[10px]" : "text-sm mb-1",
+              )}
+            >
               Người dùng
             </p>
-            <p className={cn('font-bold', isMobile ? 'text-xl' : 'text-3xl')}>{role.userCount}</p>
+            <p className={cn("font-bold", isMobile ? "text-xl" : "text-3xl")}>{role.userCount}</p>
           </div>
           {!isMobile && (
             <div className="stat-card-icon bg-primary/20">
@@ -252,12 +246,19 @@ export default function RoleDetail() {
             </div>
           )}
         </div>
-        <div className={cn('stat-card flex items-center justify-between', isMobile && 'p-2.5')}>
+        <div className={cn("stat-card flex items-center justify-between", isMobile && "p-2.5")}>
           <div>
-            <p className={cn('text-muted-foreground mb-0.5', isMobile ? 'text-[10px]' : 'text-sm mb-1')}>
+            <p
+              className={cn(
+                "text-muted-foreground mb-0.5",
+                isMobile ? "text-[10px]" : "text-sm mb-1",
+              )}
+            >
               Quyền đã bật
             </p>
-            <p className={cn('font-bold text-primary', isMobile ? 'text-xl' : 'text-3xl')}>{totalEnabledPermissions}</p>
+            <p className={cn("font-bold text-primary", isMobile ? "text-xl" : "text-3xl")}>
+              {totalEnabledPermissions}
+            </p>
           </div>
           {!isMobile && (
             <div className="stat-card-icon bg-primary/20">
@@ -265,25 +266,32 @@ export default function RoleDetail() {
             </div>
           )}
         </div>
-        <div className={cn('stat-card flex items-center justify-between', isMobile && 'p-2.5')}>
+        <div className={cn("stat-card flex items-center justify-between", isMobile && "p-2.5")}>
           <div>
-            <p className={cn('text-muted-foreground mb-0.5', isMobile ? 'text-[10px]' : 'text-sm mb-1')}>
+            <p
+              className={cn(
+                "text-muted-foreground mb-0.5",
+                isMobile ? "text-[10px]" : "text-sm mb-1",
+              )}
+            >
               Loại
             </p>
-            <span className={cn(
-              'status-badge inline-block',
-              role.isSystem ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground',
-              isMobile ? 'text-[10px]' : '',
-            )}>
-              {role.isSystem ? 'Hệ thống' : 'Tùy chỉnh'}
+            <span
+              className={cn(
+                "status-badge inline-block",
+                role.isSystem ? "bg-primary/20 text-primary" : "bg-secondary text-muted-foreground",
+                isMobile ? "text-[10px]" : "",
+              )}
+            >
+              {role.isSystem ? "Hệ thống" : "Tùy chỉnh"}
             </span>
           </div>
         </div>
       </div>
 
-      <div className={cn('grid gap-6', isMobile ? 'grid-cols-1' : 'grid-cols-1 xl:grid-cols-3')}>
+      <div className={cn("grid gap-6", isMobile ? "grid-cols-1" : "grid-cols-1 xl:grid-cols-3")}>
         {/* ── Left: Permission Matrix ── */}
-        <div className={cn(isMobile ? '' : 'xl:col-span-2')}>
+        <div className={cn(isMobile ? "" : "xl:col-span-2")}>
           <div>
             <Card className="border border-border/60 shadow-sm bg-card overflow-hidden">
               <CardHeader className="pb-4 border-b border-border/30">
@@ -341,8 +349,8 @@ export default function RoleDetail() {
                         <tr
                           key={perm.moduleId}
                           className={cn(
-                            'border-b border-border/30 transition-colors hover:bg-muted/20',
-                            idx % 2 === 0 ? 'bg-transparent' : 'bg-muted/10',
+                            "border-b border-border/30 transition-colors hover:bg-muted/20",
+                            idx % 2 === 0 ? "bg-transparent" : "bg-muted/10",
                           )}
                         >
                           <td className="p-3 pl-4">
@@ -393,7 +401,10 @@ export default function RoleDetail() {
                     return (
                       <span
                         key={action}
-                        className={cn('text-[10px] px-2 py-0.5 rounded-full font-medium', ACTION_COLORS[action])}
+                        className={cn(
+                          "text-[10px] px-2 py-0.5 rounded-full font-medium",
+                          ACTION_COLORS[action],
+                        )}
                       >
                         {ACTION_LABELS[action]}: {count}
                       </span>
@@ -418,7 +429,7 @@ export default function RoleDetail() {
                     <div>
                       <CardTitle className="text-base">Người dùng</CardTitle>
                       <p className="text-sm text-muted-foreground">
-                        {isLoadingUsers ? '...' : `${roleUsers.length} người`}
+                        {isLoadingUsers ? "..." : `${roleUsers.length} người`}
                       </p>
                     </div>
                   </div>
@@ -457,7 +468,7 @@ export default function RoleDetail() {
                     <div className="py-8 text-center">
                       <Users className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
                       <p className="text-sm text-muted-foreground">
-                        {userSearch ? 'Không tìm thấy' : 'Chưa có người dùng nào'}
+                        {userSearch ? "Không tìm thấy" : "Chưa có người dùng nào"}
                       </p>
                     </div>
                   ) : (
@@ -484,13 +495,13 @@ export default function RoleDetail() {
                         </div>
                         <span
                           className={cn(
-                            'status-badge text-[10px] shrink-0',
-                            user.status === 'ACTIVE'
-                              ? 'bg-status-active/20 text-status-active'
-                              : 'bg-status-inactive/20 text-status-inactive',
+                            "status-badge text-[10px] shrink-0",
+                            user.status === "ACTIVE"
+                              ? "bg-status-active/20 text-status-active"
+                              : "bg-status-inactive/20 text-status-inactive",
                           )}
                         >
-                          {user.status === 'ACTIVE' ? 'Hoạt động' : 'Khóa'}
+                          {user.status === "ACTIVE" ? "Hoạt động" : "Khóa"}
                         </span>
                       </div>
                     ))
@@ -539,7 +550,7 @@ export default function RoleDetail() {
                         onSelect={() => {
                           assignUser.mutate({ userId: user.id });
                           setAssignDialogOpen(false);
-                          setSearchForAssign('');
+                          setSearchForAssign("");
                         }}
                         className="gap-3 py-2.5"
                         disabled={assignUser.isPending}
@@ -566,7 +577,7 @@ export default function RoleDetail() {
               variant="outline"
               onClick={() => {
                 setAssignDialogOpen(false);
-                setSearchForAssign('');
+                setSearchForAssign("");
               }}
             >
               Đóng

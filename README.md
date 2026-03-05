@@ -28,7 +28,7 @@ cp apps/api/.env.example apps/api/.env
 echo "VITE_API_URL=http://localhost:3000" > apps/web/.env
 
 # 3. Start Docker services (PostgreSQL + Redis)
-docker-compose up -d
+docker compose up -d
 
 # 4. Run database migrations
 cd apps/api
@@ -61,6 +61,7 @@ This monorepo uses [Turborepo](https://turbo.build/) and contains:
 ### Tech Stack
 
 **Backend:**
+
 - NestJS
 - Prisma ORM
 - PostgreSQL
@@ -68,6 +69,7 @@ This monorepo uses [Turborepo](https://turbo.build/) and contains:
 - TypeScript
 
 **Frontend:**
+
 - React 18
 - TypeScript
 - Vite
@@ -97,6 +99,7 @@ yarn test     # Run tests for all apps
 ### Hot Reload
 
 Both applications support hot reload:
+
 - API: NestJS watch mode (auto-restart on changes)
 - Web: Vite HMR (instant updates)
 

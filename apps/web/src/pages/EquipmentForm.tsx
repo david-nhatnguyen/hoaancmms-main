@@ -1,14 +1,14 @@
-import { PageContainer } from '@/components/shared/PageContainer';
-import { Form } from '@/components/ui/form';
-import { Loader2 } from 'lucide-react';
+import { PageContainer } from "@/components/shared/PageContainer";
+import { Form } from "@/components/ui/form";
+import { Loader2 } from "lucide-react";
 
 // Atomic Components
-import { EquipmentFormHeader } from '@/features/equipments/components/EquipmentFormHeader';
-import { EquipmentIdentitySection } from '@/features/equipments/components/EquipmentIdentitySection';
-import { EquipmentSpecificationSection } from '@/features/equipments/components/EquipmentSpecificationSection';
+import { EquipmentFormHeader } from "@/features/equipments/components/EquipmentFormHeader";
+import { EquipmentIdentitySection } from "@/features/equipments/components/EquipmentIdentitySection";
+import { EquipmentSpecificationSection } from "@/features/equipments/components/EquipmentSpecificationSection";
 
 // Logic Hook
-import { useEquipmentForm } from '@/features/equipments/hooks/useEquipmentForm';
+import { useEquipmentForm } from "@/features/equipments/hooks/useEquipmentForm";
 
 export default function EquipmentForm() {
   const {
@@ -38,7 +38,6 @@ export default function EquipmentForm() {
       <div className="max-w-7xl mx-auto pb-20">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-
             {/* Header Section */}
             <EquipmentFormHeader
               isEditing={isEditing}
@@ -67,7 +66,6 @@ export default function EquipmentForm() {
                 fileInputRef={fileInputRef}
               />
             </div>
-
           </form>
         </Form>
       </div>

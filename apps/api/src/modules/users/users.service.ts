@@ -4,12 +4,12 @@ import {
   ConflictException,
   BadRequestException,
   Logger,
-} from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
-import { PrismaService } from '@/database/prisma.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UserQueryDto } from './dto/user-query.dto';
+} from "@nestjs/common";
+import * as bcrypt from "bcrypt";
+import { PrismaService } from "@/database/prisma.service";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { UserQueryDto } from "./dto/user-query.dto";
 
 /**
  * UsersService - Full CRUD + Role assignment + Lock/Unlock
@@ -34,9 +34,9 @@ export class UsersService {
 
     if (search) {
       where.OR = [
-        { username: { contains: search, mode: 'insensitive' } },
-        { fullName: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
+        { username: { contains: search, mode: "insensitive" } },
+        { fullName: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
       ];
     }
     if (status) where.status = status;
@@ -46,7 +46,7 @@ export class UsersService {
       where.OR = [
         ...(where.OR ?? []),
         { factoryIds: { has: factoryId } },
-        { factoryIds: { has: 'all' } },
+        { factoryIds: { has: "all" } },
       ];
     }
 
@@ -56,7 +56,7 @@ export class UsersService {
         skip,
         take,
         include: { role: { select: { id: true, name: true } } },
-        orderBy: { fullName: 'asc' },
+        orderBy: { fullName: "asc" },
       }),
       this.prisma.client.user.count({ where }),
     ]);
@@ -90,12 +90,12 @@ export class UsersService {
   /**
    * Search users for autocomplete (lightweight)
    */
-  async search(query: string = '') {
+  async search(query: string = "") {
     const where: any = query.trim()
       ? {
           OR: [
-            { username: { contains: query, mode: 'insensitive' } },
-            { fullName: { contains: query, mode: 'insensitive' } },
+            { username: { contains: query, mode: "insensitive" } },
+            { fullName: { contains: query, mode: "insensitive" } },
           ],
         }
       : {};
@@ -108,7 +108,7 @@ export class UsersService {
         fullName: true,
         role: { select: { id: true, name: true } },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       take: 20,
     });
   }
@@ -204,7 +204,7 @@ export class UsersService {
     await this.findOne(id);
     const user = await this.prisma.client.user.update({
       where: { id },
-      data: { status: 'LOCKED' },
+      data: { status: "LOCKED" },
       include: { role: true },
     });
     this.logger.log(`Locked user: ${user.username}`);
@@ -216,7 +216,7 @@ export class UsersService {
     await this.findOne(id);
     const user = await this.prisma.client.user.update({
       where: { id },
-      data: { status: 'ACTIVE' },
+      data: { status: "ACTIVE" },
       include: { role: true },
     });
     this.logger.log(`Unlocked user: ${user.username}`);
@@ -228,7 +228,7 @@ export class UsersService {
     await this.findOne(userId);
     if (roleId) {
       const role = await this.prisma.client.role.findUnique({ where: { id: roleId } });
-      if (!role) throw new BadRequestException('Vai trò không hợp lệ');
+      if (!role) throw new BadRequestException("Vai trò không hợp lệ");
     }
     const user = await this.prisma.client.user.update({
       where: { id: userId },
@@ -248,15 +248,15 @@ export class UsersService {
       include: { role: true },
     });
     this.logger.log(`Reset password for user: ${user.username}`);
-    return { message: 'Đặt lại mật khẩu thành công' };
+    return { message: "Đặt lại mật khẩu thành công" };
   }
 
   /** Get user stats */
   async getStats() {
     const [total, active, locked] = await Promise.all([
       this.prisma.client.user.count(),
-      this.prisma.client.user.count({ where: { status: 'ACTIVE' } }),
-      this.prisma.client.user.count({ where: { status: 'LOCKED' } }),
+      this.prisma.client.user.count({ where: { status: "ACTIVE" } }),
+      this.prisma.client.user.count({ where: { status: "LOCKED" } }),
     ]);
     return { total, active, locked };
   }
@@ -266,7 +266,7 @@ export class UsersService {
     await this.findOne(id);
     await this.prisma.client.user.delete({ where: { id } });
     this.logger.log(`Deleted user: ${id}`);
-    return { message: 'Xóa người dùng thành công' };
+    return { message: "Xóa người dùng thành công" };
   }
 
   private transformUser(user: any) {

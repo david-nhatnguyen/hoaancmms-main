@@ -1,19 +1,19 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Job } from 'bullmq';
-import { Logger } from '@nestjs/common';
-import { QUEUE_NAMES } from '@/common/constants';
-import * as ExcelJS from 'exceljs';
-import * as fs from 'fs';
-import * as path from 'path';
-import { v4 as uuidv4 } from 'uuid';
-import { PrismaService } from '@/database/prisma.service';
-import { plainToInstance } from 'class-transformer';
-import { validate, ValidationError } from 'class-validator';
-import { CreateEquipmentDto } from './dto/create-equipment.dto';
-import { EquipmentStatus } from '@prisma/generated/prisma';
-import * as sharp from 'sharp';
+import { Processor, WorkerHost } from "@nestjs/bullmq";
+import { Job } from "bullmq";
+import { Logger } from "@nestjs/common";
+import { QUEUE_NAMES } from "@/common/constants";
+import * as ExcelJS from "exceljs";
+import * as fs from "fs";
+import * as path from "path";
+import { v4 as uuidv4 } from "uuid";
+import { PrismaService } from "@/database/prisma.service";
+import { plainToInstance } from "class-transformer";
+import { validate, ValidationError } from "class-validator";
+import { CreateEquipmentDto } from "./dto/create-equipment.dto";
+import { EquipmentStatus } from "@prisma/generated/prisma";
+import * as sharp from "sharp";
 
-import { EquipmentsQrService } from './equipments.qr.service';
+import { EquipmentsQrService } from "./equipments.qr.service";
 
 interface RowData {
   index: number;
@@ -24,8 +24,8 @@ interface RowData {
 @Processor(QUEUE_NAMES.EXCEL_IMPORT)
 export class EquipmentImportProcessor extends WorkerHost {
   private readonly logger = new Logger(EquipmentImportProcessor.name);
-  private readonly UPLOAD_DIR = './uploads/images/equipments';
-  private readonly ERROR_DIR = './uploads/imports/errors';
+  private readonly UPLOAD_DIR = "./uploads/images/equipments";
+  private readonly ERROR_DIR = "./uploads/imports/errors";
 
   constructor(
     private readonly prisma: PrismaService,
@@ -48,14 +48,14 @@ export class EquipmentImportProcessor extends WorkerHost {
     this.logger.log(`🔍 [Import] Xử lý Job: ${job.id} | History ID: ${importHistoryId}`);
 
     try {
-      await this.updateHistoryStatus(importHistoryId, 'PROCESSING');
+      await this.updateHistoryStatus(importHistoryId, "PROCESSING");
 
-      if (!fs.existsSync(filePath)) throw new Error('Không tìm thấy file upload');
+      if (!fs.existsSync(filePath)) throw new Error("Không tìm thấy file upload");
 
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.readFile(filePath);
       const worksheet = workbook.getWorksheet(1);
-      if (!worksheet) throw new Error('Không tìm thấy Worksheet dữ liệu');
+      if (!worksheet) throw new Error("Không tìm thấy Worksheet dữ liệu");
 
       // 1. Phân tích dữ liệu và Validation cơ bản
       const { rows, rowErrors, recordCount } = await this.parseAndValidateRows(worksheet, job);
@@ -152,15 +152,15 @@ export class EquipmentImportProcessor extends WorkerHost {
       code: row.getCell(1).text?.trim(),
       name: row.getCell(2).text?.trim(),
       category: row.getCell(3).text?.trim(),
-      status: (['ACTIVE', 'MAINTENANCE', 'INACTIVE'].includes(statusRaw)
+      status: (["ACTIVE", "MAINTENANCE", "INACTIVE"].includes(statusRaw)
         ? statusRaw
-        : 'ACTIVE') as EquipmentStatus,
+        : "ACTIVE") as EquipmentStatus,
       quantity: Number(quantityRaw) || 1,
       brand: row.getCell(7).text?.trim() || undefined,
       origin: row.getCell(8).text?.trim() || undefined,
       modelYear: modelYearRaw ? Number(modelYearRaw) : undefined,
       dimension: row.getCell(10).text?.trim() || undefined,
-      image: urlImageUrl?.startsWith('http') ? urlImageUrl : undefined,
+      image: urlImageUrl?.startsWith("http") ? urlImageUrl : undefined,
       factoryCode: row.getCell(4).text?.trim()?.toUpperCase() || undefined,
     };
   }
@@ -178,7 +178,7 @@ export class EquipmentImportProcessor extends WorkerHost {
     // Bulk lookup factories
     const factories =
       (await this.prisma.client.factory.findMany({
-        where: { code: { in: Array.from(factoryCodes), mode: 'insensitive' } },
+        where: { code: { in: Array.from(factoryCodes), mode: "insensitive" } },
         select: { id: true, code: true },
       })) || [];
 
@@ -296,19 +296,19 @@ export class EquipmentImportProcessor extends WorkerHost {
     const history = await this.prisma.client.importHistory.findUnique({
       where: { id: importHistoryId },
     });
-    const originalName = history?.fileName || 'import';
+    const originalName = history?.fileName || "import";
     const baseName = path.parse(originalName).name;
 
     const headerRow = worksheet.getRow(1);
     const errorColIndex = worksheet.actualColumnCount + 1;
 
-    headerRow.getCell(errorColIndex).value = 'Lỗi Dữ Liệu';
-    headerRow.getCell(errorColIndex).font = { bold: true, color: { argb: 'FFFF0000' } };
+    headerRow.getCell(errorColIndex).value = "Lỗi Dữ Liệu";
+    headerRow.getCell(errorColIndex).font = { bold: true, color: { argb: "FFFF0000" } };
 
     rowErrors.forEach((msg, rowIdx) => {
       const cell = worksheet.getRow(rowIdx).getCell(errorColIndex);
       cell.value = msg;
-      cell.font = { color: { argb: 'FFFF0000' } };
+      cell.font = { color: { argb: "FFFF0000" } };
     });
 
     const errorFileName = `${this.sanitizeFilename(baseName)}_errors_${Date.now()}.xlsx`;
@@ -329,7 +329,7 @@ export class EquipmentImportProcessor extends WorkerHost {
     await this.prisma.client.importHistory.update({
       where: { id },
       data: {
-        status: 'COMPLETED',
+        status: "COMPLETED",
         totalRecords: total,
         processedRecords: total,
         successCount: success,
@@ -344,7 +344,7 @@ export class EquipmentImportProcessor extends WorkerHost {
     if (!id) return;
     await this.prisma.client.importHistory.update({
       where: { id },
-      data: { status, startedAt: status === 'PROCESSING' ? new Date() : undefined },
+      data: { status, startedAt: status === "PROCESSING" ? new Date() : undefined },
     });
   }
 
@@ -353,7 +353,7 @@ export class EquipmentImportProcessor extends WorkerHost {
     if (id) {
       await this.prisma.client.importHistory.update({
         where: { id },
-        data: { status: 'FAILED', finishedAt: new Date() },
+        data: { status: "FAILED", finishedAt: new Date() },
       });
     }
     if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
@@ -362,21 +362,21 @@ export class EquipmentImportProcessor extends WorkerHost {
   private sanitizeFilename(filename: string): string {
     return filename
       .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/đ/g, 'd')
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/[^a-z0-9]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
   }
 
   private formatValidationErrors(errors: ValidationError[]): string {
     return errors
       .map((err) =>
         err.constraints
-          ? Object.values(err.constraints).join(', ')
+          ? Object.values(err.constraints).join(", ")
           : this.formatValidationErrors(err.children || []),
       )
-      .join(' | ');
+      .join(" | ");
   }
 }

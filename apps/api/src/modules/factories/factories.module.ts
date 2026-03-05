@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
-import { FactoriesService } from './factories.service';
-import { FactoriesController } from './factories.controller';
-import { PrismaModule } from '@/database/prisma.module';
+import { Module } from "@nestjs/common";
+import { FactoriesService } from "./factories.service";
+import { FactoriesController } from "./factories.controller";
+import { PrismaModule } from "@/database/prisma.module";
 
 /**
  * Factories Module

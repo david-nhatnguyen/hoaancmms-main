@@ -1,26 +1,26 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
-import { PrismaService } from '@/database/prisma.service';
-import { CreateEquipmentDto } from './dto/create-equipment.dto';
-import { UpdateEquipmentDto } from './dto/update-equipment.dto';
-import { EquipmentQueryDto } from './dto/equipment-query.dto';
-import { Prisma, EquipmentStatus } from '@prisma/generated/prisma';
-import { QUEUE_NAMES } from '@/common/constants';
+import { Injectable, NotFoundException, ConflictException } from "@nestjs/common";
+import { InjectQueue } from "@nestjs/bullmq";
+import { Queue } from "bullmq";
+import { PrismaService } from "@/database/prisma.service";
+import { CreateEquipmentDto } from "./dto/create-equipment.dto";
+import { UpdateEquipmentDto } from "./dto/update-equipment.dto";
+import { EquipmentQueryDto } from "./dto/equipment-query.dto";
+import { Prisma, EquipmentStatus } from "@prisma/generated/prisma";
+import { QUEUE_NAMES } from "@/common/constants";
 
-import * as ExcelJS from 'exceljs';
-import * as fs from 'fs';
+import * as ExcelJS from "exceljs";
+import * as fs from "fs";
 
-import * as sharp from 'sharp';
-import { v4 as uuidv4 } from 'uuid';
-import * as path from 'path';
+import * as sharp from "sharp";
+import { v4 as uuidv4 } from "uuid";
+import * as path from "path";
 
-import { EquipmentsQrService } from './equipments.qr.service';
+import { EquipmentsQrService } from "./equipments.qr.service";
 
 @Injectable()
 export class EquipmentsService {
-  private readonly UPLOAD_DIR = './uploads/images/equipments';
-  private readonly UPLOAD_DOCS_DIR = './uploads/documents/equipments';
+  private readonly UPLOAD_DIR = "./uploads/images/equipments";
+  private readonly UPLOAD_DOCS_DIR = "./uploads/documents/equipments";
 
   constructor(
     private prisma: PrismaService,
@@ -55,7 +55,7 @@ export class EquipmentsService {
     file: Express.Multer.File,
   ): Promise<{ path: string; name: string; size: number; type: string }> {
     // Generate safe filename to avoid overwrites but keep original extension
-    const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8'); // Handle UTF-8 chars if needed
+    const originalName = Buffer.from(file.originalname, "latin1").toString("utf8"); // Handle UTF-8 chars if needed
     const ext = path.extname(originalName);
     const safeName = `${Date.now()}_${uuidv4()}${ext}`;
     const savePath = path.join(this.UPLOAD_DOCS_DIR, safeName);
@@ -89,7 +89,7 @@ export class EquipmentsService {
     }
 
     // 2. Delete Machine Image
-    if (equipment.image && equipment.image.startsWith('/uploads/')) {
+    if (equipment.image && equipment.image.startsWith("/uploads/")) {
       try {
         const filePath = path.join(process.cwd(), equipment.image);
         if (fs.existsSync(filePath)) {
@@ -177,10 +177,10 @@ export class EquipmentsService {
     // 2. Create Import History Record
     const importHistory = await this.prisma.client.importHistory.create({
       data: {
-        fileName: filePath.split('/').pop() || 'unknown.xlsx',
+        fileName: filePath.split("/").pop() || "unknown.xlsx",
         fileSize: fs.statSync(filePath).size,
         totalRecords: totalRecords,
-        status: 'PENDING',
+        status: "PENDING",
       },
     });
 
@@ -191,7 +191,7 @@ export class EquipmentsService {
 
     // 4. Push to Queue
     await this.importQueue.add(
-      'import-equipments',
+      "import-equipments",
       {
         filePath,
         importHistoryId: importHistory.id,
@@ -204,7 +204,7 @@ export class EquipmentsService {
       importId: importHistory.id, // Case 2: Named importId
       totalRecords,
       estimatedDuration,
-      message: 'Import job started',
+      message: "Import job started",
     };
   }
 
@@ -245,11 +245,11 @@ export class EquipmentsService {
     if (file) {
       data.image = await this.saveEquipmentImage(file);
     } else {
-      if (typeof data.image === 'string') {
+      if (typeof data.image === "string") {
         if (
-          data.image.includes('[object Object]') ||
-          data.image === 'undefined' ||
-          data.image === 'null'
+          data.image.includes("[object Object]") ||
+          data.image === "undefined" ||
+          data.image === "null"
         ) {
           data.image = undefined;
         }
@@ -277,11 +277,11 @@ export class EquipmentsService {
 
     if (search) {
       where.OR = [
-        { code: { contains: search, mode: 'insensitive' } },
-        { name: { contains: search, mode: 'insensitive' } },
-        { category: { contains: search, mode: 'insensitive' } },
-        { brand: { contains: search, mode: 'insensitive' } },
-        { origin: { contains: search, mode: 'insensitive' } },
+        { code: { contains: search, mode: "insensitive" } },
+        { name: { contains: search, mode: "insensitive" } },
+        { category: { contains: search, mode: "insensitive" } },
+        { brand: { contains: search, mode: "insensitive" } },
+        { origin: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -291,7 +291,7 @@ export class EquipmentsService {
         skip,
         take,
         orderBy: {
-          [sortBy || 'createdAt']: sortOrder || 'desc',
+          [sortBy || "createdAt"]: sortOrder || "desc",
         },
         include: {
           factory: {
@@ -322,16 +322,16 @@ export class EquipmentsService {
   /**
    * Search equipments for autocomplete (simpler, faster)
    */
-  async search(query: string = '') {
+  async search(query: string = "") {
     const where: Prisma.EquipmentWhereInput = {
       status: EquipmentStatus.ACTIVE,
     };
 
     if (query && query.trim().length > 0) {
       where.OR = [
-        { code: { contains: query, mode: 'insensitive' } },
-        { name: { contains: query, mode: 'insensitive' } },
-        { category: { contains: query, mode: 'insensitive' } },
+        { code: { contains: query, mode: "insensitive" } },
+        { name: { contains: query, mode: "insensitive" } },
+        { category: { contains: query, mode: "insensitive" } },
       ];
     }
 
@@ -345,7 +345,7 @@ export class EquipmentsService {
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       take: 20,
     });
 
@@ -417,15 +417,15 @@ export class EquipmentsService {
     if (file) {
       data.image = await this.saveEquipmentImage(file);
     } else {
-      if (typeof data.image === 'string') {
+      if (typeof data.image === "string") {
         if (
-          data.image.includes('[object Object]') ||
-          data.image === 'undefined' ||
-          data.image === 'null'
+          data.image.includes("[object Object]") ||
+          data.image === "undefined" ||
+          data.image === "null"
         ) {
           data.image = undefined;
         }
-      } else if (typeof data.image === 'object' && data.image !== null) {
+      } else if (typeof data.image === "object" && data.image !== null) {
         data.image = undefined;
       }
     }
@@ -461,7 +461,7 @@ export class EquipmentsService {
       where: { id },
     });
 
-    return { message: 'Equipment deleted successfully' };
+    return { message: "Equipment deleted successfully" };
   }
 
   async removeMany(ids: string[]) {
@@ -472,7 +472,7 @@ export class EquipmentsService {
     });
 
     if (equipments.length === 0) {
-      return { message: 'No equipments found to delete', count: 0 };
+      return { message: "No equipments found to delete", count: 0 };
     }
 
     // 2. Use transaction for DB deletion
@@ -485,7 +485,7 @@ export class EquipmentsService {
     // 3. Cleanup files in background (don't block response)
     // We use allSettled to ensure all cleanup attempts finish regardless of individual errors
     Promise.allSettled(equipments.map((eq) => this.removeEquipmentAssets(eq))).then((results) => {
-      const failedCount = results.filter((r) => r.status === 'rejected').length;
+      const failedCount = results.filter((r) => r.status === "rejected").length;
       if (failedCount > 0) {
         console.error(`Bulk cleanup finished with ${failedCount} failures`);
       }
@@ -501,7 +501,7 @@ export class EquipmentsService {
     const [totalEquipments, statusCounts] = await Promise.all([
       this.prisma.client.equipment.count(),
       this.prisma.client.equipment.groupBy({
-        by: ['status'],
+        by: ["status"],
         _count: {
           status: true,
         },

@@ -1,12 +1,12 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get } from "@nestjs/common";
 import {
   HealthCheck,
   HealthCheckService,
   PrismaHealthIndicator,
   MemoryHealthIndicator,
   DiskHealthIndicator,
-} from '@nestjs/terminus';
-import { PrismaService } from '../../database/prisma.service';
+} from "@nestjs/terminus";
+import { PrismaService } from "../../database/prisma.service";
 
 /**
  * Health Check Controller
@@ -33,7 +33,7 @@ import { PrismaService } from '../../database/prisma.service';
  *   }
  * }
  */
-@Controller('health')
+@Controller("health")
 export class HealthController {
   constructor(
     private health: HealthCheckService,
@@ -48,42 +48,42 @@ export class HealthController {
   check() {
     return this.health.check([
       // Check database connection
-      () => this.prismaHealth.pingCheck('database', this.prisma.client),
+      () => this.prismaHealth.pingCheck("database", this.prisma.client),
 
       // Check memory usage (alert if > 300MB)
-      () => this.memory.checkHeap('memory_heap', 300 * 1024 * 1024),
+      () => this.memory.checkHeap("memory_heap", 300 * 1024 * 1024),
 
       // Check disk space (alert if < 50% free)
       () =>
-        this.disk.checkStorage('disk', {
-          path: '/',
+        this.disk.checkStorage("disk", {
+          path: "/",
           thresholdPercent: 0.5,
         }),
     ]);
   }
 
-  @Get('database')
+  @Get("database")
   @HealthCheck()
   checkDatabase() {
-    return this.health.check([() => this.prismaHealth.pingCheck('database', this.prisma.client)]);
+    return this.health.check([() => this.prismaHealth.pingCheck("database", this.prisma.client)]);
   }
 
-  @Get('memory')
+  @Get("memory")
   @HealthCheck()
   checkMemory() {
     return this.health.check([
-      () => this.memory.checkHeap('memory_heap', 300 * 1024 * 1024),
-      () => this.memory.checkRSS('memory_rss', 300 * 1024 * 1024),
+      () => this.memory.checkHeap("memory_heap", 300 * 1024 * 1024),
+      () => this.memory.checkRSS("memory_rss", 300 * 1024 * 1024),
     ]);
   }
 
-  @Get('disk')
+  @Get("disk")
   @HealthCheck()
   checkDisk() {
     return this.health.check([
       () =>
-        this.disk.checkStorage('disk', {
-          path: '/',
+        this.disk.checkStorage("disk", {
+          path: "/",
           thresholdPercent: 0.5,
         }),
     ]);

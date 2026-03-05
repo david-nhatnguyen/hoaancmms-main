@@ -1,17 +1,15 @@
+import { UseFormReturn } from "react-hook-form";
 
-import { UseFormReturn } from 'react-hook-form';
-
-import { ChecklistFormValues } from './useChecklistForm';
-import { useMediaQuery } from '@/hooks/use-media-query';
+import { ChecklistFormValues } from "./useChecklistForm";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 export const useChecklistItemsTable = (
   form: UseFormReturn<ChecklistFormValues>,
   remove: (index: number) => void,
   move: (from: number, to: number) => void,
-  fields: any[]
+  fields: any[],
 ) => {
   const isMobile = useMediaQuery("(max-width: 1024px)");
-
 
   const handleRemove = (index: number) => {
     if (fields.length > 1) {
@@ -35,6 +33,6 @@ export const useChecklistItemsTable = (
     isMobile,
     handleRemove,
     handleMoveUp,
-    handleMoveDown
+    handleMoveDown,
   };
 };

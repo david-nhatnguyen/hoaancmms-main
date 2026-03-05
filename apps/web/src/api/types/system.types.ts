@@ -3,11 +3,11 @@
  * These match the backend API response shapes for users, roles, and permissions.
  */
 
-import type { PaginationParams } from './common.types';
+import type { PaginationParams } from "./common.types";
 
 // ─── User ─────────────────────────────────────────────────────────────────────
 
-export type UserStatus = 'ACTIVE' | 'LOCKED';
+export type UserStatus = "ACTIVE" | "LOCKED";
 
 export interface User {
   id: string;

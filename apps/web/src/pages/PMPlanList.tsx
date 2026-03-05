@@ -1,10 +1,10 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Plus, 
-  Pencil, 
-  Eye, 
-  Download, 
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Plus,
+  Pencil,
+  Eye,
+  Download,
   Search,
   Calendar,
   Copy,
@@ -12,10 +12,10 @@ import {
   MoreHorizontal,
   CalendarDays,
   CheckCircle2,
-  FileText
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+  FileText,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -23,17 +23,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { PMPlanFilters } from '@/features/filters/PMPlanFilters';
-import { pmPlans, PM_STATUS_LABELS, PMPlan } from '@/data/pmPlanData';
-import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
+} from "@/components/ui/dropdown-menu";
+import { PMPlanFilters } from "@/features/filters/PMPlanFilters";
+import { pmPlans, PM_STATUS_LABELS, PMPlan } from "@/data/pmPlanData";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface FilterState {
   month: number[];
@@ -44,20 +44,20 @@ interface FilterState {
 
 export default function PMPlanList() {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<FilterState>({
     month: [],
     year: [],
     factory: [],
-    status: []
+    status: [],
   });
 
   // Filter plans
   const filteredPlans = useMemo(() => {
-    return pmPlans.filter(plan => {
+    return pmPlans.filter((plan) => {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
-        const matches = 
+        const matches =
           plan.code.toLowerCase().includes(query) ||
           plan.name.toLowerCase().includes(query) ||
           plan.factoryName.toLowerCase().includes(query);
@@ -82,22 +82,18 @@ export default function PMPlanList() {
     toast.success(`Đã khóa kế hoạch: ${plan.code}`);
   };
 
-  const getStatusBadge = (status: PMPlan['status']) => {
+  const getStatusBadge = (status: PMPlan["status"]) => {
     const styles = {
-      draft: 'bg-muted text-muted-foreground',
-      active: 'bg-status-active/20 text-[hsl(var(--status-active))]',
-      locked: 'bg-status-maintenance/20 text-[hsl(var(--status-maintenance))]'
+      draft: "bg-muted text-muted-foreground",
+      active: "bg-status-active/20 text-[hsl(var(--status-active))]",
+      locked: "bg-status-maintenance/20 text-[hsl(var(--status-maintenance))]",
     };
-    return (
-      <span className={cn('status-badge', styles[status])}>
-        {PM_STATUS_LABELS[status]}
-      </span>
-    );
+    return <span className={cn("status-badge", styles[status])}>{PM_STATUS_LABELS[status]}</span>;
   };
 
   // Stats
-  const activeCount = pmPlans.filter(p => p.status === 'active').length;
-  const draftCount = pmPlans.filter(p => p.status === 'draft').length;
+  const activeCount = pmPlans.filter((p) => p.status === "active").length;
+  const draftCount = pmPlans.filter((p) => p.status === "draft").length;
   const totalEquipment = pmPlans.reduce((acc, p) => acc + p.items.length, 0);
 
   return (
@@ -116,7 +112,7 @@ export default function PMPlanList() {
               <Download className="h-4 w-4" />
               Xuất Excel
             </Button>
-            <Button onClick={() => navigate('/pm-plans/new')} className="action-btn-primary">
+            <Button onClick={() => navigate("/pm-plans/new")} className="action-btn-primary">
               <Plus className="h-4 w-4" />
               Tạo kế hoạch
             </Button>
@@ -176,15 +172,10 @@ export default function PMPlanList() {
               className="search-input pl-9 h-10"
             />
           </div>
-          <span className="text-sm text-muted-foreground">
-            {filteredPlans.length} kết quả
-          </span>
+          <span className="text-sm text-muted-foreground">{filteredPlans.length} kết quả</span>
         </div>
-        
-        <PMPlanFilters 
-          filters={filters} 
-          onFiltersChange={setFilters} 
-        />
+
+        <PMPlanFilters filters={filters} onFiltersChange={setFilters} />
       </div>
 
       {/* Table */}
@@ -211,14 +202,12 @@ export default function PMPlanList() {
               </TableRow>
             ) : (
               filteredPlans.map((plan) => (
-                <TableRow 
-                  key={plan.id} 
+                <TableRow
+                  key={plan.id}
                   className="table-row-interactive"
                   onClick={() => navigate(`/pm-plans/${plan.id}`)}
                 >
-                  <TableCell className="font-mono font-medium text-primary">
-                    {plan.code}
-                  </TableCell>
+                  <TableCell className="font-mono font-medium text-primary">{plan.code}</TableCell>
                   <TableCell className="font-medium">{plan.name}</TableCell>
                   <TableCell className="text-center">
                     <span className="px-2 py-1 rounded-md bg-secondary text-xs font-medium">
@@ -228,17 +217,14 @@ export default function PMPlanList() {
                   <TableCell className="text-sm text-muted-foreground">
                     {plan.factoryName}
                   </TableCell>
-                  <TableCell className="text-center font-medium">
-                    {plan.items.length}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {getStatusBadge(plan.status)}
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {plan.updatedAt}
-                  </TableCell>
+                  <TableCell className="text-center font-medium">{plan.items.length}</TableCell>
+                  <TableCell className="text-center">{getStatusBadge(plan.status)}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{plan.updatedAt}</TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end" onClick={e => e.stopPropagation()}>
+                    <div
+                      className="flex items-center justify-end"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -250,11 +236,13 @@ export default function PMPlanList() {
                             <Eye className="h-4 w-4 mr-2" />
                             Xem
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => navigate(`/pm-plans/${plan.id}/calendar`)}>
+                          <DropdownMenuItem
+                            onClick={() => navigate(`/pm-plans/${plan.id}/calendar`)}
+                          >
                             <Calendar className="h-4 w-4 mr-2" />
                             Xem lịch
                           </DropdownMenuItem>
-                          {plan.status !== 'locked' && (
+                          {plan.status !== "locked" && (
                             <DropdownMenuItem onClick={() => navigate(`/pm-plans/${plan.id}/edit`)}>
                               <Pencil className="h-4 w-4 mr-2" />
                               Sửa
@@ -264,8 +252,8 @@ export default function PMPlanList() {
                             <Copy className="h-4 w-4 mr-2" />
                             Sao chép
                           </DropdownMenuItem>
-                          {plan.status === 'active' && (
-                            <DropdownMenuItem 
+                          {plan.status === "active" && (
+                            <DropdownMenuItem
                               onClick={() => handleLock(plan)}
                               className="text-status-maintenance"
                             >

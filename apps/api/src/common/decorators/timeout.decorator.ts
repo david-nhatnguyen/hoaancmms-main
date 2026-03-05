@@ -1,4 +1,4 @@
-import { SetMetadata } from '@nestjs/common';
+import { SetMetadata } from "@nestjs/common";
 
 /**
  * @Timeout Decorator
@@ -20,5 +20,5 @@ import { SetMetadata } from '@nestjs/common';
  * - TimeoutInterceptor reads this metadata
  * - Overrides default timeout (30s)
  */
-export const TIMEOUT_KEY = 'timeout';
+export const TIMEOUT_KEY = "timeout";
 export const Timeout = (ms: number) => SetMetadata(TIMEOUT_KEY, ms);

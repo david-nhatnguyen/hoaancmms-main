@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bullmq';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { QUEUE_NAMES } from '../../common/constants';
+import { Module } from "@nestjs/common";
+import { BullModule } from "@nestjs/bullmq";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { QUEUE_NAMES } from "../../common/constants";
 
 /**
  * Queue Module - BullMQ Setup
@@ -49,8 +49,8 @@ import { QUEUE_NAMES } from '../../common/constants';
     BullModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
-        const host = configService.get<string>('REDIS_HOST', 'localhost');
-        const port = configService.get<number>('REDIS_PORT', 6379);
+        const host = configService.get<string>("REDIS_HOST", "localhost");
+        const port = configService.get<number>("REDIS_PORT", 6379);
 
         return {
           connection: {

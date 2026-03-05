@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useDataTableState } from '@/features/shared/table/hooks/use-table-state';
-import { updateColumnFilters } from '@/features/shared/table/handlers/table-logic.handlers';
-import { EquipmentQueryParams, EquipmentStatus } from '@/api/types/equipment.types';
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useDataTableState } from "@/features/shared/table/hooks/use-table-state";
+import { updateColumnFilters } from "@/features/shared/table/handlers/table-logic.handlers";
+import { EquipmentQueryParams, EquipmentStatus } from "@/api/types/equipment.types";
 
 interface UseEquipmentTableStateOptions {
   factoryOptions: { label: string; value: string; code?: string; id?: string }[];
@@ -19,40 +19,42 @@ export function useEquipmentTableState({ factoryOptions }: UseEquipmentTableStat
     initialParams: {
       page: 1,
       limit: 10,
-      sortBy: 'createdAt',
-      sortOrder: 'desc',
+      sortBy: "createdAt",
+      sortOrder: "desc",
       status: [] as EquipmentStatus[],
       factoryId: [] as string[],
     },
     filterMapping: {
-      factoryName: 'factoryId'
-    }
+      factoryName: "factoryId",
+    },
   });
 
   const { setColumnFilters } = tableState;
 
   // URL Parameter Sync (Initial load and searchParams changes)
   useEffect(() => {
-    const factoryCode = searchParams.get('factoryCode');
-    const factoryId = searchParams.get('factoryId');
-    const status = searchParams.get('status');
+    const factoryCode = searchParams.get("factoryCode");
+    const factoryId = searchParams.get("factoryId");
+    const status = searchParams.get("status");
 
-    setColumnFilters(prev => {
+    setColumnFilters((prev) => {
       let next = prev;
 
       // Handle Factory identification
       if (factoryId) {
-        next = updateColumnFilters(next, 'factoryName', [factoryId]);
+        next = updateColumnFilters(next, "factoryName", [factoryId]);
       } else if (factoryCode && factoryOptions.length > 0) {
         // Fallback: Resolve factoryCode to factoryId if provided in URL (backwards compat/SEO)
-        const targetFactory = factoryOptions.find(f => f.code === factoryCode);
+        const targetFactory = factoryOptions.find((f) => f.code === factoryCode);
         if (targetFactory) {
-          next = updateColumnFilters(next, 'factoryName', [targetFactory.id || targetFactory.value]);
+          next = updateColumnFilters(next, "factoryName", [
+            targetFactory.id || targetFactory.value,
+          ]);
         }
       }
-      
+
       if (status) {
-         next = updateColumnFilters(next, 'status', [status]);
+        next = updateColumnFilters(next, "status", [status]);
       }
 
       return next;

@@ -1,5 +1,5 @@
-import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface TableToolbarFiltersProps {
   searchQuery: string;
@@ -12,7 +12,7 @@ export function TableToolbarFilters({
   searchQuery,
   onSearchChange,
   searchPlaceholder = "Tìm kiếm...",
-  children
+  children,
 }: TableToolbarFiltersProps) {
   return (
     <div className="bg-card rounded-xl border border-border/50 p-4 shadow-sm relative overflow-hidden">
@@ -29,9 +29,7 @@ export function TableToolbarFilters({
         </div>
 
         {/* Custom Filters (Children) */}
-        <div className="flex items-center gap-6 flex-wrap flex-1">
-          {children}
-        </div>
+        <div className="flex items-center gap-6 flex-wrap flex-1">{children}</div>
       </div>
     </div>
   );

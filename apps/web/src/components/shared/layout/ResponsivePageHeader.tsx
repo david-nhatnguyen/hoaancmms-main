@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { MobilePageHeader } from '@/components/shared/MobilePageHeader';
+import { ReactNode } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobilePageHeader } from "@/components/shared/MobilePageHeader";
 
 interface ResponsivePageHeaderProps {
   title: string;
@@ -13,17 +13,12 @@ export function ResponsivePageHeader({
   title,
   subtitle,
   mobileActions,
-  desktopActions
+  desktopActions,
 }: ResponsivePageHeaderProps) {
   const isMobile = useIsMobile();
 
   if (isMobile) {
-    return (
-      <MobilePageHeader
-        title={title}
-        actions={mobileActions}
-      />
-    );
+    return <MobilePageHeader title={title} actions={mobileActions} />;
   }
 
   return (
@@ -31,11 +26,7 @@ export function ResponsivePageHeader({
       {subtitle && <p className="page-subtitle">{subtitle}</p>}
       <div className="flex items-center justify-between">
         <h1 className="page-title">{title}</h1>
-        {desktopActions && (
-          <div className="flex items-center gap-2">
-            {desktopActions}
-          </div>
-        )}
+        {desktopActions && <div className="flex items-center gap-2">{desktopActions}</div>}
       </div>
     </div>
   );

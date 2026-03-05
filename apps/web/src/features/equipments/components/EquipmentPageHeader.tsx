@@ -1,8 +1,8 @@
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Plus, FileSpreadsheet, Download } from 'lucide-react';
-import { MobilePageHeader } from '@/components/shared/MobilePageHeader';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Plus, FileSpreadsheet, Download } from "lucide-react";
+import { MobilePageHeader } from "@/components/shared/MobilePageHeader";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function EquipmentPageHeader() {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ export function EquipmentPageHeader() {
             Xuất
           </Button>
           <Button
-            onClick={() => navigate('/equipments/new')}
+            onClick={() => navigate("/equipments/new")}
             className="action-btn-primary"
             size={isMobile ? "sm" : "default"}
           >

@@ -1,19 +1,19 @@
-import { renderHook, waitFor } from '@testing-library/react';
-import { useUploadDocument, useDeleteDocument } from './use-equipment-documents';
-import { equipmentsApi } from '@/api/endpoints/equipments.api';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import React from 'react';
+import { renderHook, waitFor } from "@testing-library/react";
+import { useUploadDocument, useDeleteDocument } from "./use-equipment-documents";
+import { equipmentsApi } from "@/api/endpoints/equipments.api";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { toast } from "sonner";
+import React from "react";
 
 // Mock dependencies
-jest.mock('@/api/endpoints/equipments.api', () => ({
+jest.mock("@/api/endpoints/equipments.api", () => ({
   equipmentsApi: {
     uploadDocument: jest.fn(),
     deleteDocument: jest.fn(),
   },
 }));
 
-jest.mock('sonner', () => ({
+jest.mock("sonner", () => ({
   toast: {
     success: jest.fn(),
     error: jest.fn(),
@@ -34,50 +34,48 @@ const createWrapper = () => {
   );
 };
 
-describe('useEquipmentDocuments', () => {
-    
-  describe('useUploadDocument', () => {
-    it('should call uploadDocument and show success toast', async () => {
+describe("useEquipmentDocuments", () => {
+  describe("useUploadDocument", () => {
+    it("should call uploadDocument and show success toast", async () => {
       (equipmentsApi.uploadDocument as jest.Mock).mockResolvedValue({});
-      
+
       const { result } = renderHook(() => useUploadDocument(), { wrapper: createWrapper() });
-      
-      const file = new File(['dummy content'], 'test.pdf', { type: 'application/pdf' });
-      result.current.mutate({ id: 'eq-1', file });
-      
+
+      const file = new File(["dummy content"], "test.pdf", { type: "application/pdf" });
+      result.current.mutate({ id: "eq-1", file });
+
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
-      
-      expect(equipmentsApi.uploadDocument).toHaveBeenCalledWith('eq-1', file);
-      expect(toast.success).toHaveBeenCalledWith('Tài liệu đã được tải lên thành công');
+
+      expect(equipmentsApi.uploadDocument).toHaveBeenCalledWith("eq-1", file);
+      expect(toast.success).toHaveBeenCalledWith("Tài liệu đã được tải lên thành công");
     });
 
-    it('should show error toast on failure', async () => {
-        (equipmentsApi.uploadDocument as jest.Mock).mockRejectedValue(new Error('Upload failed'));
-        
-        const { result } = renderHook(() => useUploadDocument(), { wrapper: createWrapper() });
-        
-        const file = new File(['dummy content'], 'test.pdf', { type: 'application/pdf' });
-        result.current.mutate({ id: 'eq-1', file });
-        
-        await waitFor(() => expect(result.current.isError).toBe(true));
-        
-        expect(toast.error).toHaveBeenCalledWith('Không thể tải lên tài liệu. Vui lòng thử lại.');
-      });
+    it("should show error toast on failure", async () => {
+      (equipmentsApi.uploadDocument as jest.Mock).mockRejectedValue(new Error("Upload failed"));
+
+      const { result } = renderHook(() => useUploadDocument(), { wrapper: createWrapper() });
+
+      const file = new File(["dummy content"], "test.pdf", { type: "application/pdf" });
+      result.current.mutate({ id: "eq-1", file });
+
+      await waitFor(() => expect(result.current.isError).toBe(true));
+
+      expect(toast.error).toHaveBeenCalledWith("Không thể tải lên tài liệu. Vui lòng thử lại.");
+    });
   });
 
-  describe('useDeleteDocument', () => {
-    it('should call deleteDocument and show success toast', async () => {
+  describe("useDeleteDocument", () => {
+    it("should call deleteDocument and show success toast", async () => {
       (equipmentsApi.deleteDocument as jest.Mock).mockResolvedValue({});
-      
+
       const { result } = renderHook(() => useDeleteDocument(), { wrapper: createWrapper() });
-      
-      result.current.mutate({ docId: 'doc-1', equipmentId: 'eq-1' });
-      
+
+      result.current.mutate({ docId: "doc-1", equipmentId: "eq-1" });
+
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
-      
-      expect(equipmentsApi.deleteDocument).toHaveBeenCalledWith('doc-1');
-      expect(toast.success).toHaveBeenCalledWith('Đã xóa tài liệu');
+
+      expect(equipmentsApi.deleteDocument).toHaveBeenCalledWith("doc-1");
+      expect(toast.success).toHaveBeenCalledWith("Đã xóa tài liệu");
     });
   });
-  
 });

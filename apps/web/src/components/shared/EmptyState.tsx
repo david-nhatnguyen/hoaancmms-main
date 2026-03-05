@@ -1,6 +1,6 @@
-import { LucideIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { LucideIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface EmptyStateProps {
   icon?: React.ReactNode | LucideIcon;
@@ -16,16 +16,16 @@ interface EmptyStateProps {
 
 /**
  * Empty state component with illustration and call-to-action
- * 
+ *
  * Shows when there's no data to display
  * Provides helpful guidance and action button
- * 
+ *
  * @param icon - Icon or illustration component
  * @param title - Main heading
  * @param description - Helpful description text
  * @param action - Optional CTA button config
  * @param className - Additional CSS classes
- * 
+ *
  * @example
  * ```tsx
  * <EmptyState
@@ -49,15 +49,12 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
-      className={cn(
-        'flex flex-col items-center justify-center py-12 px-4 text-center',
-        className
-      )}
+      className={cn("flex flex-col items-center justify-center py-12 px-4 text-center", className)}
     >
       {/* Icon/Illustration */}
       {IconComponent && (
         <div className="rounded-full bg-muted/50 p-6 mb-4">
-          {typeof IconComponent === 'function' ? (
+          {typeof IconComponent === "function" ? (
             <IconComponent className="h-12 w-12 text-muted-foreground/50" />
           ) : (
             IconComponent
@@ -69,9 +66,7 @@ export function EmptyState({
       <h3 className="text-lg font-semibold mb-2">{title}</h3>
 
       {/* Description */}
-      <p className="text-muted-foreground text-sm max-w-sm mb-6">
-        {description}
-      </p>
+      <p className="text-muted-foreground text-sm max-w-sm mb-6">{description}</p>
 
       {/* Action Button */}
       {action && (

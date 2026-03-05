@@ -1,6 +1,6 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from "@nestjs/common";
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
 
 /**
  * Standard API Response Format
@@ -54,7 +54,7 @@ export class TransformInterceptor<T> implements NestInterceptor<T, ApiResponse<T
     return next.handle().pipe(
       map((data) => ({
         statusCode: response.statusCode,
-        message: data?.message || 'Success',
+        message: data?.message || "Success",
         data: data?.data !== undefined ? data.data : data,
         meta: data?.meta,
         timestamp: new Date().toISOString(),

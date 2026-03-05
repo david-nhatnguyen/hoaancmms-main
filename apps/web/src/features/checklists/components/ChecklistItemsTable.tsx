@@ -1,27 +1,17 @@
-import { UseFormReturn } from 'react-hook-form';
-import { ColumnDef } from '@tanstack/react-table';
-import {
-  MoveUp,
-  MoveDown,
-  Trash2,
-  Plus,
-  ListTodo
-} from 'lucide-react';
+import { UseFormReturn } from "react-hook-form";
+import { ColumnDef } from "@tanstack/react-table";
+import { MoveUp, MoveDown, Trash2, Plus, ListTodo } from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  FormControl,
-  FormField,
-  FormItem,
-} from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { cn } from '@/lib/utils';
-import { DataTable } from '@/components/shared/table/DataTable';
-import { ChecklistFormValues } from '@/features/checklists/hooks/useChecklistForm';
-import { useChecklistItemsTable } from '@/features/checklists/hooks/useChecklistItemsTable';
-import { MobileChecklistItem } from './MobileChecklistItem';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
+import { DataTable } from "@/components/shared/table/DataTable";
+import { ChecklistFormValues } from "@/features/checklists/hooks/useChecklistForm";
+import { useChecklistItemsTable } from "@/features/checklists/hooks/useChecklistItemsTable";
+import { MobileChecklistItem } from "./MobileChecklistItem";
 
 interface ChecklistItemsTableProps {
   form: UseFormReturn<ChecklistFormValues>;
@@ -36,18 +26,19 @@ export function ChecklistItemsTable({
   fields,
   append,
   remove,
-  move
+  move,
 }: ChecklistItemsTableProps) {
-
   const { isMobile, handleRemove } = useChecklistItemsTable(form, remove, move, fields);
 
-  const columns: (ColumnDef<ChecklistFormValues['items'][0]> & { truncate?: boolean })[] = [
+  const columns: (ColumnDef<ChecklistFormValues["items"][0]> & { truncate?: boolean })[] = [
     {
       accessorKey: "index",
       header: () => <div className="text-center text-xs tracking-wider w-8">#</div>,
-      cell: ({ row }) => <div className="text-center text-muted-foreground w-8">{row.index + 1}</div>,
+      cell: ({ row }) => (
+        <div className="text-center text-muted-foreground w-8">{row.index + 1}</div>
+      ),
       size: 40,
-      truncate: false
+      truncate: false,
     },
     {
       accessorKey: "maintenanceTask",
@@ -68,7 +59,8 @@ export function ChecklistItemsTable({
                   {...field}
                   className={cn(
                     "min-h-[60px] resize-none text-sm",
-                    form.formState.errors.items?.[row.index]?.maintenanceTask && "border-destructive focus-visible:ring-destructive"
+                    form.formState.errors.items?.[row.index]?.maintenanceTask &&
+                      "border-destructive focus-visible:ring-destructive",
                   )}
                 />
               </FormControl>
@@ -168,7 +160,7 @@ export function ChecklistItemsTable({
     },
     // Flags Grouped
     {
-      id: 'flags',
+      id: "flags",
       header: () => <div className="text-center text-xs tracking-wider w-[100px]">Cấu hình</div>,
       cell: ({ row }) => (
         <div className="flex flex-col gap-2 py-1">
@@ -180,7 +172,9 @@ export function ChecklistItemsTable({
                 <FormControl>
                   <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
-                <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">Bắt buộc</div>
+                <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">
+                  Bắt buộc
+                </div>
               </FormItem>
             )}
           />
@@ -192,7 +186,9 @@ export function ChecklistItemsTable({
                 <FormControl>
                   <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
-                <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">Yêu cầu ảnh</div>
+                <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">
+                  Yêu cầu ảnh
+                </div>
               </FormItem>
             )}
           />
@@ -205,7 +201,7 @@ export function ChecklistItemsTable({
       header: () => <div className="text-right text-xs tracking-wider w-24">Thao tác</div>,
       cell: ({ row }) => (
         <div className="flex flex-col items-center justify-center gap-1">
-          <div className='flex gap-1'>
+          <div className="flex gap-1">
             <Button
               type="button"
               variant="ghost"
@@ -241,7 +237,7 @@ export function ChecklistItemsTable({
           </Button>
         </div>
       ),
-      truncate: false
+      truncate: false,
     },
   ];
 
@@ -254,7 +250,9 @@ export function ChecklistItemsTable({
           </div>
           <div className="space-y-0.5">
             <CardTitle className="text-lg">Danh sách hạng mục kiểm tra</CardTitle>
-            <p className="text-sm text-muted-foreground">Định nghĩa các nội dung bảo dưỡng cụ thể</p>
+            <p className="text-sm text-muted-foreground">
+              Định nghĩa các nội dung bảo dưỡng cụ thể
+            </p>
           </div>
         </div>
         {!isMobile && (
@@ -271,7 +269,7 @@ export function ChecklistItemsTable({
         )}
       </CardHeader>
       <CardContent className={isMobile ? "p-0" : "p-2"}>
-        {form.formState.errors.items && 'root' in form.formState.errors.items && (
+        {form.formState.errors.items && "root" in form.formState.errors.items && (
           <div className="m-4 p-3 bg-destructive/10 border border-destructive rounded-md text-sm text-destructive font-medium">
             {(form.formState.errors.items as any).root?.message}
           </div>

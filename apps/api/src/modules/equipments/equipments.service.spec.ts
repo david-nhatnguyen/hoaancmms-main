@@ -1,29 +1,29 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { EquipmentsService } from './equipments.service';
-import { PrismaService } from '@/database/prisma.service';
-import { CreateEquipmentDto } from './dto/create-equipment.dto';
-import { EquipmentStatus } from '@prisma/generated/prisma';
-import { NotFoundException, ConflictException } from '@nestjs/common';
-import { mockPrismaService, MockPrismaService } from '@test/mocks/prisma.mock';
-import { EquipmentsQrService } from './equipments.qr.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { EquipmentsService } from "./equipments.service";
+import { PrismaService } from "@/database/prisma.service";
+import { CreateEquipmentDto } from "./dto/create-equipment.dto";
+import { EquipmentStatus } from "@prisma/generated/prisma";
+import { NotFoundException, ConflictException } from "@nestjs/common";
+import { mockPrismaService, MockPrismaService } from "@test/mocks/prisma.mock";
+import { EquipmentsQrService } from "./equipments.qr.service";
 
-describe('EquipmentsService', () => {
+describe("EquipmentsService", () => {
   let service: EquipmentsService;
   let prisma: MockPrismaService;
 
   const mockFactory = {
-    id: 'factory-1',
-    name: 'Factory 1',
-    status: 'ACTIVE',
+    id: "factory-1",
+    name: "Factory 1",
+    status: "ACTIVE",
   };
 
   const mockEquipment = {
-    id: 'eq-1',
-    code: 'EQ-001',
-    name: 'Equipment 1',
-    factoryId: 'factory-1',
+    id: "eq-1",
+    code: "EQ-001",
+    name: "Equipment 1",
+    factoryId: "factory-1",
     factory: mockFactory,
-    category: 'Microscope',
+    category: "Microscope",
     status: EquipmentStatus.ACTIVE,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -38,7 +38,7 @@ describe('EquipmentsService', () => {
           useValue: mockPrismaService(),
         },
         {
-          provide: 'BullQueue_excel-import', // Match QUEUE_NAMES.EXCEL_IMPORT
+          provide: "BullQueue_excel-import", // Match QUEUE_NAMES.EXCEL_IMPORT
           useValue: { add: jest.fn() },
         },
         {
@@ -56,13 +56,13 @@ describe('EquipmentsService', () => {
     jest.clearAllMocks();
   });
 
-  describe('create', () => {
-    it('should create equipment successfully', async () => {
+  describe("create", () => {
+    it("should create equipment successfully", async () => {
       const dto: CreateEquipmentDto = {
-        code: 'EQ-001',
-        name: 'Equipment 1',
-        category: 'Microscope',
-        factoryId: 'factory-1',
+        code: "EQ-001",
+        name: "Equipment 1",
+        category: "Microscope",
+        factoryId: "factory-1",
         status: EquipmentStatus.ACTIVE,
       };
 
@@ -76,11 +76,11 @@ describe('EquipmentsService', () => {
       expect(prisma.client.equipment.create).toHaveBeenCalledWith({ data: dto });
     });
 
-    it('should create equipment without factory successfully', async () => {
+    it("should create equipment without factory successfully", async () => {
       const dto: CreateEquipmentDto = {
-        code: 'EQ-002',
-        name: 'Equipment 2',
-        category: 'Microscope',
+        code: "EQ-002",
+        name: "Equipment 2",
+        category: "Microscope",
         // factoryId is undefined
         status: EquipmentStatus.ACTIVE,
       };
@@ -95,12 +95,12 @@ describe('EquipmentsService', () => {
       expect(prisma.client.equipment.create).toHaveBeenCalledWith({ data: dto });
     });
 
-    it('should throw ConflictException if equipment code already exists', async () => {
+    it("should throw ConflictException if equipment code already exists", async () => {
       const dto: CreateEquipmentDto = {
-        code: 'EQ-001',
-        name: 'Equipment 1',
-        factoryId: 'factory-1',
-        category: 'Microscope',
+        code: "EQ-001",
+        name: "Equipment 1",
+        factoryId: "factory-1",
+        category: "Microscope",
       };
 
       prisma.client.equipment.findUnique.mockResolvedValue(mockEquipment as any);
@@ -108,12 +108,12 @@ describe('EquipmentsService', () => {
       await expect(service.create(dto)).rejects.toThrow(ConflictException);
     });
 
-    it('should throw NotFoundException if factory does not exist', async () => {
+    it("should throw NotFoundException if factory does not exist", async () => {
       const dto: CreateEquipmentDto = {
-        code: 'EQ-001',
-        name: 'Equipment 1',
-        factoryId: 'factory-999',
-        category: 'Microscope',
+        code: "EQ-001",
+        name: "Equipment 1",
+        factoryId: "factory-999",
+        category: "Microscope",
       };
 
       prisma.client.equipment.findUnique.mockResolvedValue(null);
@@ -123,10 +123,10 @@ describe('EquipmentsService', () => {
     });
   });
 
-  describe('findAll', () => {
-    it('should return paginated equipments with meta', async () => {
+  describe("findAll", () => {
+    it("should return paginated equipments with meta", async () => {
       const query = { page: 1, limit: 10 };
-      const mockData = [mockEquipment, { ...mockEquipment, id: 'eq-2', code: 'EQ-002' }];
+      const mockData = [mockEquipment, { ...mockEquipment, id: "eq-2", code: "EQ-002" }];
 
       prisma.client.equipment.findMany.mockResolvedValue(mockData as any);
       prisma.client.equipment.count.mockResolvedValue(2);
@@ -135,12 +135,12 @@ describe('EquipmentsService', () => {
 
       expect(result.data).toHaveLength(2);
       expect(result.meta.total).toBe(2);
-      expect(result.data[0].factoryName).toBe('Factory 1');
+      expect(result.data[0].factoryName).toBe("Factory 1");
     });
 
-    it('should filter by search and enums', async () => {
+    it("should filter by search and enums", async () => {
       const query = {
-        search: 'EQ',
+        search: "EQ",
         status: [EquipmentStatus.ACTIVE],
       };
 
@@ -153,16 +153,16 @@ describe('EquipmentsService', () => {
         expect.objectContaining({
           where: expect.objectContaining({
             status: { in: [EquipmentStatus.ACTIVE] },
-            OR: expect.arrayContaining([{ code: { contains: 'EQ', mode: 'insensitive' } }]),
+            OR: expect.arrayContaining([{ code: { contains: "EQ", mode: "insensitive" } }]),
           }),
         }),
       );
     });
 
-    it('should filter by multiple factoryIds and factoryCodes', async () => {
+    it("should filter by multiple factoryIds and factoryCodes", async () => {
       const query = {
-        factoryId: ['factory-1'],
-        factoryCode: ['FAC-01'],
+        factoryId: ["factory-1"],
+        factoryCode: ["FAC-01"],
       };
 
       prisma.client.equipment.findMany.mockResolvedValue([]);
@@ -173,62 +173,62 @@ describe('EquipmentsService', () => {
       expect(prisma.client.equipment.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            factoryId: { in: ['factory-1'] },
-            factory: { code: { in: ['FAC-01'] } },
+            factoryId: { in: ["factory-1"] },
+            factory: { code: { in: ["FAC-01"] } },
           }),
         }),
       );
     });
   });
 
-  describe('findOne', () => {
-    it('should return equipment by id', async () => {
+  describe("findOne", () => {
+    it("should return equipment by id", async () => {
       prisma.client.equipment.findUnique.mockResolvedValue(mockEquipment as any);
 
-      const result = await service.findOne('eq-1');
+      const result = await service.findOne("eq-1");
       expect(result).toEqual(mockEquipment);
     });
 
-    it('should throw NotFoundException when not found', async () => {
+    it("should throw NotFoundException when not found", async () => {
       prisma.client.equipment.findUnique.mockResolvedValue(null);
-      await expect(service.findOne('eq-999')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne("eq-999")).rejects.toThrow(NotFoundException);
     });
   });
 
-  describe('update', () => {
-    it('should update equipment successfully', async () => {
-      const updateDto = { name: 'Updated Name' };
-      const updatedEquipment = { ...mockEquipment, name: 'Updated Name' };
+  describe("update", () => {
+    it("should update equipment successfully", async () => {
+      const updateDto = { name: "Updated Name" };
+      const updatedEquipment = { ...mockEquipment, name: "Updated Name" };
 
       prisma.client.equipment.findUnique.mockResolvedValue(mockEquipment as any);
       prisma.client.equipment.update.mockResolvedValue(updatedEquipment as any);
 
-      const result = await service.update('eq-1', updateDto);
-      expect(result.name).toBe('Updated Name');
+      const result = await service.update("eq-1", updateDto);
+      expect(result.name).toBe("Updated Name");
     });
 
-    it('should check for duplicate code on update', async () => {
-      const updateDto = { code: 'EQ-DUPLICATE' };
+    it("should check for duplicate code on update", async () => {
+      const updateDto = { code: "EQ-DUPLICATE" };
 
       prisma.client.equipment.findUnique.mockResolvedValue(mockEquipment as any);
-      prisma.client.equipment.findFirst.mockResolvedValue({ id: 'eq-2' } as any); // Exists another one with this code
+      prisma.client.equipment.findFirst.mockResolvedValue({ id: "eq-2" } as any); // Exists another one with this code
 
-      await expect(service.update('eq-1', updateDto)).rejects.toThrow(ConflictException);
+      await expect(service.update("eq-1", updateDto)).rejects.toThrow(ConflictException);
     });
   });
 
-  describe('remove', () => {
-    it('should delete equipment', async () => {
+  describe("remove", () => {
+    it("should delete equipment", async () => {
       prisma.client.equipment.findUnique.mockResolvedValue(mockEquipment as any);
       prisma.client.equipment.delete.mockResolvedValue(mockEquipment as any);
 
-      const result = await service.remove('eq-1');
-      expect(result).toEqual({ message: 'Equipment deleted successfully' });
+      const result = await service.remove("eq-1");
+      expect(result).toEqual({ message: "Equipment deleted successfully" });
     });
   });
 
-  describe('getStats', () => {
-    it('should return stats correctly', async () => {
+  describe("getStats", () => {
+    it("should return stats correctly", async () => {
       const statusCounts = [
         { status: EquipmentStatus.ACTIVE, _count: { status: 5 } },
         { status: EquipmentStatus.MAINTENANCE, _count: { status: 2 } },
@@ -247,12 +247,12 @@ describe('EquipmentsService', () => {
     });
   });
 
-  describe('removeMany', () => {
-    it('should delete multiple equipments and cleanup assets', async () => {
-      const ids = ['eq-1', 'eq-2'];
+  describe("removeMany", () => {
+    it("should delete multiple equipments and cleanup assets", async () => {
+      const ids = ["eq-1", "eq-2"];
       const mockEquipments = [
-        { id: 'eq-1', code: 'EQ-001', image: '/uploads/img1.webp' },
-        { id: 'eq-2', code: 'EQ-002', image: null },
+        { id: "eq-1", code: "EQ-001", image: "/uploads/img1.webp" },
+        { id: "eq-2", code: "EQ-002", image: null },
       ];
 
       prisma.client.equipment.findMany.mockResolvedValue(mockEquipments as any);
@@ -266,10 +266,10 @@ describe('EquipmentsService', () => {
       });
     });
 
-    it('should return 0 count if no equipments found', async () => {
+    it("should return 0 count if no equipments found", async () => {
       prisma.client.equipment.findMany.mockResolvedValue([]);
 
-      const result = await service.removeMany(['non-existent']);
+      const result = await service.removeMany(["non-existent"]);
 
       expect(result.count).toBe(0);
       expect(prisma.client.$transaction).not.toHaveBeenCalled();

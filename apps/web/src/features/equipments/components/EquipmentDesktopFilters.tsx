@@ -1,4 +1,4 @@
-import { TableToolbarFilters } from '@/components/shared/table/TableToolbarFilters';
+import { TableToolbarFilters } from "@/components/shared/table/TableToolbarFilters";
 
 interface FilterItem {
   id: string;
@@ -17,9 +17,8 @@ export function QuickAccessFilters({
   searchQuery,
   setSearchQuery,
   searchPlaceholder = "Tìm kiếm...",
-  filters
+  filters,
 }: QuickAccessFiltersProps) {
-
   return (
     <TableToolbarFilters
       searchQuery={searchQuery}
@@ -38,4 +37,3 @@ export function QuickAccessFilters({
     </TableToolbarFilters>
   );
 }
-

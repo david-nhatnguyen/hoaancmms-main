@@ -39,7 +39,7 @@ export interface RoleUser {
   username: string;
   fullName: string;
   email?: string;
-  status: 'ACTIVE' | 'LOCKED';
+  status: "ACTIVE" | "LOCKED";
   lastLoginAt?: string;
   factoryIds: string[];
 }

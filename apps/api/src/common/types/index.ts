@@ -1,4 +1,4 @@
 /**
  * Common Types Barrel Export
  */
-export * from './response.types';
+export * from "./response.types";

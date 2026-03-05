@@ -1,22 +1,22 @@
-import { renderHook, act } from '@testing-library/react';
-import { useImportProgress } from './useImportProgress';
-import { equipmentsApi } from '@/api/endpoints/equipments.api';
-import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { renderHook, act } from "@testing-library/react";
+import { useImportProgress } from "./useImportProgress";
+import { equipmentsApi } from "@/api/endpoints/equipments.api";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 // Mock dependencies
-jest.mock('@/api/endpoints/equipments.api');
-jest.mock('@tanstack/react-query');
-jest.mock('sonner');
+jest.mock("@/api/endpoints/equipments.api");
+jest.mock("@tanstack/react-query");
+jest.mock("sonner");
 
-describe('useImportProgress', () => {
-  const jobId = 'test-job-id';
+describe("useImportProgress", () => {
+  const jobId = "test-job-id";
   const mockInvalidateQueries = jest.fn();
 
   beforeEach(() => {
     jest.useFakeTimers();
-    jest.setSystemTime(new Date('2024-01-01T00:00:00Z'));
-    
+    jest.setSystemTime(new Date("2024-01-01T00:00:00Z"));
+
     (useQueryClient as jest.Mock).mockReturnValue({
       invalidateQueries: mockInvalidateQueries,
     });
@@ -24,14 +24,14 @@ describe('useImportProgress', () => {
     // Default mock for polling
     (equipmentsApi.getImportStatus as jest.Mock).mockResolvedValue({
       id: jobId,
-      status: 'PROCESSING',
+      status: "PROCESSING",
       processedRecords: 0,
-      totalRecords: 100
+      totalRecords: 100,
     });
 
-    (toast.success as jest.Mock).mockReturnValue('success-id');
-    (toast.warning as jest.Mock).mockReturnValue('warning-id');
-    (toast.info as jest.Mock).mockReturnValue('info-id');
+    (toast.success as jest.Mock).mockReturnValue("success-id");
+    (toast.warning as jest.Mock).mockReturnValue("warning-id");
+    (toast.info as jest.Mock).mockReturnValue("info-id");
 
     localStorage.clear();
     mockInvalidateQueries.mockClear();
@@ -41,17 +41,17 @@ describe('useImportProgress', () => {
     jest.useRealTimers();
   });
 
-  it('should initialize with 0 progress and null history', () => {
+  it("should initialize with 0 progress and null history", () => {
     const { result } = renderHook(() => useImportProgress({ jobId }));
-    
+
     expect(result.current.progress).toBe(0);
     expect(result.current.history).toBeNull();
     expect(result.current.isSimulationDone).toBe(false);
   });
 
-  it('should jump progress 4 times during simulation (0 to 90%)', () => {
-    localStorage.setItem('import_duration', '10000');
-    localStorage.setItem('import_start_time', Date.now().toString());
+  it("should jump progress 4 times during simulation (0 to 90%)", () => {
+    localStorage.setItem("import_duration", "10000");
+    localStorage.setItem("import_start_time", Date.now().toString());
 
     const { result } = renderHook(() => useImportProgress({ jobId }));
 
@@ -83,11 +83,11 @@ describe('useImportProgress', () => {
     expect(result.current.progress).toBe(90);
   });
 
-  it('should recover progress based on elapsed time when refreshed', () => {
+  it("should recover progress based on elapsed time when refreshed", () => {
     const duration = 10000;
     const startTime = Date.now() - 5000; // 5s elapsed
-    localStorage.setItem('import_duration', duration.toString());
-    localStorage.setItem('import_start_time', startTime.toString());
+    localStorage.setItem("import_duration", duration.toString());
+    localStorage.setItem("import_start_time", startTime.toString());
 
     const { result } = renderHook(() => useImportProgress({ jobId }));
 
@@ -95,14 +95,14 @@ describe('useImportProgress', () => {
     expect(result.current.progress).toBe(45);
   });
 
-  it('should start polling after duration and update history', async () => {
+  it("should start polling after duration and update history", async () => {
     const duration = 1000; // 1s for faster test
-    localStorage.setItem('import_duration', duration.toString());
-    localStorage.setItem('import_start_time', Date.now().toString());
+    localStorage.setItem("import_duration", duration.toString());
+    localStorage.setItem("import_start_time", Date.now().toString());
 
     const mockHistory = {
       id: jobId,
-      status: 'PROCESSING',
+      status: "PROCESSING",
       processedRecords: 10,
       totalRecords: 100,
     };
@@ -118,20 +118,20 @@ describe('useImportProgress', () => {
     });
 
     expect(result.current.isSimulationDone).toBe(true);
-    
+
     // Check if progress updated to match mock processing if any (logic not implemented yet, just history)
     expect(result.current.history).toEqual(mockHistory);
     expect(equipmentsApi.getImportStatus).toHaveBeenCalledWith(jobId);
   });
 
-  it('should finish import when status is COMPLETED', async () => {
+  it("should finish import when status is COMPLETED", async () => {
     const duration = 1000;
-    localStorage.setItem('import_duration', duration.toString());
-    localStorage.setItem('import_start_time', Date.now().toString());
+    localStorage.setItem("import_duration", duration.toString());
+    localStorage.setItem("import_start_time", Date.now().toString());
 
     const completedHistory = {
       id: jobId,
-      status: 'COMPLETED',
+      status: "COMPLETED",
       successCount: 10,
       failedCount: 0,
     };

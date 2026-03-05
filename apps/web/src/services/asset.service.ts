@@ -1,6 +1,6 @@
-import { factories, equipments, Factory, Equipment } from '@/api/mock/mockData';
+import { factories, equipments, Factory, Equipment } from "@/api/mock/mockData";
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const assetService = {
   // Factory Operations
@@ -11,7 +11,7 @@ export const assetService = {
 
   getFactoryById: async (id: string): Promise<Factory | undefined> => {
     await delay(300);
-    return factories.find(f => f.id === id);
+    return factories.find((f) => f.id === id);
   },
 
   // Equipment Operations
@@ -22,19 +22,19 @@ export const assetService = {
 
   getEquipmentById: async (id: string): Promise<Equipment | undefined> => {
     await delay(300);
-    return equipments.find(e => e.id === id);
+    return equipments.find((e) => e.id === id);
   },
 
   createEquipment: async (data: Partial<Equipment>): Promise<Equipment> => {
     await delay(600);
-    console.log('Creating Equipment:', data);
+    console.log("Creating Equipment:", data);
     // Mock return with a generated ID
     return { ...equipments[0], ...data, id: `eq-new-${Date.now()}` } as Equipment;
   },
 
   updateEquipment: async (id: string, data: Partial<Equipment>): Promise<Equipment> => {
     await delay(600);
-    console.log('Updating Equipment:', id, data);
+    console.log("Updating Equipment:", id, data);
     return { ...equipments[0], ...data, id } as Equipment;
-  }
+  },
 };

@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { cn } from '@/lib/utils';
+import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface PageTransitionProps {
   children: ReactNode;
@@ -7,14 +7,5 @@ interface PageTransitionProps {
 }
 
 export function PageTransition({ children, className }: PageTransitionProps) {
-  return (
-    <div
-      className={cn(
-        "ease-out",
-        className
-      )}
-    >
-      {children}
-    </div>
-  );
+  return <div className={cn("ease-out", className)}>{children}</div>;
 }

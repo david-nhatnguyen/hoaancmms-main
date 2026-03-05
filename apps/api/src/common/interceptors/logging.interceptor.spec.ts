@@ -1,25 +1,25 @@
-import { ExecutionContext, CallHandler } from '@nestjs/common';
-import { of, throwError } from 'rxjs';
-import { delay } from 'rxjs/operators';
-import { LoggingInterceptor } from './logging.interceptor';
+import { ExecutionContext, CallHandler } from "@nestjs/common";
+import { of, throwError } from "rxjs";
+import { delay } from "rxjs/operators";
+import { LoggingInterceptor } from "./logging.interceptor";
 
-describe('LoggingInterceptor', () => {
+describe("LoggingInterceptor", () => {
   let interceptor: LoggingInterceptor;
 
   beforeEach(() => {
     interceptor = new LoggingInterceptor();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(interceptor).toBeDefined();
   });
 
-  it('should log request and response', (done) => {
+  it("should log request and response", (done) => {
     const mockRequest = {
-      method: 'GET',
-      url: '/test',
-      ip: '127.0.0.1',
-      get: jest.fn().mockReturnValue('jest-test'),
+      method: "GET",
+      url: "/test",
+      ip: "127.0.0.1",
+      get: jest.fn().mockReturnValue("jest-test"),
     };
     const mockResponse = { statusCode: 200 };
     const mockContext = {
@@ -30,26 +30,26 @@ describe('LoggingInterceptor', () => {
     } as unknown as ExecutionContext;
 
     const mockCallHandler = {
-      handle: () => of('test-data'),
+      handle: () => of("test-data"),
     } as CallHandler;
 
     // We can't easily check the logger output as it's private and uses Nest Logger
     // but we can ensure the observable completes
     interceptor.intercept(mockContext, mockCallHandler).subscribe({
       next: (data) => {
-        expect(data).toBe('test-data');
+        expect(data).toBe("test-data");
         done();
       },
       error: done,
     });
   });
 
-  it('should log slow request warning', (done) => {
+  it("should log slow request warning", (done) => {
     const mockRequest = {
-      method: 'GET',
-      url: '/slow',
-      ip: '127.0.0.1',
-      get: jest.fn().mockReturnValue('jest-test'),
+      method: "GET",
+      url: "/slow",
+      ip: "127.0.0.1",
+      get: jest.fn().mockReturnValue("jest-test"),
     };
     const mockResponse = { statusCode: 200 };
     const mockContext = {
@@ -60,24 +60,24 @@ describe('LoggingInterceptor', () => {
     } as unknown as ExecutionContext;
 
     const mockCallHandler = {
-      handle: () => of('slow-data').pipe(delay(3100)),
+      handle: () => of("slow-data").pipe(delay(3100)),
     } as CallHandler;
 
     interceptor.intercept(mockContext, mockCallHandler).subscribe({
       next: (data) => {
-        expect(data).toBe('slow-data');
+        expect(data).toBe("slow-data");
         done();
       },
       error: done,
     });
   });
 
-  it('should log error response', (done) => {
+  it("should log error response", (done) => {
     const mockRequest = {
-      method: 'POST',
-      url: '/error',
-      ip: '127.0.0.1',
-      get: jest.fn().mockReturnValue('jest-test'),
+      method: "POST",
+      url: "/error",
+      ip: "127.0.0.1",
+      get: jest.fn().mockReturnValue("jest-test"),
     };
     const mockContext = {
       switchToHttp: () => ({
@@ -86,7 +86,7 @@ describe('LoggingInterceptor', () => {
       }),
     } as unknown as ExecutionContext;
 
-    const mockError = { status: 400, message: 'Bad Request' };
+    const mockError = { status: 400, message: "Bad Request" };
     const mockCallHandler = {
       handle: () => throwError(() => mockError),
     } as CallHandler;
@@ -99,11 +99,11 @@ describe('LoggingInterceptor', () => {
     });
   });
 
-  it('should handle missing user-agent and generic error', (done) => {
+  it("should handle missing user-agent and generic error", (done) => {
     const mockRequest = {
-      method: 'GET',
-      url: '/generic-error',
-      ip: '127.0.0.1',
+      method: "GET",
+      url: "/generic-error",
+      ip: "127.0.0.1",
       get: jest.fn().mockReturnValue(undefined), // No user-agent
     };
     const mockContext = {
@@ -119,7 +119,7 @@ describe('LoggingInterceptor', () => {
     } as CallHandler;
 
     interceptor.intercept(mockContext, mockCallHandler).subscribe({
-      next: () => done('Should have failed'),
+      next: () => done("Should have failed"),
       error: (error) => {
         expect(error).toBe(mockError);
         done();

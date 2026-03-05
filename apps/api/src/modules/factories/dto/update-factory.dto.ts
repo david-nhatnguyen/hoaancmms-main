@@ -1,5 +1,5 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateFactoryDto } from './create-factory.dto';
+import { PartialType } from "@nestjs/swagger";
+import { CreateFactoryDto } from "./create-factory.dto";
 
 /**
  * Update Factory DTO

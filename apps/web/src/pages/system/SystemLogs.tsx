@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo } from "react";
 import {
   Search,
   Download,
@@ -16,10 +16,10 @@ import {
   Pencil,
   Trash2,
   Lock,
-  Unlock
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+  Unlock,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -27,18 +27,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+} from "@/components/ui/table";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -46,11 +37,11 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { systemLogs, users, PERMISSION_MODULES, SystemLog } from '@/data/systemData';
-import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { MobileFilters } from '@/components/shared/MobileFilters';
+} from "@/components/ui/command";
+import { systemLogs, users, PERMISSION_MODULES, SystemLog } from "@/data/systemData";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileFilters } from "@/components/shared/MobileFilters";
 
 interface Filters {
   user: string[];
@@ -59,15 +50,15 @@ interface Filters {
 }
 
 const ACTION_OPTIONS = [
-  { value: 'create', label: 'Tạo mới', icon: Plus, color: 'text-[hsl(var(--status-active))]' },
-  { value: 'update', label: 'Cập nhật', icon: Pencil, color: 'text-primary' },
-  { value: 'delete', label: 'Xóa', icon: Trash2, color: 'text-destructive' },
-  { value: 'lock', label: 'Khóa', icon: Lock, color: 'text-[hsl(var(--status-maintenance))]' },
-  { value: 'unlock', label: 'Mở khóa', icon: Unlock, color: 'text-[hsl(var(--status-active))]' },
-  { value: 'login', label: 'Đăng nhập', icon: LogIn, color: 'text-primary' },
-  { value: 'logout', label: 'Đăng xuất', icon: LogOut, color: 'text-muted-foreground' },
-  { value: 'export', label: 'Xuất dữ liệu', icon: Download, color: 'text-primary' },
-  { value: 'approve', label: 'Duyệt', icon: Check, color: 'text-[hsl(var(--status-active))]' },
+  { value: "create", label: "Tạo mới", icon: Plus, color: "text-[hsl(var(--status-active))]" },
+  { value: "update", label: "Cập nhật", icon: Pencil, color: "text-primary" },
+  { value: "delete", label: "Xóa", icon: Trash2, color: "text-destructive" },
+  { value: "lock", label: "Khóa", icon: Lock, color: "text-[hsl(var(--status-maintenance))]" },
+  { value: "unlock", label: "Mở khóa", icon: Unlock, color: "text-[hsl(var(--status-active))]" },
+  { value: "login", label: "Đăng nhập", icon: LogIn, color: "text-primary" },
+  { value: "logout", label: "Đăng xuất", icon: LogOut, color: "text-muted-foreground" },
+  { value: "export", label: "Xuất dữ liệu", icon: Download, color: "text-primary" },
+  { value: "approve", label: "Duyệt", icon: Check, color: "text-[hsl(var(--status-active))]" },
 ];
 
 // Multi-select dropdown
@@ -94,7 +85,7 @@ function MultiSelectDropdown({
           size="sm"
           className={cn(
             "h-9 gap-2 border-border/50 bg-secondary/50 hover:bg-secondary",
-            selected.length > 0 && "border-primary/50 bg-primary/10"
+            selected.length > 0 && "border-primary/50 bg-primary/10",
           )}
         >
           <span className="text-sm">
@@ -115,11 +106,15 @@ function MultiSelectDropdown({
                   onSelect={() => onToggle(option.value)}
                   className="cursor-pointer"
                 >
-                  <div className={cn(
-                    "mr-2 h-4 w-4 rounded border border-primary flex items-center justify-center",
-                    selected.includes(option.value) ? "bg-primary" : "bg-transparent"
-                  )}>
-                    {selected.includes(option.value) && <Check className="h-3 w-3 text-primary-foreground" />}
+                  <div
+                    className={cn(
+                      "mr-2 h-4 w-4 rounded border border-primary flex items-center justify-center",
+                      selected.includes(option.value) ? "bg-primary" : "bg-transparent",
+                    )}
+                  >
+                    {selected.includes(option.value) && (
+                      <Check className="h-3 w-3 text-primary-foreground" />
+                    )}
                   </div>
                   {option.label}
                 </CommandItem>
@@ -133,23 +128,14 @@ function MultiSelectDropdown({
 }
 
 // Mobile log card component
-function LogCard({
-  log,
-  onView
-}: {
-  log: SystemLog;
-  onView: () => void;
-}) {
-  const actionConfig = ACTION_OPTIONS.find(a => a.value === log.action);
+function LogCard({ log, onView }: { log: SystemLog; onView: () => void }) {
+  const actionConfig = ACTION_OPTIONS.find((a) => a.value === log.action);
   const ActionIcon = actionConfig?.icon || Activity;
-  const actionColor = actionConfig?.color || 'text-muted-foreground';
+  const actionColor = actionConfig?.color || "text-muted-foreground";
   const actionLabel = actionConfig?.label || log.action;
 
   return (
-    <div
-      className="bg-card rounded-xl border border-border/50 p-3"
-      onClick={onView}
-    >
+    <div className="bg-card rounded-xl border border-border/50 p-3" onClick={onView}>
       <div className="flex items-start justify-between gap-2 mb-1.5">
         <div className="flex items-center gap-2 min-w-0">
           <div className={cn("shrink-0", actionColor)}>
@@ -160,14 +146,10 @@ function LogCard({
             <p className="text-[10px] text-muted-foreground font-mono">{log.timestamp}</p>
           </div>
         </div>
-        <span className={cn("text-xs font-medium shrink-0", actionColor)}>
-          {actionLabel}
-        </span>
+        <span className={cn("text-xs font-medium shrink-0", actionColor)}>{actionLabel}</span>
       </div>
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="px-2 py-0.5 rounded-md bg-secondary text-[10px]">
-          {log.module}
-        </span>
+        <span className="px-2 py-0.5 rounded-md bg-secondary text-[10px]">{log.module}</span>
         {log.objectName && (
           <span className="text-primary font-mono text-[10px] truncate max-w-[120px]">
             {log.objectName}
@@ -180,7 +162,7 @@ function LogCard({
 }
 
 export default function SystemLogs() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Filters>({
     user: [],
     module: [],
@@ -190,13 +172,13 @@ export default function SystemLogs() {
   const isMobile = useIsMobile();
 
   const filteredLogs = useMemo(() => {
-    return systemLogs.filter(log => {
+    return systemLogs.filter((log) => {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const matches =
           log.userName.toLowerCase().includes(query) ||
           log.details.toLowerCase().includes(query) ||
-          (log.objectName?.toLowerCase().includes(query));
+          log.objectName?.toLowerCase().includes(query);
         if (!matches) return false;
       }
 
@@ -209,133 +191,128 @@ export default function SystemLogs() {
   }, [searchQuery, filters]);
 
   const toggleFilter = (category: keyof Filters, value: string) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       [category]: prev[category].includes(value)
-        ? prev[category].filter(v => v !== value)
-        : [...prev[category], value]
+        ? prev[category].filter((v) => v !== value)
+        : [...prev[category], value],
     }));
   };
 
   const clearFilters = () => {
     setFilters({ user: [], module: [], action: [] });
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
-  const hasActiveFilters = Object.values(filters).some(arr => arr.length > 0);
+  const hasActiveFilters = Object.values(filters).some((arr) => arr.length > 0);
 
-  const userOptions = users.map(u => ({ value: u.id, label: u.fullName }));
+  const userOptions = users.map((u) => ({ value: u.id, label: u.fullName }));
   const moduleOptions = [
-    ...PERMISSION_MODULES.map(m => ({ value: m.name, label: m.name })),
-    { value: 'Hệ thống', label: 'Hệ thống' }
+    ...PERMISSION_MODULES.map((m) => ({ value: m.name, label: m.name })),
+    { value: "Hệ thống", label: "Hệ thống" },
   ];
-  const actionOptions = ACTION_OPTIONS.map(a => ({ value: a.value, label: a.label }));
+  const actionOptions = ACTION_OPTIONS.map((a) => ({ value: a.value, label: a.label }));
 
   const getActionIcon = (action: string) => {
-    const actionConfig = ACTION_OPTIONS.find(a => a.value === action);
+    const actionConfig = ACTION_OPTIONS.find((a) => a.value === action);
     if (!actionConfig) return Activity;
     return actionConfig.icon;
   };
 
   const getActionColor = (action: string) => {
-    const actionConfig = ACTION_OPTIONS.find(a => a.value === action);
-    return actionConfig?.color || 'text-muted-foreground';
+    const actionConfig = ACTION_OPTIONS.find((a) => a.value === action);
+    return actionConfig?.color || "text-muted-foreground";
   };
 
   const getActionLabel = (action: string) => {
-    const actionConfig = ACTION_OPTIONS.find(a => a.value === action);
+    const actionConfig = ACTION_OPTIONS.find((a) => a.value === action);
     return actionConfig?.label || action;
   };
 
   // Mobile filter sections
   const mobileFilterSections = [
     {
-      id: 'user',
-      label: 'Người dùng',
+      id: "user",
+      label: "Người dùng",
       activeCount: filters.user.length,
       content: (
         <div className="flex flex-wrap gap-2">
-          {userOptions.map(opt => (
+          {userOptions.map((opt) => (
             <button
               key={opt.value}
-              onClick={() => toggleFilter('user', opt.value)}
+              onClick={() => toggleFilter("user", opt.value)}
               className={cn(
                 "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
                 filters.user.includes(opt.value)
                   ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-secondary/50 border-border/50 hover:bg-secondary"
+                  : "bg-secondary/50 border-border/50 hover:bg-secondary",
               )}
             >
               {opt.label}
             </button>
           ))}
         </div>
-      )
+      ),
     },
     {
-      id: 'module',
-      label: 'Module',
+      id: "module",
+      label: "Module",
       activeCount: filters.module.length,
       content: (
         <div className="flex flex-wrap gap-2">
-          {moduleOptions.map(opt => (
+          {moduleOptions.map((opt) => (
             <button
               key={opt.value}
-              onClick={() => toggleFilter('module', opt.value)}
+              onClick={() => toggleFilter("module", opt.value)}
               className={cn(
                 "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
                 filters.module.includes(opt.value)
                   ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-secondary/50 border-border/50 hover:bg-secondary"
+                  : "bg-secondary/50 border-border/50 hover:bg-secondary",
               )}
             >
               {opt.label}
             </button>
           ))}
         </div>
-      )
+      ),
     },
     {
-      id: 'action',
-      label: 'Hành động',
+      id: "action",
+      label: "Hành động",
       activeCount: filters.action.length,
       content: (
         <div className="flex flex-wrap gap-2">
-          {actionOptions.map(opt => (
+          {actionOptions.map((opt) => (
             <button
               key={opt.value}
-              onClick={() => toggleFilter('action', opt.value)}
+              onClick={() => toggleFilter("action", opt.value)}
               className={cn(
                 "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
                 filters.action.includes(opt.value)
                   ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-secondary/50 border-border/50 hover:bg-secondary"
+                  : "bg-secondary/50 border-border/50 hover:bg-secondary",
               )}
             >
               {opt.label}
             </button>
           ))}
         </div>
-      )
-    }
+      ),
+    },
   ];
 
   return (
-    <div className={cn(
-      "animate-fade-in max-w-full overflow-x-hidden",
-      isMobile ? "px-4 py-3" : "p-6"
-    )}>
+    <div
+      className={cn("animate-fade-in max-w-full overflow-x-hidden", isMobile ? "px-4 py-3" : "p-6")}
+    >
       {/* Page Header */}
       <div className="mb-4">
         {!isMobile && <p className="page-subtitle">HỆ THỐNG</p>}
-        <div className={cn(
-          "flex items-center justify-between gap-2",
-          isMobile && "flex-wrap"
-        )}>
-          <h1 className={cn(
-            "font-bold",
-            isMobile ? "text-base" : "page-title"
-          )}>Nhật ký hệ thống</h1>
+        <div className={cn("flex items-center justify-between gap-2", isMobile && "flex-wrap")}>
+          <h1 className={cn("font-bold", isMobile ? "text-base" : "page-title")}>
+            Nhật ký hệ thống
+          </h1>
           {!isMobile && (
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" className="action-btn-secondary">
@@ -352,17 +329,25 @@ export default function SystemLogs() {
       </div>
 
       {/* Stats */}
-      <div className={cn(
-        "grid gap-3 mb-4",
-        isMobile ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-4 gap-4 mb-6"
-      )}>
-        <div className={cn(
-          "stat-card flex items-center justify-between",
-          isMobile && "p-2.5"
-        )}>
+      <div
+        className={cn(
+          "grid gap-3 mb-4",
+          isMobile ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-4 gap-4 mb-6",
+        )}
+      >
+        <div className={cn("stat-card flex items-center justify-between", isMobile && "p-2.5")}>
           <div>
-            <p className={cn("text-muted-foreground mb-0.5", isMobile ? "text-[10px]" : "text-sm mb-1")}>Tổng log</p>
-            <p className={cn("font-bold", isMobile ? "text-xl" : "text-3xl")}>{systemLogs.length}</p>
+            <p
+              className={cn(
+                "text-muted-foreground mb-0.5",
+                isMobile ? "text-[10px]" : "text-sm mb-1",
+              )}
+            >
+              Tổng log
+            </p>
+            <p className={cn("font-bold", isMobile ? "text-xl" : "text-3xl")}>
+              {systemLogs.length}
+            </p>
           </div>
           {!isMobile && (
             <div className="stat-card-icon bg-primary/20">
@@ -370,14 +355,23 @@ export default function SystemLogs() {
             </div>
           )}
         </div>
-        <div className={cn(
-          "stat-card flex items-center justify-between",
-          isMobile && "p-2.5"
-        )}>
+        <div className={cn("stat-card flex items-center justify-between", isMobile && "p-2.5")}>
           <div>
-            <p className={cn("text-muted-foreground mb-0.5", isMobile ? "text-[10px]" : "text-sm mb-1")}>Hôm nay</p>
-            <p className={cn("font-bold text-[hsl(var(--status-active))]", isMobile ? "text-xl" : "text-3xl")}>
-              {systemLogs.filter(l => l.timestamp.includes('18/01/2026')).length}
+            <p
+              className={cn(
+                "text-muted-foreground mb-0.5",
+                isMobile ? "text-[10px]" : "text-sm mb-1",
+              )}
+            >
+              Hôm nay
+            </p>
+            <p
+              className={cn(
+                "font-bold text-[hsl(var(--status-active))]",
+                isMobile ? "text-xl" : "text-3xl",
+              )}
+            >
+              {systemLogs.filter((l) => l.timestamp.includes("18/01/2026")).length}
             </p>
           </div>
           {!isMobile && (
@@ -386,14 +380,18 @@ export default function SystemLogs() {
             </div>
           )}
         </div>
-        <div className={cn(
-          "stat-card flex items-center justify-between",
-          isMobile && "p-2.5"
-        )}>
+        <div className={cn("stat-card flex items-center justify-between", isMobile && "p-2.5")}>
           <div>
-            <p className={cn("text-muted-foreground mb-0.5", isMobile ? "text-[10px]" : "text-sm mb-1")}>Người dùng</p>
+            <p
+              className={cn(
+                "text-muted-foreground mb-0.5",
+                isMobile ? "text-[10px]" : "text-sm mb-1",
+              )}
+            >
+              Người dùng
+            </p>
             <p className={cn("font-bold text-primary", isMobile ? "text-xl" : "text-3xl")}>
-              {new Set(systemLogs.map(l => l.userId)).size}
+              {new Set(systemLogs.map((l) => l.userId)).size}
             </p>
           </div>
           {!isMobile && (
@@ -402,14 +400,23 @@ export default function SystemLogs() {
             </div>
           )}
         </div>
-        <div className={cn(
-          "stat-card flex items-center justify-between",
-          isMobile && "p-2.5"
-        )}>
+        <div className={cn("stat-card flex items-center justify-between", isMobile && "p-2.5")}>
           <div>
-            <p className={cn("text-muted-foreground mb-0.5", isMobile ? "text-[10px]" : "text-sm mb-1")}>Quan trọng</p>
-            <p className={cn("font-bold text-[hsl(var(--status-maintenance))]", isMobile ? "text-xl" : "text-3xl")}>
-              {systemLogs.filter(l => ['delete', 'lock', 'approve'].includes(l.action)).length}
+            <p
+              className={cn(
+                "text-muted-foreground mb-0.5",
+                isMobile ? "text-[10px]" : "text-sm mb-1",
+              )}
+            >
+              Quan trọng
+            </p>
+            <p
+              className={cn(
+                "font-bold text-[hsl(var(--status-maintenance))]",
+                isMobile ? "text-xl" : "text-3xl",
+              )}
+            >
+              {systemLogs.filter((l) => ["delete", "lock", "approve"].includes(l.action)).length}
             </p>
           </div>
           {!isMobile && (
@@ -449,7 +456,7 @@ export default function SystemLogs() {
               label="Người dùng"
               options={userOptions}
               selected={filters.user}
-              onToggle={(value) => toggleFilter('user', value)}
+              onToggle={(value) => toggleFilter("user", value)}
               searchable
             />
 
@@ -457,14 +464,14 @@ export default function SystemLogs() {
               label="Module"
               options={moduleOptions}
               selected={filters.module}
-              onToggle={(value) => toggleFilter('module', value)}
+              onToggle={(value) => toggleFilter("module", value)}
             />
 
             <MultiSelectDropdown
               label="Hành động"
               options={actionOptions}
               selected={filters.action}
-              onToggle={(value) => toggleFilter('action', value)}
+              onToggle={(value) => toggleFilter("action", value)}
             />
 
             {(hasActiveFilters || searchQuery) && (
@@ -483,12 +490,10 @@ export default function SystemLogs() {
       )}
 
       {/* Results */}
-      <div className={cn(
-        "flex items-center justify-between",
-        isMobile ? "mb-2" : "mb-3"
-      )}>
+      <div className={cn("flex items-center justify-between", isMobile ? "mb-2" : "mb-3")}>
         <span className={cn("text-muted-foreground", isMobile ? "text-xs" : "text-sm")}>
-          Hiển thị <span className="font-semibold text-foreground">{filteredLogs.length}</span> bản ghi
+          Hiển thị <span className="font-semibold text-foreground">{filteredLogs.length}</span> bản
+          ghi
         </span>
       </div>
 
@@ -501,11 +506,7 @@ export default function SystemLogs() {
             </div>
           ) : (
             filteredLogs.map((log) => (
-              <LogCard
-                key={log.id}
-                log={log}
-                onView={() => setSelectedLog(log)}
-              />
+              <LogCard key={log.id} log={log} onView={() => setSelectedLog(log)} />
             ))
           )}
         </div>
@@ -544,7 +545,12 @@ export default function SystemLogs() {
                       </TableCell>
                       <TableCell className="font-medium">{log.userName}</TableCell>
                       <TableCell className="text-center">
-                        <div className={cn("inline-flex items-center gap-1.5", getActionColor(log.action))}>
+                        <div
+                          className={cn(
+                            "inline-flex items-center gap-1.5",
+                            getActionColor(log.action),
+                          )}
+                        >
                           <ActionIcon className="h-3.5 w-3.5" />
                           <span className="text-xs font-medium">{getActionLabel(log.action)}</span>
                         </div>
@@ -588,10 +594,9 @@ export default function SystemLogs() {
 
       {/* Log Detail Sheet */}
       <Sheet open={!!selectedLog} onOpenChange={() => setSelectedLog(null)}>
-        <SheetContent className={cn(
-          "bg-card border-border",
-          isMobile ? "w-full" : "w-[400px] sm:w-[540px]"
-        )}>
+        <SheetContent
+          className={cn("bg-card border-border", isMobile ? "w-full" : "w-[400px] sm:w-[540px]")}
+        >
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               <Activity className={cn("text-primary", isMobile ? "h-4 w-4" : "h-5 w-5")} />
@@ -602,78 +607,125 @@ export default function SystemLogs() {
           {selectedLog && (
             <div className={cn("mt-4 space-y-3", !isMobile && "mt-6 space-y-4")}>
               <div className="grid grid-cols-2 gap-2">
-                <div className={cn(
-                  "bg-secondary/50 rounded-lg",
-                  isMobile ? "p-2.5" : "p-3"
-                )}>
-                  <p className={cn("text-muted-foreground mb-0.5", isMobile ? "text-[10px]" : "text-xs")}>Thời gian</p>
-                  <p className={cn("font-mono", isMobile ? "text-xs" : "text-sm")}>{selectedLog.timestamp}</p>
+                <div className={cn("bg-secondary/50 rounded-lg", isMobile ? "p-2.5" : "p-3")}>
+                  <p
+                    className={cn(
+                      "text-muted-foreground mb-0.5",
+                      isMobile ? "text-[10px]" : "text-xs",
+                    )}
+                  >
+                    Thời gian
+                  </p>
+                  <p className={cn("font-mono", isMobile ? "text-xs" : "text-sm")}>
+                    {selectedLog.timestamp}
+                  </p>
                 </div>
-                <div className={cn(
-                  "bg-secondary/50 rounded-lg",
-                  isMobile ? "p-2.5" : "p-3"
-                )}>
-                  <p className={cn("text-muted-foreground mb-0.5", isMobile ? "text-[10px]" : "text-xs")}>Người dùng</p>
-                  <p className={cn("font-medium", isMobile ? "text-xs" : "text-sm")}>{selectedLog.userName}</p>
+                <div className={cn("bg-secondary/50 rounded-lg", isMobile ? "p-2.5" : "p-3")}>
+                  <p
+                    className={cn(
+                      "text-muted-foreground mb-0.5",
+                      isMobile ? "text-[10px]" : "text-xs",
+                    )}
+                  >
+                    Người dùng
+                  </p>
+                  <p className={cn("font-medium", isMobile ? "text-xs" : "text-sm")}>
+                    {selectedLog.userName}
+                  </p>
                 </div>
               </div>
 
-              <div className={cn(
-                "bg-secondary/50 rounded-lg",
-                isMobile ? "p-2.5" : "p-3"
-              )}>
-                <p className={cn("text-muted-foreground mb-0.5", isMobile ? "text-[10px]" : "text-xs")}>Hành động</p>
+              <div className={cn("bg-secondary/50 rounded-lg", isMobile ? "p-2.5" : "p-3")}>
+                <p
+                  className={cn(
+                    "text-muted-foreground mb-0.5",
+                    isMobile ? "text-[10px]" : "text-xs",
+                  )}
+                >
+                  Hành động
+                </p>
                 <div className={cn("flex items-center gap-2", getActionColor(selectedLog.action))}>
                   {(() => {
                     const ActionIcon = getActionIcon(selectedLog.action);
                     return <ActionIcon className={cn(isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />;
                   })()}
-                  <span className={cn("font-medium", isMobile ? "text-sm" : "")}>{getActionLabel(selectedLog.action)}</span>
+                  <span className={cn("font-medium", isMobile ? "text-sm" : "")}>
+                    {getActionLabel(selectedLog.action)}
+                  </span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
-                <div className={cn(
-                  "bg-secondary/50 rounded-lg",
-                  isMobile ? "p-2.5" : "p-3"
-                )}>
-                  <p className={cn("text-muted-foreground mb-0.5", isMobile ? "text-[10px]" : "text-xs")}>Module</p>
+                <div className={cn("bg-secondary/50 rounded-lg", isMobile ? "p-2.5" : "p-3")}>
+                  <p
+                    className={cn(
+                      "text-muted-foreground mb-0.5",
+                      isMobile ? "text-[10px]" : "text-xs",
+                    )}
+                  >
+                    Module
+                  </p>
                   <p className={cn(isMobile ? "text-xs" : "text-sm")}>{selectedLog.module}</p>
                 </div>
-                <div className={cn(
-                  "bg-secondary/50 rounded-lg",
-                  isMobile ? "p-2.5" : "p-3"
-                )}>
-                  <p className={cn("text-muted-foreground mb-0.5", isMobile ? "text-[10px]" : "text-xs")}>Đối tượng</p>
-                  <p className={cn("font-mono text-primary truncate", isMobile ? "text-xs" : "text-sm")}>
-                    {selectedLog.objectName || '-'}
+                <div className={cn("bg-secondary/50 rounded-lg", isMobile ? "p-2.5" : "p-3")}>
+                  <p
+                    className={cn(
+                      "text-muted-foreground mb-0.5",
+                      isMobile ? "text-[10px]" : "text-xs",
+                    )}
+                  >
+                    Đối tượng
+                  </p>
+                  <p
+                    className={cn(
+                      "font-mono text-primary truncate",
+                      isMobile ? "text-xs" : "text-sm",
+                    )}
+                  >
+                    {selectedLog.objectName || "-"}
                   </p>
                 </div>
               </div>
 
-              <div className={cn(
-                "bg-secondary/50 rounded-lg",
-                isMobile ? "p-2.5" : "p-3"
-              )}>
-                <p className={cn("text-muted-foreground mb-0.5", isMobile ? "text-[10px]" : "text-xs")}>Chi tiết</p>
+              <div className={cn("bg-secondary/50 rounded-lg", isMobile ? "p-2.5" : "p-3")}>
+                <p
+                  className={cn(
+                    "text-muted-foreground mb-0.5",
+                    isMobile ? "text-[10px]" : "text-xs",
+                  )}
+                >
+                  Chi tiết
+                </p>
                 <p className={cn(isMobile ? "text-xs" : "text-sm")}>{selectedLog.details}</p>
               </div>
 
               {(selectedLog.ipAddress || selectedLog.device) && (
                 <div className="grid grid-cols-2 gap-2">
-                  <div className={cn(
-                    "bg-secondary/50 rounded-lg",
-                    isMobile ? "p-2.5" : "p-3"
-                  )}>
-                    <p className={cn("text-muted-foreground mb-0.5", isMobile ? "text-[10px]" : "text-xs")}>Địa chỉ IP</p>
-                    <p className={cn("font-mono", isMobile ? "text-xs" : "text-sm")}>{selectedLog.ipAddress || '-'}</p>
+                  <div className={cn("bg-secondary/50 rounded-lg", isMobile ? "p-2.5" : "p-3")}>
+                    <p
+                      className={cn(
+                        "text-muted-foreground mb-0.5",
+                        isMobile ? "text-[10px]" : "text-xs",
+                      )}
+                    >
+                      Địa chỉ IP
+                    </p>
+                    <p className={cn("font-mono", isMobile ? "text-xs" : "text-sm")}>
+                      {selectedLog.ipAddress || "-"}
+                    </p>
                   </div>
-                  <div className={cn(
-                    "bg-secondary/50 rounded-lg",
-                    isMobile ? "p-2.5" : "p-3"
-                  )}>
-                    <p className={cn("text-muted-foreground mb-0.5", isMobile ? "text-[10px]" : "text-xs")}>Thiết bị</p>
-                    <p className={cn(isMobile ? "text-xs" : "text-sm")}>{selectedLog.device || '-'}</p>
+                  <div className={cn("bg-secondary/50 rounded-lg", isMobile ? "p-2.5" : "p-3")}>
+                    <p
+                      className={cn(
+                        "text-muted-foreground mb-0.5",
+                        isMobile ? "text-[10px]" : "text-xs",
+                      )}
+                    >
+                      Thiết bị
+                    </p>
+                    <p className={cn(isMobile ? "text-xs" : "text-sm")}>
+                      {selectedLog.device || "-"}
+                    </p>
                   </div>
                 </div>
               )}

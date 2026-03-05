@@ -1,7 +1,7 @@
-import { ReactNode } from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
-import PullToRefresh from 'react-simple-pull-to-refresh';
-import { Loader2 } from 'lucide-react';
+import { ReactNode } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import PullToRefresh from "react-simple-pull-to-refresh";
+import { Loader2 } from "lucide-react";
 
 interface ResponsiveDataViewProps {
   isLoading: boolean;
@@ -22,7 +22,7 @@ export function ResponsiveDataView({
   desktopContent,
   onRefresh,
   mobileFilters,
-  desktopFilters
+  desktopFilters,
 }: ResponsiveDataViewProps) {
   const isMobile = useIsMobile();
 
@@ -52,9 +52,7 @@ export function ResponsiveDataView({
             </div>
           }
         >
-          <div className="pb-20">
-            {mobileContent}
-          </div>
+          <div className="pb-20">{mobileContent}</div>
         </PullToRefresh>
       </>
     );

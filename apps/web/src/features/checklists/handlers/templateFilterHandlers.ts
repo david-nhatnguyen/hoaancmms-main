@@ -3,7 +3,7 @@ import {
   type QueryTemplateParams,
   ChecklistCycle,
   ChecklistStatus,
-} from '../types/checklist.types';
+} from "../types/checklist.types";
 
 /**
  * Filter templates based on search query and filters
@@ -14,15 +14,14 @@ export const filterTemplates = (
   filters: {
     cycle: ChecklistCycle[];
     status: ChecklistStatus[];
-  }
+  },
 ): ChecklistTemplate[] => {
   return templates.filter((template) => {
     // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       const matchesSearch =
-        template.code.toLowerCase().includes(query) ||
-        template.name.toLowerCase().includes(query);
+        template.code.toLowerCase().includes(query) || template.name.toLowerCase().includes(query);
 
       if (!matchesSearch) return false;
     }
@@ -51,7 +50,7 @@ export const buildQueryParams = (
   },
   searchQuery: string,
   page: number = 1,
-  limit: number = 20
+  limit: number = 20,
 ): QueryTemplateParams => {
   const params: QueryTemplateParams = {
     page,
@@ -78,9 +77,7 @@ export const buildQueryParams = (
 /**
  * Count templates by status
  */
-export const countByStatus = (
-  templates: ChecklistTemplate[]
-): Record<ChecklistStatus, number> => {
+export const countByStatus = (templates: ChecklistTemplate[]): Record<ChecklistStatus, number> => {
   return templates.reduce(
     (acc, template) => {
       acc[template.status] = (acc[template.status] || 0) + 1;
@@ -90,6 +87,6 @@ export const countByStatus = (
       [ChecklistStatus.DRAFT]: 0,
       [ChecklistStatus.ACTIVE]: 0,
       [ChecklistStatus.INACTIVE]: 0,
-    } as Record<ChecklistStatus, number>
+    } as Record<ChecklistStatus, number>,
   );
 };

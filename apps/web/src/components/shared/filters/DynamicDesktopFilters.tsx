@@ -1,4 +1,4 @@
-import { TableToolbarFilters } from '@/components/shared/table/TableToolbarFilters';
+import { TableToolbarFilters } from "@/components/shared/table/TableToolbarFilters";
 
 interface FilterItem {
   key: string;

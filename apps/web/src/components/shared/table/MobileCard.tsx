@@ -1,21 +1,14 @@
-import { ReactNode } from 'react';
-import { cn } from '@/lib/utils';
-import {
-  MoreHorizontal
-} from 'lucide-react';
-import { useMobileCard } from './hooks/use-mobile-card';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import { MoreHorizontal } from "lucide-react";
+import { useMobileCard } from "./hooks/use-mobile-card";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 
 export interface MobileCardProps {
   // 1. Identity & Status (Header)
-  title: ReactNode;         // e.g., Code (Primary)
-  subtitle?: ReactNode;     // e.g., Name (Secondary)
-  status?: ReactNode;       // e.g., Badge
+  title: ReactNode; // e.g., Code (Primary)
+  subtitle?: ReactNode; // e.g., Name (Secondary)
+  status?: ReactNode; // e.g., Badge
 
   // 2. Visuals (Header/Body)
   image?: string | ReactNode;
@@ -25,7 +18,7 @@ export interface MobileCardProps {
   data: Array<{
     label: string;
     value: ReactNode;
-    colSpan?: number
+    colSpan?: number;
   }>;
 
   // 4. Attachments/Extras
@@ -54,24 +47,20 @@ export function MobileCard({
   isSelected = false,
   onToggleSelection,
   renderSelection,
-  className
+  className,
 }: MobileCardProps) {
   const { isSheetOpen, openSheet, closeSheet, handleSelection } = useMobileCard({
-    onToggleSelection
+    onToggleSelection,
   });
 
   // Helper to render the image prop which can be a URL string or a ReactNode
   const renderImage = () => {
     if (!image) return null;
 
-    if (typeof image === 'string') {
+    if (typeof image === "string") {
       return (
         <div className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 overflow-hidden rounded-xl border border-border/40 bg-muted/20 shadow-sm self-start group-hover:scale-[1.02] transition-transform duration-500">
-          <img
-            src={image}
-            alt="Thumbnail"
-            className="w-full h-full object-cover"
-          />
+          <img src={image} alt="Thumbnail" className="w-full h-full object-cover" />
         </div>
       );
     }
@@ -94,41 +83,47 @@ export function MobileCard({
             ? "border-primary/40 shadow-lg shadow-primary/5 ring-1 ring-primary/20 bg-primary/[0.03]"
             : "border-border/50 hover:border-border shadow-sm hover:shadow-lg hover:-translate-y-0.5",
           onClick && "cursor-pointer",
-          className
+          className,
         )}
       >
-
         {/* Dedicated Selection Header Section - Optimized for Right-Side touch */}
         {renderSelection && (
           <div
             className={cn(
               "px-2 py-2 flex items-center justify-between border-border/30 transition-all cursor-pointer",
-              isSelected ? "bg-primary/[0.04]" : "bg-muted/10 hover:bg-muted/20"
+              isSelected ? "bg-primary/[0.04]" : "bg-muted/10 hover:bg-muted/20",
             )}
             onClick={handleSelection}
           >
-            <div className={cn(
-              "flex items-start gap-2"
-            )}>
+            <div className={cn("flex items-start gap-2")}>
               {status && (
-                <div className="shrink-0 transition-all transform origin-right">
-                  {status}
-                </div>
+                <div className="shrink-0 transition-all transform origin-right">{status}</div>
               )}
             </div>
-            <div className={cn(
-              "h-5 w-5 rounded-full border transition-all duration-300 flex items-center justify-center shadow-sm",
-              isSelected
-                ? "bg-primary border-primary text-primary-foreground scale-100 rotate-0"
-                : "border-muted-foreground/20 bg-background rotate-12 scale-90"
-            )}>
+            <div
+              className={cn(
+                "h-5 w-5 rounded-full border transition-all duration-300 flex items-center justify-center shadow-sm",
+                isSelected
+                  ? "bg-primary border-primary text-primary-foreground scale-100 rotate-0"
+                  : "border-muted-foreground/20 bg-background rotate-12 scale-90",
+              )}
+            >
               {isSelected && (
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               )}
             </div>
-
           </div>
         )}
 
@@ -158,26 +153,27 @@ export function MobileCard({
           {/* Metadata + Action Slot Grid */}
           {(data.length > 0 || actionSlot) && (
             <div className="grid grid-cols-[1fr_auto] gap-4 pt-4 border-t border-border/40 border-dashed">
-
               {/* Key-Value Metadata Grid */}
               {data.length > 0 && (
-                <div className={cn(
-                  "grid gap-x-6 gap-y-4 min-w-0",
-                  data.length > 1 ? "grid-cols-2" : "grid-cols-1"
-                )}>
+                <div
+                  className={cn(
+                    "grid gap-x-6 gap-y-4 min-w-0",
+                    data.length > 1 ? "grid-cols-2" : "grid-cols-1",
+                  )}
+                >
                   {data.map((item, idx) => (
                     <div
                       key={idx}
                       className={cn(
                         "flex flex-col gap-1 min-w-0",
-                        item.colSpan && `col-span-${item.colSpan}`
+                        item.colSpan && `col-span-${item.colSpan}`,
                       )}
                     >
                       <span className="text-[9px] uppercase font-bold text-muted-foreground/60 tracking-wider truncate">
                         {item.label}
                       </span>
                       <div className="text-xs font-semibold text-foreground/90 truncate">
-                        {item.value || '—'}
+                        {item.value || "—"}
                       </div>
                     </div>
                   ))}
@@ -206,7 +202,7 @@ export function MobileCard({
               aria-label="Tùy chọn thao tác"
               className={cn(
                 "p-2 rounded-full flex items-center justify-center transition-all",
-                "active:scale-90 text-muted-foreground/40 hover:text-primary bg-transparent border-none"
+                "active:scale-90 text-muted-foreground/40 hover:text-primary bg-transparent border-none",
               )}
             >
               <MoreHorizontal className="h-4 w-4" />

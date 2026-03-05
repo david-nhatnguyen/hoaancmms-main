@@ -1,18 +1,18 @@
-import { 
-  LayoutDashboard, 
-  Factory, 
-  Cpu, 
-  ClipboardList, 
-  Wrench, 
-  FileText, 
-  AlertTriangle, 
-  Users, 
-  Shield, 
-  ScrollText, 
+import {
+  LayoutDashboard,
+  Factory,
+  Cpu,
+  ClipboardList,
+  Wrench,
+  FileText,
+  AlertTriangle,
+  Users,
+  Shield,
+  ScrollText,
   Cog,
   Layers,
-} from 'lucide-react';
-import React from 'react';
+} from "lucide-react";
+import React from "react";
 
 export interface MenuItem {
   label: string;
@@ -32,91 +32,91 @@ const INCIDENT_COUNT = 3;
 
 export const MENU_SECTIONS: MenuSection[] = [
   {
-    title: 'DASHBOARD',
+    title: "DASHBOARD",
     items: [
       {
-        label: 'Dashboard & KPI',
-        path: '/',
+        label: "Dashboard & KPI",
+        path: "/",
         icon: LayoutDashboard,
-      }
-    ]
+      },
+    ],
   },
   {
-    title: 'TÀI SẢN',
+    title: "TÀI SẢN",
     items: [
       {
-        label: 'Nhà máy',
-        path: '/factories',
+        label: "Nhà máy",
+        path: "/factories",
         icon: Factory,
       },
       {
-        label: 'Thiết bị',
-        path: '/equipments',
+        label: "Thiết bị",
+        path: "/equipments",
         icon: Cpu,
-      }
-    ]
+      },
+    ],
   },
   {
-    title: 'BẢO DƯỠNG',
+    title: "BẢO DƯỠNG",
     items: [
       {
-        label: 'Thư viện Checklist',
-        path: '/checklists',
+        label: "Thư viện Checklist",
+        path: "/checklists",
         icon: ClipboardList,
       },
       {
-        label: 'Kế hoạch PM',
-        path: '/pm-plans',
+        label: "Kế hoạch PM",
+        path: "/pm-plans",
         icon: Wrench,
       },
       {
-        label: 'Work Orders',
-        path: '/work-orders',
+        label: "Work Orders",
+        path: "/work-orders",
         icon: FileText,
-      }
-    ]
+      },
+    ],
   },
   {
-    title: 'GIÁM SÁT',
+    title: "GIÁM SÁT",
     items: [
       {
-        label: 'Bảo trì sự cố',
-        path: '/corrective-maintenance',
+        label: "Bảo trì sự cố",
+        path: "/corrective-maintenance",
         icon: AlertTriangle,
         badge: INCIDENT_COUNT,
-      }
-    ]
+      },
+    ],
   },
   {
-    title: 'HỆ THỐNG',
+    title: "HỆ THỐNG",
     items: [
       {
-        label: 'Người dùng',
-        path: '/system/users',
+        label: "Người dùng",
+        path: "/system/users",
         icon: Users,
       },
       {
-        label: 'Vai trò & Phân quyền',
-        path: '/system/roles',
+        label: "Vai trò & Phân quyền",
+        path: "/system/roles",
         icon: Shield,
       },
       {
-        label: 'Modules phân quyền',
-        path: '/system/modules',
+        label: "Modules phân quyền",
+        path: "/system/modules",
         icon: Layers,
       },
       {
-        label: 'Nhật ký hệ thống',
-        path: '/system/logs',
+        label: "Nhật ký hệ thống",
+        path: "/system/logs",
         icon: ScrollText,
       },
       {
-        label: 'Cài đặt chung',
-        path: '/system/settings',
+        label: "Cài đặt chung",
+        path: "/system/settings",
         icon: Cog,
-      }
-    ]
-  }
+      },
+    ],
+  },
 ];
 
 /**
@@ -124,6 +124,6 @@ export const MENU_SECTIONS: MenuSection[] = [
  */
 export const isPathActive = (pathname: string, path?: string) => {
   if (!path) return false;
-  if (path === '/') return pathname === '/';
+  if (path === "/") return pathname === "/";
   return pathname.startsWith(path);
 };

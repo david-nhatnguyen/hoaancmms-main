@@ -4,9 +4,9 @@ import {
   ExecutionContext,
   CallHandler,
   RequestTimeoutException,
-} from '@nestjs/common';
-import { Observable, throwError, TimeoutError } from 'rxjs';
-import { catchError, timeout } from 'rxjs/operators';
+} from "@nestjs/common";
+import { Observable, throwError, TimeoutError } from "rxjs";
+import { catchError, timeout } from "rxjs/operators";
 
 /**
  * Timeout Interceptor
@@ -40,7 +40,7 @@ export class TimeoutInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     // Get custom timeout from metadata if set
-    const customTimeout = Reflect.getMetadata('timeout', context.getHandler());
+    const customTimeout = Reflect.getMetadata("timeout", context.getHandler());
     const timeoutValue = customTimeout || this.defaultTimeout;
 
     return next.handle().pipe(

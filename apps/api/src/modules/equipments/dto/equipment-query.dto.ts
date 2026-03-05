@@ -1,7 +1,7 @@
-import { IsArray, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
-import { Type } from 'class-transformer';
-import { EquipmentStatus } from '@prisma/generated/prisma';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsArray, IsEnum, IsInt, IsOptional, IsString, Min } from "class-validator";
+import { Type } from "class-transformer";
+import { EquipmentStatus } from "@prisma/generated/prisma";
+import { ApiPropertyOptional } from "@nestjs/swagger";
 
 export class EquipmentQueryDto {
   @ApiPropertyOptional()
@@ -43,12 +43,12 @@ export class EquipmentQueryDto {
 
   @IsOptional()
   @IsString()
-  sortBy?: string = 'createdAt';
+  sortBy?: string = "createdAt";
 
-  @ApiPropertyOptional({ enum: ['asc', 'desc'] })
+  @ApiPropertyOptional({ enum: ["asc", "desc"] })
   @IsOptional()
   @IsString()
-  sortOrder?: 'asc' | 'desc' = 'desc';
+  sortOrder?: "asc" | "desc" = "desc";
 
   get skip(): number {
     return ((this.page || 1) - 1) * (this.limit || 20);

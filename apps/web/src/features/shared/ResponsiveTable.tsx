@@ -1,8 +1,8 @@
-import { ReactNode, useState, useMemo, useEffect } from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ReactNode, useState, useMemo, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -10,7 +10,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 
 export interface Column<T> {
   key: string;
@@ -22,7 +22,7 @@ export interface Column<T> {
   // Show in mobile card view?
   showOnMobile?: boolean;
   // Column alignment
-  align?: 'left' | 'center' | 'right';
+  align?: "left" | "center" | "right";
   // Column width class
   width?: string;
   // Is this the main/primary column?
@@ -58,7 +58,7 @@ function MobilePagination({
 
   // Generate page numbers to show
   const getVisiblePages = () => {
-    const pages: (number | 'ellipsis')[] = [];
+    const pages: (number | "ellipsis")[] = [];
 
     if (totalPages <= 5) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
@@ -67,16 +67,20 @@ function MobilePagination({
       pages.push(1);
 
       if (currentPage > 3) {
-        pages.push('ellipsis');
+        pages.push("ellipsis");
       }
 
       // Show pages around current
-      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+      for (
+        let i = Math.max(2, currentPage - 1);
+        i <= Math.min(totalPages - 1, currentPage + 1);
+        i++
+      ) {
         if (!pages.includes(i)) pages.push(i);
       }
 
       if (currentPage < totalPages - 2) {
-        pages.push('ellipsis');
+        pages.push("ellipsis");
       }
 
       // Always show last page
@@ -103,26 +107,26 @@ function MobilePagination({
 
       {/* Page Numbers */}
       <div className="flex items-center gap-1">
-        {visiblePages.map((page, idx) => (
-          page === 'ellipsis' ? (
+        {visiblePages.map((page, idx) =>
+          page === "ellipsis" ? (
             <span key={`ellipsis-${idx}`} className="px-2 text-muted-foreground">
               ...
             </span>
           ) : (
             <Button
               key={page}
-              variant={currentPage === page ? 'default' : 'ghost'}
+              variant={currentPage === page ? "default" : "ghost"}
               size="icon"
               className={cn(
                 "h-9 w-9 text-sm font-medium",
-                currentPage === page && "bg-primary text-primary-foreground"
+                currentPage === page && "bg-primary text-primary-foreground",
               )}
               onClick={() => onPageChange(page)}
             >
               {page}
             </Button>
-          )
-        ))}
+          ),
+        )}
       </div>
 
       {/* Next Button */}
@@ -144,10 +148,10 @@ export function ResponsiveTable<T>({
   columns,
   keyExtractor,
   onRowClick,
-  emptyMessage = 'Không có dữ liệu',
+  emptyMessage = "Không có dữ liệu",
   renderMobileCard,
   pageSize = 10,
-  showPagination = true
+  showPagination = true,
 }: ResponsiveTableProps<T>) {
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
@@ -202,9 +206,11 @@ export function ResponsiveTable<T>({
             }
 
             // Default card layout
-            const primaryCol = columns.find(c => c.isPrimary);
-            const secondaryCol = columns.find(c => c.isSecondary);
-            const mobileColumns = columns.filter(c => c.showOnMobile !== false && !c.isPrimary && !c.isSecondary);
+            const primaryCol = columns.find((c) => c.isPrimary);
+            const secondaryCol = columns.find((c) => c.isSecondary);
+            const mobileColumns = columns.filter(
+              (c) => c.showOnMobile !== false && !c.isPrimary && !c.isSecondary,
+            );
 
             return (
               <div
@@ -212,7 +218,7 @@ export function ResponsiveTable<T>({
                 onClick={() => onRowClick?.(item)}
                 className={cn(
                   "bg-card rounded-xl border border-border/50 p-4 transition-all max-w-full overflow-hidden",
-                  onRowClick && "cursor-pointer active:scale-[0.99] hover:border-primary/50"
+                  onRowClick && "cursor-pointer active:scale-[0.99] hover:border-primary/50",
                 )}
               >
                 {/* Primary & Secondary info */}
@@ -230,9 +236,9 @@ export function ResponsiveTable<T>({
                     )}
                   </div>
                   {/* Find status/badge column and render on right */}
-                  {columns.find(c => c.key === 'status') && (
+                  {columns.find((c) => c.key === "status") && (
                     <div className="shrink-0">
-                      {columns.find(c => c.key === 'status')?.render(item)}
+                      {columns.find((c) => c.key === "status")?.render(item)}
                     </div>
                   )}
                 </div>
@@ -240,24 +246,28 @@ export function ResponsiveTable<T>({
                 {/* Other columns as key-value pairs */}
                 <div className="space-y-1.5 text-sm">
                   {mobileColumns
-                    .filter(col => col.key !== 'status' && col.key !== 'actions')
+                    .filter((col) => col.key !== "status" && col.key !== "actions")
                     .slice(0, 3) // Limit to 3 extra fields on mobile for compact layout
-                    .map(col => (
-                      <div key={col.key} className="flex items-center justify-between gap-2 min-w-0">
-                        <span className="text-muted-foreground shrink-0 text-xs">{col.header}:</span>
+                    .map((col) => (
+                      <div
+                        key={col.key}
+                        className="flex items-center justify-between gap-2 min-w-0"
+                      >
+                        <span className="text-muted-foreground shrink-0 text-xs">
+                          {col.header}:
+                        </span>
                         <span className="text-right truncate text-xs">
                           {col.mobileRender?.(item) ?? col.render(item)}
                         </span>
                       </div>
-                    ))
-                  }
+                    ))}
                 </div>
 
                 {/* Actions at bottom */}
-                {columns.find(c => c.key === 'actions') && (
+                {columns.find((c) => c.key === "actions") && (
                   <div className="mt-3 pt-3 border-t border-border/50">
-                    {columns.find(c => c.key === 'actions')?.mobileRender?.(item) ??
-                      columns.find(c => c.key === 'actions')?.render(item)}
+                    {columns.find((c) => c.key === "actions")?.mobileRender?.(item) ??
+                      columns.find((c) => c.key === "actions")?.render(item)}
                   </div>
                 )}
               </div>
@@ -284,27 +294,29 @@ export function ResponsiveTable<T>({
         <TableHeader>
           <TableRow className="hover:bg-transparent border-border/50">
             {columns
-              .filter(col => col.key !== 'actions' || true) // Show all columns on desktop
-              .map(col => (
+              .filter((col) => col.key !== "actions" || true) // Show all columns on desktop
+              .map((col) => (
                 <TableHead
                   key={col.key}
                   className={cn(
                     "table-header-cell",
                     col.width,
-                    col.align === 'center' && "text-center",
-                    col.align === 'right' && "text-right"
+                    col.align === "center" && "text-center",
+                    col.align === "right" && "text-right",
                   )}
                 >
                   {col.header}
                 </TableHead>
-              ))
-            }
+              ))}
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-32 text-center text-muted-foreground">
+              <TableCell
+                colSpan={columns.length}
+                className="h-32 text-center text-muted-foreground"
+              >
                 {emptyMessage}
               </TableCell>
             </TableRow>
@@ -313,17 +325,14 @@ export function ResponsiveTable<T>({
               <TableRow
                 key={keyExtractor(item)}
                 onClick={() => onRowClick?.(item)}
-                className={cn(
-                  "table-row-interactive",
-                  onRowClick && "cursor-pointer"
-                )}
+                className={cn("table-row-interactive", onRowClick && "cursor-pointer")}
               >
-                {columns.map(col => (
+                {columns.map((col) => (
                   <TableCell
                     key={col.key}
                     className={cn(
-                      col.align === 'center' && "text-center",
-                      col.align === 'right' && "text-right"
+                      col.align === "center" && "text-center",
+                      col.align === "right" && "text-right",
                     )}
                   >
                     {col.render(item)}

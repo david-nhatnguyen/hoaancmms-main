@@ -1,12 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ConflictException, NotFoundException } from '@nestjs/common';
-import { FactoriesService } from './factories.service';
-import { PrismaService } from '@/database/prisma.service';
-import { mockPrismaService, MockPrismaService } from '@test/mocks/prisma.mock';
-import { factoryFixture, factoryListFixture } from '@test/fixtures/factories.fixture';
-import { FactoryStatus } from '@prisma/generated/prisma';
+import { Test, TestingModule } from "@nestjs/testing";
+import { ConflictException, NotFoundException } from "@nestjs/common";
+import { FactoriesService } from "./factories.service";
+import { PrismaService } from "@/database/prisma.service";
+import { mockPrismaService, MockPrismaService } from "@test/mocks/prisma.mock";
+import { factoryFixture, factoryListFixture } from "@test/fixtures/factories.fixture";
+import { FactoryStatus } from "@prisma/generated/prisma";
 
-describe('FactoriesService', () => {
+describe("FactoriesService", () => {
   let service: FactoriesService;
   let prisma: MockPrismaService;
 
@@ -29,8 +29,8 @@ describe('FactoriesService', () => {
     jest.clearAllMocks();
   });
 
-  describe('findAll', () => {
-    it('should return paginated factories', async () => {
+  describe("findAll", () => {
+    it("should return paginated factories", async () => {
       // Arrange
       const mockFactories = factoryListFixture(2);
       const mockFactoriesWithCount = mockFactories.map((f) => ({
@@ -45,8 +45,8 @@ describe('FactoriesService', () => {
       const result = await service.findAll({
         page: 1,
         limit: 10,
-        sortBy: 'createdAt',
-        sortOrder: 'desc',
+        sortBy: "createdAt",
+        sortOrder: "desc",
         skip: 0,
         take: 0,
       });
@@ -60,7 +60,7 @@ describe('FactoriesService', () => {
       expect(prisma.client.factory.count).toHaveBeenCalledTimes(1);
     });
 
-    it('should filter by status', async () => {
+    it("should filter by status", async () => {
       // Arrange
       prisma.client.factory.findMany.mockResolvedValue([]);
       prisma.client.factory.count.mockResolvedValue(0);
@@ -70,8 +70,8 @@ describe('FactoriesService', () => {
         page: 1,
         limit: 10,
         status: [FactoryStatus.ACTIVE],
-        sortBy: 'createdAt',
-        sortOrder: 'desc',
+        sortBy: "createdAt",
+        sortOrder: "desc",
         skip: 0,
         take: 0,
       });
@@ -84,7 +84,7 @@ describe('FactoriesService', () => {
       );
     });
 
-    it('should search by code and name', async () => {
+    it("should search by code and name", async () => {
       // Arrange
       prisma.client.factory.findMany.mockResolvedValue([]);
       prisma.client.factory.count.mockResolvedValue(0);
@@ -93,9 +93,9 @@ describe('FactoriesService', () => {
       await service.findAll({
         page: 1,
         limit: 10,
-        search: 'Test',
-        sortBy: 'createdAt',
-        sortOrder: 'desc',
+        search: "Test",
+        sortBy: "createdAt",
+        sortOrder: "desc",
         skip: 0,
         take: 0,
       });
@@ -105,33 +105,33 @@ describe('FactoriesService', () => {
         expect.objectContaining({
           where: expect.objectContaining({
             OR: expect.arrayContaining([
-              { code: { contains: 'Test', mode: 'insensitive' } },
-              { name: { contains: 'Test', mode: 'insensitive' } },
+              { code: { contains: "Test", mode: "insensitive" } },
+              { name: { contains: "Test", mode: "insensitive" } },
             ]),
           }),
         }),
       );
     });
 
-    it('should filter by single status', async () => {
+    it("should filter by single status", async () => {
       prisma.client.factory.findMany.mockResolvedValue([]);
       prisma.client.factory.count.mockResolvedValue(0);
 
       // @ts-expect-error - simulating single value for coverage
-      await service.findAll({ status: 'ACTIVE', skip: 0, take: 10 });
+      await service.findAll({ status: "ACTIVE", skip: 0, take: 10 });
 
       expect(prisma.client.factory.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ status: 'ACTIVE' }),
+          where: expect.objectContaining({ status: "ACTIVE" }),
         }),
       );
     });
 
-    it('should filter by date range', async () => {
+    it("should filter by date range", async () => {
       prisma.client.factory.findMany.mockResolvedValue([]);
       prisma.client.factory.count.mockResolvedValue(0);
-      const fromDate = '2024-01-01';
-      const toDate = '2024-12-31';
+      const fromDate = "2024-01-01";
+      const toDate = "2024-12-31";
 
       await service.findAll({ fromDate, toDate, skip: 0, take: 10 });
 
@@ -148,8 +148,8 @@ describe('FactoriesService', () => {
     });
   });
 
-  describe('findOne', () => {
-    it('should return factory by id', async () => {
+  describe("findOne", () => {
+    it("should return factory by id", async () => {
       // Arrange
       const mockFactory = factoryFixture();
       const mockFactoryWithCount = {
@@ -173,19 +173,19 @@ describe('FactoriesService', () => {
       );
     });
 
-    it('should throw NotFoundException when factory not found', async () => {
+    it("should throw NotFoundException when factory not found", async () => {
       // Arrange
       prisma.client.factory.findUnique.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(service.findOne('non-existent-id')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne("non-existent-id")).rejects.toThrow(NotFoundException);
     });
   });
 
-  describe('create', () => {
-    it('should create factory successfully', async () => {
+  describe("create", () => {
+    it("should create factory successfully", async () => {
       // Arrange
-      const dto = { code: 'F99', name: 'New Factory', location: 'Test' };
+      const dto = { code: "F99", name: "New Factory", location: "Test" };
       const mockFactory = factoryFixture(dto);
       const mockFactoryWithCount = {
         ...mockFactory,
@@ -199,18 +199,18 @@ describe('FactoriesService', () => {
       const result = await service.create(dto);
 
       // Assert
-      expect(result.code).toBe('F99');
+      expect(result.code).toBe("F99");
       expect(result.equipmentCount).toBe(0);
       expect(prisma.client.factory.findUnique).toHaveBeenCalledWith({
-        where: { code: 'F99' },
+        where: { code: "F99" },
       });
       expect(prisma.client.factory.create).toHaveBeenCalledTimes(1);
     });
 
-    it('should throw ConflictException for duplicate code', async () => {
+    it("should throw ConflictException for duplicate code", async () => {
       // Arrange
-      const dto = { code: 'F01', name: 'Test' };
-      const existingFactory = factoryFixture({ code: 'F01' });
+      const dto = { code: "F01", name: "Test" };
+      const existingFactory = factoryFixture({ code: "F01" });
 
       prisma.client.factory.findUnique.mockResolvedValue(existingFactory as any);
 
@@ -220,11 +220,11 @@ describe('FactoriesService', () => {
     });
   });
 
-  describe('update', () => {
-    it('should update factory successfully', async () => {
+  describe("update", () => {
+    it("should update factory successfully", async () => {
       // Arrange
       const mockFactory = factoryFixture();
-      const updatedFactory = { ...mockFactory, name: 'Updated Name' };
+      const updatedFactory = { ...mockFactory, name: "Updated Name" };
       const mockFactoryWithCount = {
         ...mockFactory,
         _count: { equipments: 0 },
@@ -238,18 +238,18 @@ describe('FactoriesService', () => {
       prisma.client.factory.update.mockResolvedValue(updatedFactoryWithCount as any);
 
       // Act
-      const result = await service.update(mockFactory.id, { name: 'Updated Name' });
+      const result = await service.update(mockFactory.id, { name: "Updated Name" });
 
       // Assert
-      expect(result.name).toBe('Updated Name');
+      expect(result.name).toBe("Updated Name");
       expect(result.code).toBe(mockFactory.code); // Unchanged
       expect(prisma.client.factory.update).toHaveBeenCalledTimes(1);
     });
 
-    it('should throw ConflictException when updating to duplicate code', async () => {
+    it("should throw ConflictException when updating to duplicate code", async () => {
       // Arrange
-      const mockFactory = factoryFixture({ code: 'F01' });
-      const existingFactory = factoryFixture({ code: 'F02' });
+      const mockFactory = factoryFixture({ code: "F01" });
+      const existingFactory = factoryFixture({ code: "F02" });
       const mockFactoryWithCount = {
         ...mockFactory,
         _count: { equipments: 0 },
@@ -262,14 +262,14 @@ describe('FactoriesService', () => {
       prisma.client.factory.findFirst.mockResolvedValue(existingFactory as any);
 
       // Act & Assert
-      await expect(service.update(mockFactory.id, { code: 'F02' })).rejects.toThrow(
+      await expect(service.update(mockFactory.id, { code: "F02" })).rejects.toThrow(
         ConflictException,
       );
     });
   });
 
-  describe('remove', () => {
-    it('should delete factory without equipments', async () => {
+  describe("remove", () => {
+    it("should delete factory without equipments", async () => {
       // Arrange
       const mockFactory = factoryFixture();
       const mockFactoryWithCount = {
@@ -284,13 +284,13 @@ describe('FactoriesService', () => {
       const result = await service.remove(mockFactory.id);
 
       // Assert
-      expect(result.message).toContain('thành công');
+      expect(result.message).toContain("thành công");
       expect(prisma.client.factory.delete).toHaveBeenCalledWith({
         where: { id: mockFactory.id },
       });
     });
 
-    it('should throw ConflictException if factory has equipments', async () => {
+    it("should throw ConflictException if factory has equipments", async () => {
       // Arrange
       const mockFactory = factoryFixture();
       const mockFactoryWithCount = {
@@ -306,8 +306,8 @@ describe('FactoriesService', () => {
     });
   });
 
-  describe('getStats', () => {
-    it('should return factory statistics', async () => {
+  describe("getStats", () => {
+    it("should return factory statistics", async () => {
       // Arrange
       prisma.client.factory.count
         .mockResolvedValueOnce(10) // Total factories

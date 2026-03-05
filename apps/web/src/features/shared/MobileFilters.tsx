@@ -1,22 +1,12 @@
-import { useState, ReactNode } from 'react';
-import { Filter, X, ChevronDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetFooter,
-} from '@/components/ui/sheet';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { useState, ReactNode } from "react";
+import { Filter, X, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface FilterSection {
   id: string;
@@ -45,17 +35,15 @@ export function MobileFilters({
   activeFiltersCount,
   onClearAll,
   activeFilterTags,
-  desktopFilters
+  desktopFilters,
 }: MobileFiltersProps) {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
-  const [expandedSections, setExpandedSections] = useState<string[]>(sections.map(s => s.id));
+  const [expandedSections, setExpandedSections] = useState<string[]>(sections.map((s) => s.id));
 
   const toggleSection = (id: string) => {
-    setExpandedSections(prev =>
-      prev.includes(id)
-        ? prev.filter(s => s !== id)
-        : [...prev, id]
+    setExpandedSections((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
     );
   };
 
@@ -73,7 +61,7 @@ export function MobileFilters({
             />
             {searchValue && (
               <button
-                onClick={() => onSearchChange('')}
+                onClick={() => onSearchChange("")}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded"
               >
                 <X className="h-4 w-4 text-muted-foreground" />
@@ -86,7 +74,7 @@ export function MobileFilters({
             onClick={() => setIsOpen(true)}
             className={cn(
               "h-10 w-10 shrink-0 relative",
-              activeFiltersCount > 0 && "border-primary bg-primary/10"
+              activeFiltersCount > 0 && "border-primary bg-primary/10",
             )}
           >
             <Filter className="h-4 w-4" />
@@ -149,15 +137,15 @@ export function MobileFilters({
                           </Badge>
                         )}
                       </div>
-                      <ChevronDown className={cn(
-                        "h-4 w-4 transition-transform",
-                        expandedSections.includes(section.id) && "rotate-180"
-                      )} />
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 transition-transform",
+                          expandedSections.includes(section.id) && "rotate-180",
+                        )}
+                      />
                     </button>
                   </CollapsibleTrigger>
-                  <CollapsibleContent className="pt-3 px-1">
-                    {section.content}
-                  </CollapsibleContent>
+                  <CollapsibleContent className="pt-3 px-1">{section.content}</CollapsibleContent>
                 </Collapsible>
               ))}
             </div>

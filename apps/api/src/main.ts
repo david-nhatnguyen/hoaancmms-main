@@ -1,45 +1,45 @@
-import { NestFactory, Reflector } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ValidationPipe, Logger, ClassSerializerInterceptor } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
-import * as compression from 'compression';
-import helmet from 'helmet';
-import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
-import { TransformInterceptor } from './common/interceptors/transform.interceptor';
-import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
-import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';
-import * as fs from 'fs';
+import { NestFactory, Reflector } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { ValidationPipe, Logger, ClassSerializerInterceptor } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { NestExpressApplication } from "@nestjs/platform-express";
+import { join } from "path";
+import * as compression from "compression";
+import helmet from "helmet";
+import { AllExceptionsFilter } from "./common/filters/all-exceptions.filter";
+import { TransformInterceptor } from "./common/interceptors/transform.interceptor";
+import { LoggingInterceptor } from "./common/interceptors/logging.interceptor";
+import { TimeoutInterceptor } from "./common/interceptors/timeout.interceptor";
+import * as fs from "fs";
 
 async function bootstrap() {
-  const logger = new Logger('Bootstrap');
+  const logger = new Logger("Bootstrap");
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
 
   // Serve Static Assets
   // process.cwd() will always point to the root of the apps/api folder when running via nest/yarn
-  const uploadDir = join(process.cwd(), 'uploads');
+  const uploadDir = join(process.cwd(), "uploads");
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
 
   app.useStaticAssets(uploadDir, {
-    prefix: '/api/uploads/',
+    prefix: "/api/uploads/",
   });
 
   // 1. Security & Optimization
-  const corsOrigin = configService.get('CORS_ORIGIN') || 'http://localhost:5173';
+  const corsOrigin = configService.get("CORS_ORIGIN") || "http://localhost:5173";
 
   app.enableCors({
     origin:
-      corsOrigin === '*'
+      corsOrigin === "*"
         ? true
         : [
-            'http://localhost:5173', // Vite default
-            'http://localhost:3001', // Current frontend
-            ...corsOrigin.split(','),
+            "http://localhost:5173", // Vite default
+            "http://localhost:3001", // Current frontend
+            ...corsOrigin.split(","),
           ],
     credentials: true,
   });
@@ -47,7 +47,7 @@ async function bootstrap() {
   app.use(compression());
 
   // 2. Global Prefix & Versioning
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix("api");
 
   // Best Practice: API Versioning (api-versioning)
   app.enableVersioning();
@@ -77,31 +77,31 @@ async function bootstrap() {
 
   // 6. Swagger API Documentation
   const config = new DocumentBuilder()
-    .setTitle('CMMS API')
-    .setDescription('Computerized Maintenance Management System API Documentation')
-    .setVersion('1.0')
-    .addTag('auth', 'Authentication endpoints')
-    .addTag('users', 'User management')
-    .addTag('factories', 'Factory management')
-    .addTag('equipments', 'Equipment management')
-    .addTag('health', 'Health check endpoints')
+    .setTitle("CMMS API")
+    .setDescription("Computerized Maintenance Management System API Documentation")
+    .setVersion("1.0")
+    .addTag("auth", "Authentication endpoints")
+    .addTag("users", "User management")
+    .addTag("factories", "Factory management")
+    .addTag("equipments", "Equipment management")
+    .addTag("health", "Health check endpoints")
     .addBearerAuth(
       {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        description: 'Enter JWT token',
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+        description: "Enter JWT token",
       },
-      'JWT-auth',
+      "JWT-auth",
     )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document, {
+  SwaggerModule.setup("api/docs", app, document, {
     swaggerOptions: {
       persistAuthorization: true,
-      tagsSorter: 'alpha',
-      operationsSorter: 'alpha',
+      tagsSorter: "alpha",
+      operationsSorter: "alpha",
     },
   });
 
@@ -109,12 +109,12 @@ async function bootstrap() {
   // Best Practice: Graceful Shutdown (devops-graceful-shutdown)
   app.enableShutdownHooks();
 
-  const port = configService.get<number>('PORT') || 3000;
+  const port = configService.get<number>("PORT") || 3000;
   await app.listen(port);
 
   logger.log(`🚀 Application is running on: http://localhost:${port}/api`);
   logger.log(`📚 Swagger docs available at: http://localhost:${port}/api/docs`);
   logger.log(`🏥 Health check available at: http://localhost:${port}/api/health`);
-  logger.log(`📊 Environment: ${configService.get('NODE_ENV')}`);
+  logger.log(`📊 Environment: ${configService.get("NODE_ENV")}`);
 }
 bootstrap();

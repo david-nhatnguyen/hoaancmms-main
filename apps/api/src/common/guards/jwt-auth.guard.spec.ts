@@ -1,8 +1,8 @@
-import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { ExecutionContext, UnauthorizedException } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { JwtAuthGuard } from "./jwt-auth.guard";
 
-describe('JwtAuthGuard', () => {
+describe("JwtAuthGuard", () => {
   let guard: JwtAuthGuard;
   let reflector: Reflector;
 
@@ -11,8 +11,8 @@ describe('JwtAuthGuard', () => {
     guard = new JwtAuthGuard(reflector);
   });
 
-  it('should allow access if route is public', () => {
-    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(true);
+  it("should allow access if route is public", () => {
+    jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(true);
     const context = {
       getHandler: jest.fn(),
       getClass: jest.fn(),
@@ -21,14 +21,14 @@ describe('JwtAuthGuard', () => {
     expect(guard.canActivate(context)).toBe(true);
   });
 
-  it('should allow access if valid token is provided', () => {
-    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
+  it("should allow access if valid token is provided", () => {
+    jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
     const context = {
       getHandler: jest.fn(),
       getClass: jest.fn(),
       switchToHttp: () => ({
         getRequest: () => ({
-          headers: { authorization: 'Bearer valid-token' },
+          headers: { authorization: "Bearer valid-token" },
         }),
       }),
     } as unknown as ExecutionContext;
@@ -36,8 +36,8 @@ describe('JwtAuthGuard', () => {
     expect(guard.canActivate(context)).toBe(true);
   });
 
-  it('should throw UnauthorizedException if no token is provided', () => {
-    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
+  it("should throw UnauthorizedException if no token is provided", () => {
+    jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
     const context = {
       getHandler: jest.fn(),
       getClass: jest.fn(),
@@ -51,14 +51,14 @@ describe('JwtAuthGuard', () => {
     expect(() => guard.canActivate(context)).toThrow(UnauthorizedException);
   });
 
-  it('should throw UnauthorizedException if invalid token format is provided', () => {
-    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
+  it("should throw UnauthorizedException if invalid token format is provided", () => {
+    jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
     const context = {
       getHandler: jest.fn(),
       getClass: jest.fn(),
       switchToHttp: () => ({
         getRequest: () => ({
-          headers: { authorization: 'Basic some-auth' },
+          headers: { authorization: "Basic some-auth" },
         }),
       }),
     } as unknown as ExecutionContext;

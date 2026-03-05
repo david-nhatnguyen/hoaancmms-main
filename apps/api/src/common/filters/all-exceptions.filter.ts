@@ -5,9 +5,9 @@ import {
   HttpException,
   HttpStatus,
   Logger,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
-import { Prisma } from '../../../prisma/generated/prisma/client';
+} from "@nestjs/common";
+import { Request, Response } from "express";
+import { Prisma } from "../../../prisma/generated/prisma/client";
 
 /**
  * Global Exception Filter
@@ -39,7 +39,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = 'Internal server error';
+    let message = "Internal server error";
     let errors: any = null;
 
     // 1. Handle NestJS HTTP Exceptions
@@ -47,9 +47,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
-      if (typeof exceptionResponse === 'string') {
+      if (typeof exceptionResponse === "string") {
         message = exceptionResponse;
-      } else if (typeof exceptionResponse === 'object') {
+      } else if (typeof exceptionResponse === "object") {
         message = (exceptionResponse as any).message || message;
         errors = (exceptionResponse as any).errors || null;
       }
@@ -59,22 +59,22 @@ export class AllExceptionsFilter implements ExceptionFilter {
       status = HttpStatus.BAD_REQUEST;
 
       switch (exception.code) {
-        case 'P2002':
+        case "P2002":
           // Unique constraint violation
           const target = (exception.meta?.target as string[]) || [];
-          message = `Duplicate entry for ${target.join(', ')}`;
+          message = `Duplicate entry for ${target.join(", ")}`;
           break;
-        case 'P2025':
+        case "P2025":
           // Record not found
-          message = 'Record not found';
+          message = "Record not found";
           status = HttpStatus.NOT_FOUND;
           break;
-        case 'P2003':
+        case "P2003":
           // Foreign key constraint failed
-          message = 'Related record not found';
+          message = "Related record not found";
           break;
         default:
-          message = 'Database operation failed';
+          message = "Database operation failed";
       }
 
       this.logger.error(`Prisma Error [${exception.code}]:`, exception.message);
@@ -82,13 +82,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
     // 3. Handle Prisma Validation Errors
     else if (exception instanceof Prisma.PrismaClientValidationError) {
       status = HttpStatus.BAD_REQUEST;
-      message = 'Invalid data provided';
-      this.logger.error('Prisma Validation Error:', exception.message);
+      message = "Invalid data provided";
+      this.logger.error("Prisma Validation Error:", exception.message);
     }
     // 4. Handle Unknown Errors
     else if (exception instanceof Error) {
       message = exception.message;
-      this.logger.error('Unhandled Error:', exception.stack);
+      this.logger.error("Unhandled Error:", exception.stack);
     }
 
     // Build standardized error response

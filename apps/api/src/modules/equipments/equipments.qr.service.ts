@@ -1,13 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import * as QRCode from 'qrcode';
-import * as path from 'path';
-import * as fs from 'fs';
+import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import * as QRCode from "qrcode";
+import * as path from "path";
+import * as fs from "fs";
 
 @Injectable()
 export class EquipmentsQrService {
   private readonly logger = new Logger(EquipmentsQrService.name);
-  private readonly UPLOAD_DIR = path.join(process.cwd(), 'uploads/qrcodes/equipments');
+  private readonly UPLOAD_DIR = path.join(process.cwd(), "uploads/qrcodes/equipments");
 
   constructor(private readonly configService: ConfigService) {
     if (!fs.existsSync(this.UPLOAD_DIR)) {
@@ -22,22 +22,22 @@ export class EquipmentsQrService {
   async generateQrCode(equipmentCode: string): Promise<string> {
     try {
       const frontendUrl =
-        this.configService.get<string>('FRONTEND_URL') ||
-        this.configService.get<string>('CORS_ORIGIN') ||
-        'http://localhost:5173';
+        this.configService.get<string>("FRONTEND_URL") ||
+        this.configService.get<string>("CORS_ORIGIN") ||
+        "http://localhost:5173";
 
       const detailUrl = `${frontendUrl}/equipments/detail/${equipmentCode}`;
       const fileName = `${equipmentCode}.png`;
       const filePath = path.join(this.UPLOAD_DIR, fileName);
 
       await QRCode.toFile(filePath, detailUrl, {
-        errorCorrectionLevel: 'H',
-        type: 'png',
+        errorCorrectionLevel: "H",
+        type: "png",
         margin: 2,
         width: 400,
         color: {
-          dark: '#000000',
-          light: '#ffffff',
+          dark: "#000000",
+          light: "#ffffff",
         },
       });
 

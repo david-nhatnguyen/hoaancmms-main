@@ -1,12 +1,5 @@
-import { 
-  Calendar, 
-  Factory, 
-  User, 
-  CheckCircle2,
-  AlertCircle,
-  ClipboardList
-} from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Calendar, Factory, User, CheckCircle2, AlertCircle, ClipboardList } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -14,13 +7,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { factories, equipments } from '@/data/mockData';
-import { MONTHS } from '@/data/pmPlanData';
-import { cn } from '@/lib/utils';
-import type { Step1Data } from './PMPlanStep1';
-import type { Step2Data } from './PMPlanStep2';
-import type { PMPlanEquipmentItem } from './PMPlanStep3';
+} from "@/components/ui/table";
+import { factories, equipments } from "@/data/mockData";
+import { MONTHS } from "@/data/pmPlanData";
+import { cn } from "@/lib/utils";
+import type { Step1Data } from "./PMPlanStep1";
+import type { Step2Data } from "./PMPlanStep2";
+import type { PMPlanEquipmentItem } from "./PMPlanStep3";
 
 interface PMPlanStep4Props {
   step1Data: Step1Data;
@@ -29,47 +22,53 @@ interface PMPlanStep4Props {
 }
 
 export function PMPlanStep4({ step1Data, step2Data, items }: PMPlanStep4Props) {
-  const factory = factories.find(f => f.id === step1Data.factoryId);
-  const getEquipmentById = (id: string) => equipments.find(e => e.id === id);
+  const factory = factories.find((f) => f.id === step1Data.factoryId);
+  const getEquipmentById = (id: string) => equipments.find((e) => e.id === id);
 
   const totalEquipment = items.length;
   const totalCompanion = items.reduce((acc, i) => acc + i.companionEquipment.length, 0);
-  const missingChecklist = items.filter(i => !i.checklistId).length;
-  const missingDate = items.filter(i => !i.plannedDate).length;
+  const missingChecklist = items.filter((i) => !i.checklistId).length;
+  const missingDate = items.filter((i) => !i.plannedDate).length;
   const isValid = missingChecklist === 0 && missingDate === 0 && items.length > 0;
 
   const getPlanTypeLabel = () => {
     switch (step1Data.planType) {
-      case 'monthly':
-        const monthLabel = MONTHS.find(m => m.value === step1Data.month)?.label || '';
+      case "monthly":
+        const monthLabel = MONTHS.find((m) => m.value === step1Data.month)?.label || "";
         return `${monthLabel}/${step1Data.year}`;
-      case 'daily':
+      case "daily":
         return `${step1Data.dateFrom} → ${step1Data.dateTo}`;
-      case 'hours':
+      case "hours":
         return `${step1Data.runningHours} giờ chạy`;
       default:
-        return '';
+        return "";
     }
   };
 
   const getPlanTypeName = () => {
     switch (step1Data.planType) {
-      case 'monthly': return 'Theo tháng';
-      case 'daily': return 'Theo ngày';
-      case 'hours': return 'Theo giờ chạy';
-      default: return '';
+      case "monthly":
+        return "Theo tháng";
+      case "daily":
+        return "Theo ngày";
+      case "hours":
+        return "Theo giờ chạy";
+      default:
+        return "";
     }
   };
 
   return (
     <div className="space-y-6">
       {/* Validation Status */}
-      <div className={cn(
-        "p-4 rounded-xl flex items-center gap-3",
-        isValid 
-          ? "bg-status-active/10 border border-status-active/20" 
-          : "bg-destructive/10 border border-destructive/20"
-      )}>
+      <div
+        className={cn(
+          "p-4 rounded-xl flex items-center gap-3",
+          isValid
+            ? "bg-status-active/10 border border-status-active/20"
+            : "bg-destructive/10 border border-destructive/20",
+        )}
+      >
         {isValid ? (
           <>
             <CheckCircle2 className="h-6 w-6 text-[hsl(var(--status-active))]" />
@@ -86,14 +85,12 @@ export function PMPlanStep4({ step1Data, step2Data, items }: PMPlanStep4Props) {
           <>
             <AlertCircle className="h-6 w-6 text-destructive" />
             <div>
-              <p className="font-medium text-destructive">
-                Kế hoạch chưa hoàn chỉnh
-              </p>
+              <p className="font-medium text-destructive">Kế hoạch chưa hoàn chỉnh</p>
               <p className="text-sm text-muted-foreground">
                 {missingChecklist > 0 && `${missingChecklist} thiết bị chưa có checklist`}
-                {missingChecklist > 0 && missingDate > 0 && ', '}
+                {missingChecklist > 0 && missingDate > 0 && ", "}
                 {missingDate > 0 && `${missingDate} thiết bị chưa có ngày`}
-                {items.length === 0 && 'Chưa thêm thiết bị nào vào kế hoạch'}
+                {items.length === 0 && "Chưa thêm thiết bị nào vào kế hoạch"}
               </p>
             </div>
           </>
@@ -129,7 +126,7 @@ export function PMPlanStep4({ step1Data, step2Data, items }: PMPlanStep4Props) {
               <dt className="text-muted-foreground flex items-center gap-1">
                 <Factory className="h-4 w-4" /> Nhà máy:
               </dt>
-              <dd className="font-medium">{factory?.name || '-'}</dd>
+              <dd className="font-medium">{factory?.name || "-"}</dd>
             </div>
           </dl>
         </div>
@@ -146,8 +143,10 @@ export function PMPlanStep4({ step1Data, step2Data, items }: PMPlanStep4Props) {
               <dd className="text-right">
                 {step2Data.assignees.length > 0 ? (
                   <div className="flex flex-wrap gap-1 justify-end">
-                    {step2Data.assignees.map(a => (
-                      <Badge key={a} variant="outline">{a}</Badge>
+                    {step2Data.assignees.map((a) => (
+                      <Badge key={a} variant="outline">
+                        {a}
+                      </Badge>
                     ))}
                   </div>
                 ) : (
@@ -159,13 +158,13 @@ export function PMPlanStep4({ step1Data, step2Data, items }: PMPlanStep4Props) {
               <dt className="text-muted-foreground flex items-center gap-1">
                 <Calendar className="h-4 w-4" /> Ngày mặc định:
               </dt>
-              <dd className="font-medium">{step2Data.defaultDate || 'Chưa chọn'}</dd>
+              <dd className="font-medium">{step2Data.defaultDate || "Chưa chọn"}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Áp dụng chung:</dt>
               <dd>
                 <Badge variant={step2Data.applyToAll ? "default" : "secondary"}>
-                  {step2Data.applyToAll ? 'Có' : 'Không'}
+                  {step2Data.applyToAll ? "Có" : "Không"}
                 </Badge>
               </dd>
             </div>
@@ -222,7 +221,7 @@ export function PMPlanStep4({ step1Data, step2Data, items }: PMPlanStep4Props) {
                     <TableCell>
                       {item.companionEquipment.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
-                          {item.companionEquipment.map(compId => {
+                          {item.companionEquipment.map((compId) => {
                             const comp = getEquipmentById(compId);
                             return (
                               <Badge key={compId} variant="secondary" className="text-xs">

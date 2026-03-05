@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
-import { AppSidebar } from './AppSidebar';
-import { AppHeader } from './AppHeader';
-import { MobileDrawer } from './MobileDrawer';
-import { MobileHeader } from './MobileHeader';
-import { BottomNav } from './BottomNav';
-import { PageTransition } from './PageTransition';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
+import { AppSidebar } from "./AppSidebar";
+import { AppHeader } from "./AppHeader";
+import { MobileDrawer } from "./MobileDrawer";
+import { MobileHeader } from "./MobileHeader";
+import { BottomNav } from "./BottomNav";
+import { PageTransition } from "./PageTransition";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 export function MainLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -25,33 +25,31 @@ export function MainLayout() {
       )}
 
       {/* Mobile Drawer for "More" menu */}
-      <MobileDrawer
-        open={mobileMenuOpen}
-        onOpenChange={setMobileMenuOpen}
-      />
+      <MobileDrawer open={mobileMenuOpen} onOpenChange={setMobileMenuOpen} />
 
       {/* Main Content Area */}
-      <div className={cn(
-        "flex-1 flex flex-col min-h-screen transition-all duration-300",
-        // Desktop margin for sidebar
-        !isMobile && (sidebarCollapsed ? "lg:ml-16" : "lg:ml-64")
-      )}>
+      <div
+        className={cn(
+          "flex-1 flex flex-col min-h-screen transition-all duration-300",
+          // Desktop margin for sidebar
+          !isMobile && (sidebarCollapsed ? "lg:ml-16" : "lg:ml-64"),
+        )}
+      >
         {/* Desktop Header */}
         {!isMobile && (
-          <AppHeader
-            onMenuClick={() => setMobileMenuOpen(true)}
-            showMenuButton={false}
-          />
+          <AppHeader onMenuClick={() => setMobileMenuOpen(true)} showMenuButton={false} />
         )}
 
         {/* Mobile Header - App-like with back button */}
         {isMobile && <MobileHeader />}
 
         {/* Main content with bottom padding for mobile nav */}
-        <main className={cn(
-          "flex-1 overflow-auto",
-          isMobile && "pb-20" // Space for bottom nav
-        )}>
+        <main
+          className={cn(
+            "flex-1 overflow-auto",
+            isMobile && "pb-20", // Space for bottom nav
+          )}
+        >
           {isMobile ? (
             <PageTransition>
               <Outlet />
@@ -62,9 +60,7 @@ export function MainLayout() {
         </main>
 
         {/* Mobile Bottom Navigation */}
-        {isMobile && (
-          <BottomNav onMoreClick={() => setMobileMenuOpen(true)} />
-        )}
+        {isMobile && <BottomNav onMoreClick={() => setMobileMenuOpen(true)} />}
       </div>
     </div>
   );

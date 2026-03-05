@@ -1,7 +1,7 @@
-import React from 'react';
-import { Settings, Tag, ListTodo } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { ChecklistTemplate } from '../types/checklist.types';
+import React from "react";
+import { Settings, Tag, ListTodo } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ChecklistTemplate } from "../types/checklist.types";
 
 interface ChecklistInfoBannerProps {
   checklist: ChecklistTemplate;
@@ -15,8 +15,8 @@ interface ChecklistInfoBannerProps {
  * - Responsive Grid Layout
  */
 export const ChecklistInfoBanner: React.FC<ChecklistInfoBannerProps> = ({ checklist }) => {
-  const equipmentCategory = checklist.equipment?.category || 'Chưa xác định';
-  const equipmentName = checklist.equipment?.name || 'Chưa gắn thiết bị';
+  const equipmentCategory = checklist.equipment?.category || "Chưa xác định";
+  const equipmentName = checklist.equipment?.name || "Chưa gắn thiết bị";
   const itemCount = checklist.items?.length || 0;
 
   return (
@@ -29,7 +29,9 @@ export const ChecklistInfoBanner: React.FC<ChecklistInfoBannerProps> = ({ checkl
             </div>
             <div>
               <p className="text-xs text-muted-foreground font-medium">Thiết bị</p>
-              <p className="text-sm font-semibold truncate" title={equipmentName}>{equipmentName}</p>
+              <p className="text-sm font-semibold truncate" title={equipmentName}>
+                {equipmentName}
+              </p>
             </div>
           </div>
 
@@ -39,7 +41,9 @@ export const ChecklistInfoBanner: React.FC<ChecklistInfoBannerProps> = ({ checkl
             </div>
             <div>
               <p className="text-xs text-muted-foreground font-medium">Loại máy</p>
-              <p className="text-sm font-semibold truncate" title={equipmentCategory}>{equipmentCategory}</p>
+              <p className="text-sm font-semibold truncate" title={equipmentCategory}>
+                {equipmentCategory}
+              </p>
             </div>
           </div>
 

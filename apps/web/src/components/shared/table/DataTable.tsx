@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,9 +12,9 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 import {
   Table,
@@ -23,55 +23,55 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 
-import { DataTablePagination } from "./DataTablePagination"
-import { DataTableToolbar } from "./DataTableToolbar"
-import { CellTooltip } from "./CellTooltip"
+import { DataTablePagination } from "./DataTablePagination";
+import { DataTableToolbar } from "./DataTableToolbar";
+import { CellTooltip } from "./CellTooltip";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
   // Server-side pagination props
-  pageCount?: number
-  onPaginationChange?: (pageIndex: number, pageSize: number) => void
-  pageIndex?: number
-  pageSize?: number
+  pageCount?: number;
+  onPaginationChange?: (pageIndex: number, pageSize: number) => void;
+  pageIndex?: number;
+  pageSize?: number;
   // Server-side sorting
-  onSortingChange?: (sorting: SortingState) => void
-  sorting?: SortingState
+  onSortingChange?: (sorting: SortingState) => void;
+  sorting?: SortingState;
   // Selection
-  onRowSelectionChange?: (rowSelection: any) => void
-  rowSelection?: any
+  onRowSelectionChange?: (rowSelection: any) => void;
+  rowSelection?: any;
   // Column filters
-  onColumnFiltersChange?: (filters: ColumnFiltersState) => void
-  columnFilters?: ColumnFiltersState
+  onColumnFiltersChange?: (filters: ColumnFiltersState) => void;
+  columnFilters?: ColumnFiltersState;
   // Search/Filters Props
-  searchColumn?: string
-  searchPlaceholder?: string
-  searchValue?: string
-  onSearchChange?: (value: string) => void
+  searchColumn?: string;
+  searchPlaceholder?: string;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
   facetedFilters?: {
-    column: string
-    title: string
+    column: string;
+    title: string;
     options: {
-      label: string
-      value: string
-      icon?: React.ComponentType<{ className?: string }>
-    }[]
-  }[]
-  onFilterReset?: () => void
+      label: string;
+      value: string;
+      icon?: React.ComponentType<{ className?: string }>;
+    }[];
+  }[];
+  onFilterReset?: () => void;
   // Custom toolbar elements
-  toolbarActions?: React.ReactNode
+  toolbarActions?: React.ReactNode;
   // Click handler
-  onRowClick?: (row: TData) => void
+  onRowClick?: (row: TData) => void;
   // Row ID
-  getRowId?: (row: TData) => string
+  getRowId?: (row: TData) => string;
   // Display options
-  showToolbar?: boolean
-  showPagination?: boolean
-  isLoading?: boolean
-  className?: string
+  showToolbar?: boolean;
+  showPagination?: boolean;
+  isLoading?: boolean;
+  className?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -101,18 +101,15 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   className,
 }: DataTableProps<TData, TValue>) {
-  const [internalRowSelection, setInternalRowSelection] = React.useState({})
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-  const [internalColumnFilters, setInternalColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
-  const [internalSorting, setInternalSorting] = React.useState<SortingState>([])
+  const [internalRowSelection, setInternalRowSelection] = React.useState({});
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [internalColumnFilters, setInternalColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [internalSorting, setInternalSorting] = React.useState<SortingState>([]);
 
-  const rowSelection = propRowSelection ?? internalRowSelection
-  const setRowSelection = onRowSelectionChange ?? setInternalRowSelection
-  const sorting = propSorting ?? internalSorting
-  const columnFilters = propColumnFilters ?? internalColumnFilters
+  const rowSelection = propRowSelection ?? internalRowSelection;
+  const setRowSelection = onRowSelectionChange ?? setInternalRowSelection;
+  const sorting = propSorting ?? internalSorting;
+  const columnFilters = propColumnFilters ?? internalColumnFilters;
 
   const table = useReactTable({
     data,
@@ -131,25 +128,24 @@ export function DataTable<TData, TValue>({
     onRowSelectionChange: setRowSelection,
     onSortingChange: (updater) => {
       if (onSortingChange) {
-        onSortingChange(typeof updater === 'function' ? updater(sorting) : updater)
+        onSortingChange(typeof updater === "function" ? updater(sorting) : updater);
       } else {
-        setInternalSorting(updater)
+        setInternalSorting(updater);
       }
     },
     onPaginationChange: (updater) => {
       if (onPaginationChange) {
-        const nextState = typeof updater === 'function'
-          ? updater({ pageIndex, pageSize })
-          : updater
-        onPaginationChange(nextState.pageIndex, nextState.pageSize)
+        const nextState =
+          typeof updater === "function" ? updater({ pageIndex, pageSize }) : updater;
+        onPaginationChange(nextState.pageIndex, nextState.pageSize);
       }
     },
     onColumnVisibilityChange: setColumnVisibility,
     onColumnFiltersChange: (updater) => {
       if (onColumnFiltersChange) {
-        onColumnFiltersChange(typeof updater === 'function' ? updater(columnFilters) : updater)
+        onColumnFiltersChange(typeof updater === "function" ? updater(columnFilters) : updater);
       } else {
-        setInternalColumnFilters(updater)
+        setInternalColumnFilters(updater);
       }
     },
     getCoreRowModel: getCoreRowModel(),
@@ -163,10 +159,10 @@ export function DataTable<TData, TValue>({
     manualFiltering: true,
     pageCount: pageCount,
     getRowId,
-  })
+  });
 
   // Skeleton Count based on pageSize
-  const skeletonRows = React.useMemo(() => Array.from({ length: pageSize }), [pageSize])
+  const skeletonRows = React.useMemo(() => Array.from({ length: pageSize }), [pageSize]);
 
   return (
     <div className={cn("flex flex-col gap-4", className)}>
@@ -197,12 +193,9 @@ export function DataTable<TData, TValue>({
                     >
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -228,7 +221,7 @@ export function DataTable<TData, TValue>({
                   onClick={() => onRowClick?.(row.original)}
                   className={cn(
                     "group transition-colors h-16 border-border/40",
-                    onRowClick ? "cursor-pointer hover:bg-muted/30" : "hover:bg-muted/10"
+                    onRowClick ? "cursor-pointer hover:bg-muted/30" : "hover:bg-muted/10",
                   )}
                 >
                   {row.getVisibleCells().map((cell) => {
@@ -241,7 +234,11 @@ export function DataTable<TData, TValue>({
                     if (enableTooltip) {
                       try {
                         const val = cell.getValue();
-                        if (val !== null && val !== undefined && (typeof val === 'string' || typeof val === 'number')) {
+                        if (
+                          val !== null &&
+                          val !== undefined &&
+                          (typeof val === "string" || typeof val === "number")
+                        ) {
                           cellValue = val;
                         }
                       } catch {
@@ -250,15 +247,9 @@ export function DataTable<TData, TValue>({
                     }
 
                     return (
-                      <TableCell
-                        key={cell.id}
-                        className={cn("py-3", shouldTruncate && "truncate")}
-                      >
+                      <TableCell key={cell.id} className={cn("py-3", shouldTruncate && "truncate")}>
                         <CellTooltip value={cellValue} truncate={shouldTruncate}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </CellTooltip>
                       </TableCell>
                     );
@@ -268,19 +259,30 @@ export function DataTable<TData, TValue>({
             ) : (
               // Empty State
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-[400px] text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-[400px] text-center">
                   <div className="flex flex-col items-center justify-center gap-4">
                     <div className="p-4 rounded-full bg-muted/40 border border-border/10 shadow-inner">
-                      <svg className="h-10 w-10 text-muted-foreground opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      <svg
+                        className="h-10 w-10 text-muted-foreground opacity-20"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                        />
                       </svg>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-lg font-semibold text-foreground/80">Không tìm thấy kết quả</p>
-                      <p className="text-sm text-muted-foreground max-w-[300px] mx-auto">Vui lòng thử điều chỉnh lại bộ lọc hoặc từ khóa tìm kiếm để thu hẹp kết quả</p>
+                      <p className="text-lg font-semibold text-foreground/80">
+                        Không tìm thấy kết quả
+                      </p>
+                      <p className="text-sm text-muted-foreground max-w-[300px] mx-auto">
+                        Vui lòng thử điều chỉnh lại bộ lọc hoặc từ khóa tìm kiếm để thu hẹp kết quả
+                      </p>
                     </div>
                   </div>
                 </TableCell>
@@ -291,5 +293,5 @@ export function DataTable<TData, TValue>({
       </div>
       {showPagination && <DataTablePagination table={table} />}
     </div>
-  )
+  );
 }

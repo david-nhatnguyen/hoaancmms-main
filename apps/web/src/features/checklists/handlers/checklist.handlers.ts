@@ -1,12 +1,12 @@
-import { useNavigate } from 'react-router-dom';
-import { useTemplateActions } from '../hooks/useTemplateActions';
+import { useNavigate } from "react-router-dom";
+import { useTemplateActions } from "../hooks/useTemplateActions";
 
 export const createChecklistHandlers = (
   navigate: ReturnType<typeof useNavigate>,
-  actions: ReturnType<typeof useTemplateActions>
+  actions: ReturnType<typeof useTemplateActions>,
 ) => {
   const handleGoBack = () => {
-    navigate('/checklists');
+    navigate("/checklists");
   };
 
   const handleEdit = (id: string) => {
@@ -22,7 +22,7 @@ export const createChecklistHandlers = (
   };
 
   const handleDeactivate = (id: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn ngừng sử dụng bản checklist này?')) {
+    if (window.confirm("Bạn có chắc chắn muốn ngừng sử dụng bản checklist này?")) {
       actions.deactivate.mutate(id);
     }
   };

@@ -1,4 +1,4 @@
-import { apiClient } from '@/api/client';
+import { apiClient } from "@/api/client";
 import type {
   Role,
   RoleStats,
@@ -7,7 +7,7 @@ import type {
   CreateRolePayload,
   UpdateRolePayload,
   PermissionPayload,
-} from '../types/role.types';
+} from "../types/role.types";
 
 export interface CreateModulePayload {
   id: string;
@@ -45,25 +45,25 @@ export interface PermissionModuleWithCount extends PermissionModule {
 export const rolesApi = {
   /** List all roles with permission details and user count */
   getAll: async (): Promise<Role[]> => {
-    const res = await apiClient.get('/roles');
+    const res = await apiClient.get("/roles");
     return (res as any).data;
   },
 
   /** Role statistics (total / system / custom) */
   getStats: async (): Promise<RoleStats> => {
-    const res = await apiClient.get('/roles/stats');
+    const res = await apiClient.get("/roles/stats");
     return (res as any).data;
   },
 
   /** All permission modules defined in DB */
   getModules: async (): Promise<PermissionModuleWithCount[]> => {
-    const res = await apiClient.get('/roles/modules');
+    const res = await apiClient.get("/roles/modules");
     return (res as any).data;
   },
 
   /** Create a new permission module */
   createModule: async (payload: CreateModulePayload): Promise<PermissionModule> => {
-    const res = await apiClient.post('/roles/modules', payload);
+    const res = await apiClient.post("/roles/modules", payload);
     return (res as any).data;
   },
 
@@ -93,7 +93,7 @@ export const rolesApi = {
 
   /** Create a new role (with optional initial permissions) */
   create: async (payload: CreateRolePayload): Promise<Role> => {
-    const res = await apiClient.post('/roles', payload);
+    const res = await apiClient.post("/roles", payload);
     return (res as any).data;
   },
 

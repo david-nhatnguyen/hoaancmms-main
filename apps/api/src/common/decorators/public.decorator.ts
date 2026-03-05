@@ -1,4 +1,4 @@
-import { SetMetadata } from '@nestjs/common';
+import { SetMetadata } from "@nestjs/common";
 
 /**
  * @Public Decorator
@@ -29,5 +29,5 @@ import { SetMetadata } from '@nestjs/common';
  * Best Practice:
  * Use decorator + metadata
  */
-export const IS_PUBLIC_KEY = 'isPublic';
+export const IS_PUBLIC_KEY = "isPublic";
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);

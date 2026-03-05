@@ -1,33 +1,25 @@
-import { useState } from 'react';
-import {
-  Save,
-  Globe,
-  Wrench,
-  FileText,
-  AlertTriangle,
-  Bell,
-  Info
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
+import { useState } from "react";
+import { Save, Globe, Wrench, FileText, AlertTriangle, Bell, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
-import { defaultSettings, SystemSettings } from '@/data/systemData';
-import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
-import { useIsMobile } from '@/hooks/use-mobile';
+} from "@/components/ui/accordion";
+import { defaultSettings, SystemSettings } from "@/data/systemData";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface SettingRowProps {
   label: string;
@@ -38,13 +30,19 @@ interface SettingRowProps {
 
 function SettingRow({ label, description, children, isMobile }: SettingRowProps) {
   return (
-    <div className={cn(
-      "border-b border-border/30 last:border-0",
-      isMobile ? "py-3 space-y-2" : "flex items-center justify-between py-4"
-    )}>
+    <div
+      className={cn(
+        "border-b border-border/30 last:border-0",
+        isMobile ? "py-3 space-y-2" : "flex items-center justify-between py-4",
+      )}
+    >
       <div className={cn("pr-4", !isMobile && "flex-1")}>
         <p className={cn("font-medium", isMobile ? "text-xs" : "text-sm")}>{label}</p>
-        {description && <p className={cn("text-muted-foreground mt-0.5", isMobile ? "text-[10px]" : "text-xs")}>{description}</p>}
+        {description && (
+          <p className={cn("text-muted-foreground mt-0.5", isMobile ? "text-[10px]" : "text-xs")}>
+            {description}
+          </p>
+        )}
       </div>
       <div className="shrink-0">{children}</div>
     </div>
@@ -59,46 +57,36 @@ export default function SystemSettingsPage() {
   const updateSetting = <K extends keyof SystemSettings>(
     section: K,
     key: keyof SystemSettings[K],
-    value: any
+    value: any,
   ) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
       [section]: {
         ...prev[section],
-        [key]: value
-      }
+        [key]: value,
+      },
     }));
     setHasChanges(true);
   };
 
   const handleSave = () => {
-    toast.success('Đã lưu cài đặt thành công');
+    toast.success("Đã lưu cài đặt thành công");
     setHasChanges(false);
   };
 
   return (
-    <div className={cn(
-      "animate-fade-in max-w-full overflow-x-hidden",
-      isMobile ? "px-4 py-3" : "p-6"
-    )}>
+    <div
+      className={cn("animate-fade-in max-w-full overflow-x-hidden", isMobile ? "px-4 py-3" : "p-6")}
+    >
       {/* Page Header */}
       <div className="mb-4">
         {!isMobile && <p className="page-subtitle">HỆ THỐNG</p>}
-        <div className={cn(
-          "flex items-center justify-between gap-2",
-          isMobile && "flex-wrap"
-        )}>
-          <h1 className={cn(
-            "font-bold",
-            isMobile ? "text-base" : "page-title"
-          )}>Cài đặt chung</h1>
+        <div className={cn("flex items-center justify-between gap-2", isMobile && "flex-wrap")}>
+          <h1 className={cn("font-bold", isMobile ? "text-base" : "page-title")}>Cài đặt chung</h1>
           <Button
             onClick={handleSave}
             disabled={!hasChanges}
-            className={cn(
-              "action-btn-primary",
-              isMobile && "h-9"
-            )}
+            className={cn("action-btn-primary", isMobile && "h-9")}
             size={isMobile ? "sm" : "default"}
           >
             <Save className="h-4 w-4" />
@@ -109,23 +97,29 @@ export default function SystemSettingsPage() {
 
       {/* Settings Accordion */}
       <div className="max-w-4xl">
-        <Accordion type="multiple" defaultValue={['general', 'operations']} className="space-y-3">
+        <Accordion type="multiple" defaultValue={["general", "operations"]} className="space-y-3">
           {/* General Settings */}
-          <AccordionItem value="general" className="bg-card rounded-xl border border-border/50 overflow-hidden">
-            <AccordionTrigger className={cn(
-              "hover:no-underline hover:bg-secondary/30",
-              isMobile ? "px-3 py-3" : "px-6 py-4"
-            )}>
+          <AccordionItem
+            value="general"
+            className="bg-card rounded-xl border border-border/50 overflow-hidden"
+          >
+            <AccordionTrigger
+              className={cn(
+                "hover:no-underline hover:bg-secondary/30",
+                isMobile ? "px-3 py-3" : "px-6 py-4",
+              )}
+            >
               <div className="flex items-center gap-2.5">
-                <div className={cn(
-                  "rounded-lg bg-primary/10",
-                  isMobile ? "p-1.5" : "p-2"
-                )}>
+                <div className={cn("rounded-lg bg-primary/10", isMobile ? "p-1.5" : "p-2")}>
                   <Globe className={cn("text-primary", isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />
                 </div>
                 <div className="text-left">
                   <p className={cn("font-semibold", isMobile && "text-sm")}>Cài đặt chung</p>
-                  {!isMobile && <p className="text-xs text-muted-foreground font-normal">Ngôn ngữ, múi giờ, định dạng</p>}
+                  {!isMobile && (
+                    <p className="text-xs text-muted-foreground font-normal">
+                      Ngôn ngữ, múi giờ, định dạng
+                    </p>
+                  )}
                 </div>
               </div>
             </AccordionTrigger>
@@ -155,7 +149,7 @@ export default function SystemSettingsPage() {
               <SettingRow label="Định dạng ngày" isMobile={isMobile}>
                 <Select
                   value={settings.general.dateFormat}
-                  onValueChange={(v) => updateSetting('general', 'dateFormat', v)}
+                  onValueChange={(v) => updateSetting("general", "dateFormat", v)}
                 >
                   <SelectTrigger className={cn(isMobile ? "w-[140px] h-9 text-xs" : "w-[180px]")}>
                     <SelectValue />
@@ -175,7 +169,7 @@ export default function SystemSettingsPage() {
               >
                 <Input
                   value={settings.general.companyName}
-                  onChange={(e) => updateSetting('general', 'companyName', e.target.value)}
+                  onChange={(e) => updateSetting("general", "companyName", e.target.value)}
                   className={cn(isMobile ? "w-full h-9 text-sm" : "w-[280px]")}
                 />
               </SettingRow>
@@ -183,21 +177,37 @@ export default function SystemSettingsPage() {
           </AccordionItem>
 
           {/* Operations Settings */}
-          <AccordionItem value="operations" className="bg-card rounded-xl border border-border/50 overflow-hidden">
-            <AccordionTrigger className={cn(
-              "hover:no-underline hover:bg-secondary/30",
-              isMobile ? "px-3 py-3" : "px-6 py-4"
-            )}>
+          <AccordionItem
+            value="operations"
+            className="bg-card rounded-xl border border-border/50 overflow-hidden"
+          >
+            <AccordionTrigger
+              className={cn(
+                "hover:no-underline hover:bg-secondary/30",
+                isMobile ? "px-3 py-3" : "px-6 py-4",
+              )}
+            >
               <div className="flex items-center gap-2.5">
-                <div className={cn(
-                  "rounded-lg bg-[hsl(var(--status-maintenance))]/10",
-                  isMobile ? "p-1.5" : "p-2"
-                )}>
-                  <Wrench className={cn("text-[hsl(var(--status-maintenance))]", isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />
+                <div
+                  className={cn(
+                    "rounded-lg bg-[hsl(var(--status-maintenance))]/10",
+                    isMobile ? "p-1.5" : "p-2",
+                  )}
+                >
+                  <Wrench
+                    className={cn(
+                      "text-[hsl(var(--status-maintenance))]",
+                      isMobile ? "h-3.5 w-3.5" : "h-4 w-4",
+                    )}
+                  />
                 </div>
                 <div className="text-left">
                   <p className={cn("font-semibold", isMobile && "text-sm")}>Quy tắc vận hành</p>
-                  {!isMobile && <p className="text-xs text-muted-foreground font-normal">Điều chỉnh quy trình PM, WO</p>}
+                  {!isMobile && (
+                    <p className="text-xs text-muted-foreground font-normal">
+                      Điều chỉnh quy trình PM, WO
+                    </p>
+                  )}
                 </div>
               </div>
             </AccordionTrigger>
@@ -209,7 +219,7 @@ export default function SystemSettingsPage() {
               >
                 <Switch
                   checked={settings.operations.allowEditAppliedPM}
-                  onCheckedChange={(v) => updateSetting('operations', 'allowEditAppliedPM', v)}
+                  onCheckedChange={(v) => updateSetting("operations", "allowEditAppliedPM", v)}
                 />
               </SettingRow>
 
@@ -220,7 +230,7 @@ export default function SystemSettingsPage() {
               >
                 <Switch
                   checked={settings.operations.allowDragDropPM}
-                  onCheckedChange={(v) => updateSetting('operations', 'allowDragDropPM', v)}
+                  onCheckedChange={(v) => updateSetting("operations", "allowDragDropPM", v)}
                 />
               </SettingRow>
 
@@ -231,7 +241,7 @@ export default function SystemSettingsPage() {
               >
                 <Switch
                   checked={settings.operations.requirePhotoOnNG}
-                  onCheckedChange={(v) => updateSetting('operations', 'requirePhotoOnNG', v)}
+                  onCheckedChange={(v) => updateSetting("operations", "requirePhotoOnNG", v)}
                 />
               </SettingRow>
 
@@ -242,7 +252,7 @@ export default function SystemSettingsPage() {
               >
                 <Switch
                   checked={settings.operations.requireNoteOnNG}
-                  onCheckedChange={(v) => updateSetting('operations', 'requireNoteOnNG', v)}
+                  onCheckedChange={(v) => updateSetting("operations", "requireNoteOnNG", v)}
                 />
               </SettingRow>
 
@@ -253,28 +263,34 @@ export default function SystemSettingsPage() {
               >
                 <Switch
                   checked={settings.operations.allowReopenIncident}
-                  onCheckedChange={(v) => updateSetting('operations', 'allowReopenIncident', v)}
+                  onCheckedChange={(v) => updateSetting("operations", "allowReopenIncident", v)}
                 />
               </SettingRow>
             </AccordionContent>
           </AccordionItem>
 
           {/* Work Order Settings */}
-          <AccordionItem value="workorder" className="bg-card rounded-xl border border-border/50 overflow-hidden">
-            <AccordionTrigger className={cn(
-              "hover:no-underline hover:bg-secondary/30",
-              isMobile ? "px-3 py-3" : "px-6 py-4"
-            )}>
+          <AccordionItem
+            value="workorder"
+            className="bg-card rounded-xl border border-border/50 overflow-hidden"
+          >
+            <AccordionTrigger
+              className={cn(
+                "hover:no-underline hover:bg-secondary/30",
+                isMobile ? "px-3 py-3" : "px-6 py-4",
+              )}
+            >
               <div className="flex items-center gap-2.5">
-                <div className={cn(
-                  "rounded-lg bg-primary/10",
-                  isMobile ? "p-1.5" : "p-2"
-                )}>
+                <div className={cn("rounded-lg bg-primary/10", isMobile ? "p-1.5" : "p-2")}>
                   <FileText className={cn("text-primary", isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />
                 </div>
                 <div className="text-left">
                   <p className={cn("font-semibold", isMobile && "text-sm")}>Cài đặt Work Order</p>
-                  {!isMobile && <p className="text-xs text-muted-foreground font-normal">Quy trình phiếu công việc</p>}
+                  {!isMobile && (
+                    <p className="text-xs text-muted-foreground font-normal">
+                      Quy trình phiếu công việc
+                    </p>
+                  )}
                 </div>
               </div>
             </AccordionTrigger>
@@ -282,7 +298,7 @@ export default function SystemSettingsPage() {
               <SettingRow label="Trạng thái mặc định" isMobile={isMobile}>
                 <Select
                   value={settings.workOrder.defaultStatus}
-                  onValueChange={(v) => updateSetting('workOrder', 'defaultStatus', v)}
+                  onValueChange={(v) => updateSetting("workOrder", "defaultStatus", v)}
                 >
                   <SelectTrigger className={cn(isMobile ? "w-[140px] h-9 text-xs" : "w-[180px]")}>
                     <SelectValue />
@@ -301,7 +317,7 @@ export default function SystemSettingsPage() {
               >
                 <Switch
                   checked={settings.workOrder.allowConfirmComplete}
-                  onCheckedChange={(v) => updateSetting('workOrder', 'allowConfirmComplete', v)}
+                  onCheckedChange={(v) => updateSetting("workOrder", "allowConfirmComplete", v)}
                 />
               </SettingRow>
 
@@ -312,28 +328,38 @@ export default function SystemSettingsPage() {
               >
                 <Switch
                   checked={settings.workOrder.requireApproverOnClose}
-                  onCheckedChange={(v) => updateSetting('workOrder', 'requireApproverOnClose', v)}
+                  onCheckedChange={(v) => updateSetting("workOrder", "requireApproverOnClose", v)}
                 />
               </SettingRow>
             </AccordionContent>
           </AccordionItem>
 
           {/* Corrective Maintenance Settings */}
-          <AccordionItem value="corrective" className="bg-card rounded-xl border border-border/50 overflow-hidden">
-            <AccordionTrigger className={cn(
-              "hover:no-underline hover:bg-secondary/30",
-              isMobile ? "px-3 py-3" : "px-6 py-4"
-            )}>
+          <AccordionItem
+            value="corrective"
+            className="bg-card rounded-xl border border-border/50 overflow-hidden"
+          >
+            <AccordionTrigger
+              className={cn(
+                "hover:no-underline hover:bg-secondary/30",
+                isMobile ? "px-3 py-3" : "px-6 py-4",
+              )}
+            >
               <div className="flex items-center gap-2.5">
-                <div className={cn(
-                  "rounded-lg bg-destructive/10",
-                  isMobile ? "p-1.5" : "p-2"
-                )}>
-                  <AlertTriangle className={cn("text-destructive", isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />
+                <div className={cn("rounded-lg bg-destructive/10", isMobile ? "p-1.5" : "p-2")}>
+                  <AlertTriangle
+                    className={cn("text-destructive", isMobile ? "h-3.5 w-3.5" : "h-4 w-4")}
+                  />
                 </div>
                 <div className="text-left">
-                  <p className={cn("font-semibold", isMobile && "text-sm")}>Cài đặt Bảo trì sự cố</p>
-                  {!isMobile && <p className="text-xs text-muted-foreground font-normal">Quy trình xử lý sự cố</p>}
+                  <p className={cn("font-semibold", isMobile && "text-sm")}>
+                    Cài đặt Bảo trì sự cố
+                  </p>
+                  {!isMobile && (
+                    <p className="text-xs text-muted-foreground font-normal">
+                      Quy trình xử lý sự cố
+                    </p>
+                  )}
                 </div>
               </div>
             </AccordionTrigger>
@@ -345,7 +371,7 @@ export default function SystemSettingsPage() {
               >
                 <Switch
                   checked={settings.corrective.requireImpactLevel}
-                  onCheckedChange={(v) => updateSetting('corrective', 'requireImpactLevel', v)}
+                  onCheckedChange={(v) => updateSetting("corrective", "requireImpactLevel", v)}
                 />
               </SettingRow>
 
@@ -356,28 +382,44 @@ export default function SystemSettingsPage() {
               >
                 <Switch
                   checked={settings.corrective.requireCauseBeforeClose}
-                  onCheckedChange={(v) => updateSetting('corrective', 'requireCauseBeforeClose', v)}
+                  onCheckedChange={(v) => updateSetting("corrective", "requireCauseBeforeClose", v)}
                 />
               </SettingRow>
             </AccordionContent>
           </AccordionItem>
 
           {/* Notification Settings */}
-          <AccordionItem value="notifications" className="bg-card rounded-xl border border-border/50 overflow-hidden">
-            <AccordionTrigger className={cn(
-              "hover:no-underline hover:bg-secondary/30",
-              isMobile ? "px-3 py-3" : "px-6 py-4"
-            )}>
+          <AccordionItem
+            value="notifications"
+            className="bg-card rounded-xl border border-border/50 overflow-hidden"
+          >
+            <AccordionTrigger
+              className={cn(
+                "hover:no-underline hover:bg-secondary/30",
+                isMobile ? "px-3 py-3" : "px-6 py-4",
+              )}
+            >
               <div className="flex items-center gap-2.5">
-                <div className={cn(
-                  "rounded-lg bg-[hsl(var(--status-active))]/10",
-                  isMobile ? "p-1.5" : "p-2"
-                )}>
-                  <Bell className={cn("text-[hsl(var(--status-active))]", isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />
+                <div
+                  className={cn(
+                    "rounded-lg bg-[hsl(var(--status-active))]/10",
+                    isMobile ? "p-1.5" : "p-2",
+                  )}
+                >
+                  <Bell
+                    className={cn(
+                      "text-[hsl(var(--status-active))]",
+                      isMobile ? "h-3.5 w-3.5" : "h-4 w-4",
+                    )}
+                  />
                 </div>
                 <div className="text-left">
                   <p className={cn("font-semibold", isMobile && "text-sm")}>Cài đặt thông báo</p>
-                  {!isMobile && <p className="text-xs text-muted-foreground font-normal">Nhắc nhở và cảnh báo</p>}
+                  {!isMobile && (
+                    <p className="text-xs text-muted-foreground font-normal">
+                      Nhắc nhở và cảnh báo
+                    </p>
+                  )}
                 </div>
               </div>
             </AccordionTrigger>
@@ -389,7 +431,7 @@ export default function SystemSettingsPage() {
               >
                 <Switch
                   checked={settings.notifications.enableOverdueAlert}
-                  onCheckedChange={(v) => updateSetting('notifications', 'enableOverdueAlert', v)}
+                  onCheckedChange={(v) => updateSetting("notifications", "enableOverdueAlert", v)}
                 />
               </SettingRow>
 
@@ -400,7 +442,9 @@ export default function SystemSettingsPage() {
               >
                 <Switch
                   checked={settings.notifications.enableSevereIncidentAlert}
-                  onCheckedChange={(v) => updateSetting('notifications', 'enableSevereIncidentAlert', v)}
+                  onCheckedChange={(v) =>
+                    updateSetting("notifications", "enableSevereIncidentAlert", v)
+                  }
                 />
               </SettingRow>
 
@@ -411,7 +455,7 @@ export default function SystemSettingsPage() {
               >
                 <Select
                   value={String(settings.notifications.pmReminderDays)}
-                  onValueChange={(v) => updateSetting('notifications', 'pmReminderDays', Number(v))}
+                  onValueChange={(v) => updateSetting("notifications", "pmReminderDays", Number(v))}
                 >
                   <SelectTrigger className={cn(isMobile ? "w-[100px] h-9 text-xs" : "w-[120px]")}>
                     <SelectValue />
@@ -430,14 +474,19 @@ export default function SystemSettingsPage() {
       </div>
 
       {/* Info Note */}
-      <div className={cn(
-        "max-w-4xl mt-4 bg-primary/5 border border-primary/20 rounded-xl flex items-start gap-2.5",
-        isMobile ? "p-3" : "mt-6 p-4 gap-3"
-      )}>
+      <div
+        className={cn(
+          "max-w-4xl mt-4 bg-primary/5 border border-primary/20 rounded-xl flex items-start gap-2.5",
+          isMobile ? "p-3" : "mt-6 p-4 gap-3",
+        )}
+      >
         <Info className={cn("text-primary shrink-0 mt-0.5", isMobile ? "h-4 w-4" : "h-5 w-5")} />
         <div className={cn("text-muted-foreground", isMobile ? "text-xs" : "text-sm")}>
           <p className={cn("font-medium text-foreground", isMobile ? "mb-0.5" : "mb-1")}>Lưu ý</p>
-          <p>Một số cài đặt có thể yêu cầu người dùng đăng nhập lại để áp dụng. Thay đổi cài đặt sẽ được ghi nhận trong Nhật ký hệ thống.</p>
+          <p>
+            Một số cài đặt có thể yêu cầu người dùng đăng nhập lại để áp dụng. Thay đổi cài đặt sẽ
+            được ghi nhận trong Nhật ký hệ thống.
+          </p>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { rolesApi } from '../api/roles.api';
+import { useQuery } from "@tanstack/react-query";
+import { rolesApi } from "../api/roles.api";
 
 /**
  * Fetches a single role by ID.
@@ -7,7 +7,7 @@ import { rolesApi } from '../api/roles.api';
  */
 export function useRole(id: string | undefined) {
   return useQuery({
-    queryKey: ['role', id],
+    queryKey: ["role", id],
     queryFn: () => rolesApi.getById(id!),
     enabled: !!id,
     staleTime: 2 * 60 * 1000,

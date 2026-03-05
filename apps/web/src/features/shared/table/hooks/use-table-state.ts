@@ -1,16 +1,16 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { 
-  ColumnFiltersState, 
-  RowSelectionState, 
+import {
+  ColumnFiltersState,
+  RowSelectionState,
   SortingState,
-  PaginationState
+  PaginationState,
 } from "@tanstack/react-table";
 import { useDebounce } from "@/hooks/use-debounce";
-import { 
-  mapRowSelectionToIds, 
+import {
+  mapRowSelectionToIds,
   updateColumnFilters,
   getSortParams,
-  getActiveFiltersCount
+  getActiveFiltersCount,
 } from "../handlers/table-logic.handlers";
 
 export interface UseDataTableStateOptions<TParams> {
@@ -40,9 +40,9 @@ export function useDataTableState<TParams extends Record<string, any>>({
 
   // 3. Sorting State
   const [sorting, setSorting] = useState<SortingState>(
-    initialParams.sortBy 
+    initialParams.sortBy
       ? [{ id: initialParams.sortBy, desc: initialParams.sortOrder === "desc" }]
-      : []
+      : [],
   );
 
   // 4. Pagination State
@@ -57,7 +57,7 @@ export function useDataTableState<TParams extends Record<string, any>>({
   // 6. Combined Params for API
   const params = useMemo(() => {
     const { sortBy, sortOrder } = getSortParams(sorting);
-    
+
     // Create base params
     const nextParams: any = {
       ...initialParams,
@@ -85,40 +85,43 @@ export function useDataTableState<TParams extends Record<string, any>>({
   // Handlers
   const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
-    setPagination(prev => ({ ...prev, pageIndex: 0 })); // Reset to first page on search
+    setPagination((prev) => ({ ...prev, pageIndex: 0 })); // Reset to first page on search
   }, []);
 
-  const handleColumnFiltersChange = useCallback((updaterOrValue: ColumnFiltersState | ((prev: ColumnFiltersState) => ColumnFiltersState)) => {
-    setColumnFilters(prev => {
-      const next = typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue;
-      return next;
-    });
-    setPagination(prev => ({ ...prev, pageIndex: 0 })); // Reset to first page on filter
-  }, []);
+  const handleColumnFiltersChange = useCallback(
+    (updaterOrValue: ColumnFiltersState | ((prev: ColumnFiltersState) => ColumnFiltersState)) => {
+      setColumnFilters((prev) => {
+        const next = typeof updaterOrValue === "function" ? updaterOrValue(prev) : updaterOrValue;
+        return next;
+      });
+      setPagination((prev) => ({ ...prev, pageIndex: 0 })); // Reset to first page on filter
+    },
+    [],
+  );
 
   const handleResetFilters = useCallback(() => {
     setColumnFilters([]);
     setSearchQuery("");
-    setPagination(prev => ({ ...prev, pageIndex: 0 }));
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   }, []);
 
   const toggleColumnFilter = useCallback((id: string, value: any) => {
-    setColumnFilters(prev => {
-      const filter = prev.find(f => f.id === id);
+    setColumnFilters((prev) => {
+      const filter = prev.find((f) => f.id === id);
       const currentValues = Array.isArray(filter?.value) ? filter?.value : [];
-      
+
       const nextValues = currentValues.includes(value)
-        ? currentValues.filter(v => v !== value)
+        ? currentValues.filter((v) => v !== value)
         : [...currentValues, value];
-      
+
       return updateColumnFilters(prev, id, nextValues);
     });
-    setPagination(prev => ({ ...prev, pageIndex: 0 }));
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   }, []);
 
-  const activeFiltersCount = useMemo(() => 
-    getActiveFiltersCount(columnFilters, searchQuery), 
-    [columnFilters, searchQuery]
+  const activeFiltersCount = useMemo(
+    () => getActiveFiltersCount(columnFilters, searchQuery),
+    [columnFilters, searchQuery],
   );
 
   return {
@@ -131,14 +134,14 @@ export function useDataTableState<TParams extends Record<string, any>>({
     columnFilters,
     params,
     activeFiltersCount,
-    
+
     // Setters
     setSearchQuery: handleSearchChange,
     setRowSelection,
     setSorting,
     setPagination,
     setColumnFilters: handleColumnFiltersChange,
-    
+
     // Helpers
     resetFilters: handleResetFilters,
     toggleColumnFilter,

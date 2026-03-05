@@ -1,6 +1,6 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { IS_PUBLIC_KEY } from "../decorators/public.decorator";
 
 /**
  * JWT Authentication Guard
@@ -45,7 +45,7 @@ export class JwtAuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException('No authentication token provided');
+      throw new UnauthorizedException("No authentication token provided");
     }
 
     // TODO: Validate token with JWT service
@@ -56,7 +56,7 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: any): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    const [type, token] = request.headers.authorization?.split(" ") ?? [];
+    return type === "Bearer" ? token : undefined;
   }
 }

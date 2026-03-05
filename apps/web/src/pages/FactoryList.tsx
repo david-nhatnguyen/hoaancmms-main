@@ -1,45 +1,48 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  Plus, Building2, Download, FileSpreadsheet,
+  Plus,
+  Building2,
+  Download,
+  FileSpreadsheet,
   Settings2,
   Trash2,
-  Pencil
+  Pencil,
 } from "lucide-react";
-import { useQueryClient } from '@tanstack/react-query';
-import { RowSelectionState } from '@tanstack/react-table';
+import { useQueryClient } from "@tanstack/react-query";
+import { RowSelectionState } from "@tanstack/react-table";
 
 // UI Components
-import { Button } from '@/components/ui/button';
-import { MobileButton } from '@/components/ui/mobile-button';
-import { MobileFilters } from '@/components/shared/MobileFilters';
-import { ChipFilter } from '@/components/shared/filters/ChipFilter';
-import { ResponsiveTable } from '@/components/shared/ResponsiveTable';
-import { EmptyState } from '@/components/shared/EmptyState';
-import { PageContainer } from '@/components/shared/PageContainer';
-import { BulkActionsToolbar } from '@/components/shared/table/BulkActionsToolbar';
-import { MobileCardActions } from '@/components/shared/table/MobileCardActions';
-import { MobileCard } from '@/components/shared/table/MobileCard';
-import { DataTable } from '@/components/shared/table/DataTable';
-import { ResponsivePageHeader } from '@/components/shared/layout/ResponsivePageHeader';
-import { ResponsiveDataView } from '@/components/shared/layout/ResponsiveDataView';
-import { ResponsiveFormSheet } from '@/components/shared/layout/ResponsiveFormSheet';
+import { Button } from "@/components/ui/button";
+import { MobileButton } from "@/components/ui/mobile-button";
+import { MobileFilters } from "@/components/shared/MobileFilters";
+import { ChipFilter } from "@/components/shared/filters/ChipFilter";
+import { ResponsiveTable } from "@/components/shared/ResponsiveTable";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { PageContainer } from "@/components/shared/PageContainer";
+import { BulkActionsToolbar } from "@/components/shared/table/BulkActionsToolbar";
+import { MobileCardActions } from "@/components/shared/table/MobileCardActions";
+import { MobileCard } from "@/components/shared/table/MobileCard";
+import { DataTable } from "@/components/shared/table/DataTable";
+import { ResponsivePageHeader } from "@/components/shared/layout/ResponsivePageHeader";
+import { ResponsiveDataView } from "@/components/shared/layout/ResponsiveDataView";
+import { ResponsiveFormSheet } from "@/components/shared/layout/ResponsiveFormSheet";
 
 // Feature Components & Hooks
-import { useFactoryForm } from '@/features/factories/hooks/useFactoryForm';
-import { useFactoryColumns } from '@/features/factories/hooks/useFactoryColumns';
-import { useFactoryTableStats } from '@/features/factories/hooks/useFactoryTableStats';
-import { useFactories } from '@/features/factories/hooks/useFactories';
-import { useCreateFactory } from '@/features/factories/hooks/useCreateFactory';
-import { useUpdateFactory } from '@/features/factories/hooks/useUpdateFactory';
-import { useDeleteFactory } from '@/features/factories/hooks/useDeleteFactory';
-import { useBulkDeleteFactories } from '@/features/factories/hooks/useBulkDeleteFactories';
-import { useFactoryTableState } from '@/features/factories/hooks/useFactoryTableState';
-import { FactoryStatsCards } from '@/features/factories/components/FactoryStatsCards/FactoryStatsCards';
-import { DeleteFactoryDialog } from '@/features/factories/components/DeleteFactoryDialog';
-import { FactoryFormFields } from '@/features/factories/components/FactoryFormDialog/FactoryFormFields';
-import { STATUS_OPTIONS } from '@/features/factories/handlers/factory-table.handlers';
-import type { Factory } from '@/api/types/factory.types';
+import { useFactoryForm } from "@/features/factories/hooks/useFactoryForm";
+import { useFactoryColumns } from "@/features/factories/hooks/useFactoryColumns";
+import { useFactoryTableStats } from "@/features/factories/hooks/useFactoryTableStats";
+import { useFactories } from "@/features/factories/hooks/useFactories";
+import { useCreateFactory } from "@/features/factories/hooks/useCreateFactory";
+import { useUpdateFactory } from "@/features/factories/hooks/useUpdateFactory";
+import { useDeleteFactory } from "@/features/factories/hooks/useDeleteFactory";
+import { useBulkDeleteFactories } from "@/features/factories/hooks/useBulkDeleteFactories";
+import { useFactoryTableState } from "@/features/factories/hooks/useFactoryTableState";
+import { FactoryStatsCards } from "@/features/factories/components/FactoryStatsCards/FactoryStatsCards";
+import { DeleteFactoryDialog } from "@/features/factories/components/DeleteFactoryDialog";
+import { FactoryFormFields } from "@/features/factories/components/FactoryFormDialog/FactoryFormFields";
+import { STATUS_OPTIONS } from "@/features/factories/handlers/factory-table.handlers";
+import type { Factory } from "@/api/types/factory.types";
 
 /**
  * Factory List Page (Web-First Responsive Design)
@@ -98,18 +101,20 @@ export default function FactoryList() {
 
   const handleBulkDelete = () => {
     if (selectedIds.length === 0) return;
-    setDeletingFactory({ id: 'bulk', name: `${selectedIds.length} nhà máy`, code: 'BULK' } as any);
+    setDeletingFactory({ id: "bulk", name: `${selectedIds.length} nhà máy`, code: "BULK" } as any);
     setIsBulkDeleting(true);
   };
 
-  const facetedFilters = useMemo(() => [
-    {
-      column: "status",
-      title: "Trạng thái",
-      options: STATUS_OPTIONS,
-    }
-  ], []);
-
+  const facetedFilters = useMemo(
+    () => [
+      {
+        column: "status",
+        title: "Trạng thái",
+        options: STATUS_OPTIONS,
+      },
+    ],
+    [],
+  );
 
   // ============================================================================
   // HANDLERS
@@ -119,8 +124,8 @@ export default function FactoryList() {
    * Handle pull-to-refresh
    */
   const handleRefresh = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['factories'] });
-    await queryClient.invalidateQueries({ queryKey: ['factory-stats'] });
+    await queryClient.invalidateQueries({ queryKey: ["factories"] });
+    await queryClient.invalidateQueries({ queryKey: ["factory-stats"] });
     setRowSelection({});
     if (window.navigator.vibrate) window.navigator.vibrate(10);
   };
@@ -132,26 +137,25 @@ export default function FactoryList() {
     if (!form.validate()) return;
 
     form.setIsSubmitting(true);
-    const mutation = form.isEditMode && form.editingFactory
-      ? updateFactory
-      : createFactory;
+    const mutation = form.isEditMode && form.editingFactory ? updateFactory : createFactory;
 
-    const payload = form.isEditMode && form.editingFactory
-      ? {
-        id: form.editingFactory.id,
-        data: {
-          code: form.formData.code,
-          name: form.formData.name,
-          location: form.formData.location || undefined,
-          status: form.formData.status,
-        },
-      }
-      : {
-        code: form.formData.code,
-        name: form.formData.name,
-        location: form.formData.location || undefined,
-        status: 'ACTIVE' as const,
-      };
+    const payload =
+      form.isEditMode && form.editingFactory
+        ? {
+            id: form.editingFactory.id,
+            data: {
+              code: form.formData.code,
+              name: form.formData.name,
+              location: form.formData.location || undefined,
+              status: form.formData.status,
+            },
+          }
+        : {
+            code: form.formData.code,
+            name: form.formData.name,
+            location: form.formData.location || undefined,
+            status: "ACTIVE" as const,
+          };
 
     // @ts-expect-error - Dynamic dispatch is safe here due to structure
     mutation.mutate(payload, {
@@ -227,7 +231,7 @@ export default function FactoryList() {
             title="Chưa có nhà máy nào"
             description="Bắt đầu bằng cách thêm nhà máy đầu tiên của bạn vào hệ thống"
             action={{
-              label: 'Thêm nhà máy đầu tiên',
+              label: "Thêm nhà máy đầu tiên",
               onClick: () => form.openDialog(),
               icon: <Plus className="h-4 w-4" />,
             }}
@@ -240,27 +244,29 @@ export default function FactoryList() {
             searchPlaceholder="Tìm nhà máy..."
             sections={[
               {
-                id: 'status',
-                label: 'Trạng thái',
-                activeCount: (columnFilters.find(f => f.id === 'status')?.value as string[] || []).length,
+                id: "status",
+                label: "Trạng thái",
+                activeCount: (
+                  (columnFilters.find((f) => f.id === "status")?.value as string[]) || []
+                ).length,
                 content: (
                   <ChipFilter
                     options={STATUS_OPTIONS}
-                    selected={(columnFilters.find(f => f.id === 'status')?.value as string[]) || []}
-                    onToggle={(val) => toggleColumnFilter('status', val)}
+                    selected={
+                      (columnFilters.find((f) => f.id === "status")?.value as string[]) || []
+                    }
+                    onToggle={(val) => toggleColumnFilter("status", val)}
                   />
-                )
-              }
+                ),
+              },
             ]}
             activeFiltersCount={activeFiltersCount}
             onClearAll={resetFilters}
             activeFilterTags={null}
-
             desktopFilters={null}
           />
         }
         desktopFilters={null}
-
         mobileContent={
           <ResponsiveTable<Factory>
             columns={columns}
@@ -270,16 +276,16 @@ export default function FactoryList() {
             pageCount={data?.meta?.totalPages}
             currentPage={params.page}
             showPagination={true}
-            onPageChange={(page) => setPagination(prev => ({ ...prev, pageIndex: page - 1 }))}
+            onPageChange={(page) => setPagination((prev) => ({ ...prev, pageIndex: page - 1 }))}
             selectedIds={selectedIds}
             onSelectionChange={(ids) => {
               const newSelection: RowSelectionState = {};
-              ids.forEach(id => newSelection[id] = true);
+              ids.forEach((id) => (newSelection[id] = true));
               setRowSelection(newSelection);
             }}
             renderMobileCard={(factory, cols, isSelected, toggleSelection) => {
-              const codeCol = cols.find(c => c.key === 'code');
-              const statusCol = cols.find(c => c.key === 'status');
+              const codeCol = cols.find((c) => c.key === "code");
+              const statusCol = cols.find((c) => c.key === "status");
 
               return (
                 <MobileCard
@@ -287,33 +293,35 @@ export default function FactoryList() {
                   subtitle={factory.name}
                   status={statusCol?.render(factory)}
                   data={[
-                    { label: 'Địa điểm', value: factory.location },
-                    { label: 'Số lượng TB', value: factory.equipmentCount }
+                    { label: "Địa điểm", value: factory.location },
+                    { label: "Số lượng TB", value: factory.equipmentCount },
                   ]}
                   footerActions={
-                    <MobileCardActions actions={[
-                      {
-                        key: 'view-equipments',
-                        label: 'Xem danh sách thiết bị',
-                        variant: 'primary',
-                        icon: <Settings2 className="h-4 w-4" />,
-                        onClick: () => navigate(`/equipments?factoryId=${factory.id}`)
-                      },
-                      {
-                        key: 'edit',
-                        label: 'Chỉnh sửa thông tin',
-                        variant: 'warning',
-                        icon: <Pencil className="h-4 w-4" />,
-                        onClick: () => form.openDialog(factory)
-                      },
-                      {
-                        key: 'delete',
-                        label: 'Xóa',
-                        variant: 'destructive',
-                        icon: <Trash2 className="h-4 w-4" />,
-                        onClick: () => setDeletingFactory(factory)
-                      }
-                    ]} />
+                    <MobileCardActions
+                      actions={[
+                        {
+                          key: "view-equipments",
+                          label: "Xem danh sách thiết bị",
+                          variant: "primary",
+                          icon: <Settings2 className="h-4 w-4" />,
+                          onClick: () => navigate(`/equipments?factoryId=${factory.id}`),
+                        },
+                        {
+                          key: "edit",
+                          label: "Chỉnh sửa thông tin",
+                          variant: "warning",
+                          icon: <Pencil className="h-4 w-4" />,
+                          onClick: () => form.openDialog(factory),
+                        },
+                        {
+                          key: "delete",
+                          label: "Xóa",
+                          variant: "destructive",
+                          icon: <Trash2 className="h-4 w-4" />,
+                          onClick: () => setDeletingFactory(factory),
+                        },
+                      ]}
+                    />
                   }
                   isSelected={isSelected}
                   onToggleSelection={toggleSelection}
@@ -361,7 +369,7 @@ export default function FactoryList() {
       <ResponsiveFormSheet
         isOpen={form.isOpen}
         onOpenChange={(open) => !open && form.closeDialog()}
-        title={form.isEditMode ? 'Chỉnh sửa Nhà máy' : 'Thêm Nhà máy mới'}
+        title={form.isEditMode ? "Chỉnh sửa Nhà máy" : "Thêm Nhà máy mới"}
         contentClassName="px-0"
       >
         <FactoryFormFields
@@ -389,11 +397,11 @@ export default function FactoryList() {
                 setDeletingFactory(null);
                 setRowSelection({});
                 setIsBulkDeleting(false);
-              }
+              },
             });
           } else if (deletingFactory) {
             deleteFactory.mutate(deletingFactory.id, {
-              onSuccess: () => setDeletingFactory(null)
+              onSuccess: () => setDeletingFactory(null),
             });
           }
         }}

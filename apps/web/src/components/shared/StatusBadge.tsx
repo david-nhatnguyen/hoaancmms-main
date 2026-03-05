@@ -1,7 +1,7 @@
-import { cn } from '@/lib/utils';
-import { STATUS_LABELS } from '@/data/mockData';
+import { cn } from "@/lib/utils";
+import { STATUS_LABELS } from "@/data/mockData";
 
-type StatusType = 'active' | 'maintenance' | 'inactive' | 'ACTIVE' | 'INACTIVE' | 'MAINTENANCE';
+type StatusType = "active" | "maintenance" | "inactive" | "ACTIVE" | "INACTIVE" | "MAINTENANCE";
 
 interface StatusBadgeProps {
   status: StatusType;
@@ -11,8 +11,8 @@ interface StatusBadgeProps {
 /**
  * Normalize status to lowercase for consistent rendering
  */
-function normalizeStatus(status: StatusType): 'active' | 'maintenance' | 'inactive' {
-  return status.toLowerCase() as 'active' | 'maintenance' | 'inactive';
+function normalizeStatus(status: StatusType): "active" | "maintenance" | "inactive" {
+  return status.toLowerCase() as "active" | "maintenance" | "inactive";
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
@@ -27,10 +27,10 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     <span
       className={cn(
         "status-badge max-w-full inline-flex items-center justify-center whitespace-normal h-auto text-center break-words py-0.5 leading-tight",
-        normalizedStatus === 'active' && "status-active",
-        normalizedStatus === 'maintenance' && "status-maintenance",
-        normalizedStatus === 'inactive' && "status-inactive",
-        className
+        normalizedStatus === "active" && "status-active",
+        normalizedStatus === "maintenance" && "status-maintenance",
+        normalizedStatus === "inactive" && "status-inactive",
+        className,
       )}
     >
       {STATUS_LABELS[labelKey] || status}

@@ -7,6 +7,6 @@
  * - Easier to refactor
  * - Better organization
  */
-export * from './public.decorator';
-export * from './roles.decorator';
-export * from './timeout.decorator';
+export * from "./public.decorator";
+export * from "./roles.decorator";
+export * from "./timeout.decorator";

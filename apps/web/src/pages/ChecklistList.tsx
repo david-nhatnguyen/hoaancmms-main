@@ -1,44 +1,37 @@
-import { useState, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getImageUrl } from '@/lib/image-utils';
-import { Eye, Pencil, Trash2, Copy, Power } from 'lucide-react';
+import { useState, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { getImageUrl } from "@/lib/image-utils";
+import { Eye, Pencil, Trash2, Copy, Power } from "lucide-react";
 
-import {
-  Plus,
-  FileSpreadsheet,
-  Download,
-  ClipboardList,
-} from 'lucide-react';
-import { useQueryClient } from '@tanstack/react-query';
-import { RowSelectionState } from '@tanstack/react-table';
+import { Plus, FileSpreadsheet, Download, ClipboardList } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { RowSelectionState } from "@tanstack/react-table";
 
 // UI Components
-import { Button } from '@/components/ui/button';
-import { MobileButton } from '@/components/ui/mobile-button';
-import { MobileFilters } from '@/components/shared/MobileFilters';
-import { ChipFilter } from '@/components/shared/filters/ChipFilter';
-import { ResponsiveTable } from '@/components/shared/ResponsiveTable';
-import { EmptyState } from '@/components/shared/EmptyState';
-import { PageContainer } from '@/components/shared/PageContainer';
-import { ResponsivePageHeader } from '@/components/shared/layout/ResponsivePageHeader';
-import { ResponsiveDataView } from '@/components/shared/layout/ResponsiveDataView';
-import { DataTable } from '@/components/shared/table/DataTable';
-import { MobileCardActions } from '@/components/shared/table/MobileCardActions';
-import { MobileCard } from '@/components/shared/table/MobileCard';
-import { BulkActionsToolbar } from '@/components/shared/table/BulkActionsToolbar';
+import { Button } from "@/components/ui/button";
+import { MobileButton } from "@/components/ui/mobile-button";
+import { MobileFilters } from "@/components/shared/MobileFilters";
+import { ChipFilter } from "@/components/shared/filters/ChipFilter";
+import { ResponsiveTable } from "@/components/shared/ResponsiveTable";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { PageContainer } from "@/components/shared/PageContainer";
+import { ResponsivePageHeader } from "@/components/shared/layout/ResponsivePageHeader";
+import { ResponsiveDataView } from "@/components/shared/layout/ResponsiveDataView";
+import { DataTable } from "@/components/shared/table/DataTable";
+import { MobileCardActions } from "@/components/shared/table/MobileCardActions";
+import { MobileCard } from "@/components/shared/table/MobileCard";
+import { BulkActionsToolbar } from "@/components/shared/table/BulkActionsToolbar";
 
-import { useChecklistTemplates } from '@/features/checklists/hooks/useChecklistTemplates';
-import { useTemplateActions } from '@/features/checklists/hooks/useTemplateActions';
-import { useChecklistTableState } from '@/features/checklists/hooks/useChecklistTableState';
-import { useChecklistColumns } from '@/features/checklists/hooks/useChecklistColumns';
-import { useDeleteTemplate } from '@/features/checklists/hooks/useDeleteTemplate';
-import { useBulkDeleteTemplate } from '@/features/checklists/hooks/useBulkDeleteTemplate';
-import { DeleteChecklistDialog } from '@/features/checklists/components/DeleteChecklistDialog';
-import { ImportChecklistDialog } from '@/features/checklists/components/ImportChecklistDialog';
-import { ImportChecklistProgress } from '@/features/checklists/components/ImportChecklistProgress';
-import { ChecklistStats } from '@/features/checklists/components/ChecklistStats';
-
-
+import { useChecklistTemplates } from "@/features/checklists/hooks/useChecklistTemplates";
+import { useTemplateActions } from "@/features/checklists/hooks/useTemplateActions";
+import { useChecklistTableState } from "@/features/checklists/hooks/useChecklistTableState";
+import { useChecklistColumns } from "@/features/checklists/hooks/useChecklistColumns";
+import { useDeleteTemplate } from "@/features/checklists/hooks/useDeleteTemplate";
+import { useBulkDeleteTemplate } from "@/features/checklists/hooks/useBulkDeleteTemplate";
+import { DeleteChecklistDialog } from "@/features/checklists/components/DeleteChecklistDialog";
+import { ImportChecklistDialog } from "@/features/checklists/components/ImportChecklistDialog";
+import { ImportChecklistProgress } from "@/features/checklists/components/ImportChecklistProgress";
+import { ChecklistStats } from "@/features/checklists/components/ChecklistStats";
 
 import {
   ChecklistStatus,
@@ -46,7 +39,7 @@ import {
   CYCLE_LABELS,
   STATUS_LABELS,
   type ChecklistTemplate,
-} from '@/features/checklists/types/checklist.types';
+} from "@/features/checklists/types/checklist.types";
 
 const STATUS_OPTIONS = [
   { label: STATUS_LABELS[ChecklistStatus.DRAFT], value: ChecklistStatus.DRAFT },
@@ -79,10 +72,10 @@ export default function ChecklistList() {
   const handleCloseImport = useCallback(() => {
     setActiveImportId(null);
     setActiveImportFileName(null);
-    localStorage.removeItem('checklist_import_id');
-    localStorage.removeItem('checklist_import_file_name');
-    localStorage.removeItem('checklist_import_duration');
-    localStorage.removeItem('checklist_import_start_time');
+    localStorage.removeItem("checklist_import_id");
+    localStorage.removeItem("checklist_import_file_name");
+    localStorage.removeItem("checklist_import_duration");
+    localStorage.removeItem("checklist_import_start_time");
   }, []);
 
   const handleUploadStart = useCallback(
@@ -91,21 +84,21 @@ export default function ChecklistList() {
 
       // Write to localStorage FIRST so useImportProgress reads correct values
       // when it mounts after activeImportId state is set.
-      localStorage.setItem('checklist_import_id', id);
+      localStorage.setItem("checklist_import_id", id);
       if (fileName) {
-        localStorage.setItem('checklist_import_file_name', fileName);
+        localStorage.setItem("checklist_import_file_name", fileName);
       }
       if (estimatedDuration) {
-        localStorage.setItem('checklist_import_duration', estimatedDuration.toString());
+        localStorage.setItem("checklist_import_duration", estimatedDuration.toString());
       }
       // Always stamp start time
-      localStorage.setItem('checklist_import_start_time', Date.now().toString());
+      localStorage.setItem("checklist_import_start_time", Date.now().toString());
 
       // Then set state to trigger re-render + mount ImportChecklistProgress
       setActiveImportId(id);
       if (fileName) setActiveImportFileName(fileName);
     },
-    []
+    [],
   );
 
   const {
@@ -136,23 +129,30 @@ export default function ChecklistList() {
   const [deletingTemplate, setDeletingTemplate] = useState<ChecklistTemplate | null>(null);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
 
-  const facetedFilters = useMemo(() => [
-    {
-      column: "cycle",
-      title: "Chu kỳ",
-      options: CYCLE_OPTIONS,
-    },
-    {
-      column: "status",
-      title: "Trạng thái",
-      options: STATUS_OPTIONS,
-    }
-  ], []);
+  const facetedFilters = useMemo(
+    () => [
+      {
+        column: "cycle",
+        title: "Chu kỳ",
+        options: CYCLE_OPTIONS,
+      },
+      {
+        column: "status",
+        title: "Trạng thái",
+        options: STATUS_OPTIONS,
+      },
+    ],
+    [],
+  );
 
   // Handlers
   const handleBulkDelete = () => {
     if (selectedIds.length === 0) return;
-    setDeletingTemplate({ id: 'bulk', name: `${selectedIds.length} checklist`, code: 'BULK' } as any);
+    setDeletingTemplate({
+      id: "bulk",
+      name: `${selectedIds.length} checklist`,
+      code: "BULK",
+    } as any);
     setIsBulkDeleting(true);
   };
 
@@ -165,9 +165,8 @@ export default function ChecklistList() {
     onDelete: (t) => setDeletingTemplate(t),
   });
 
-
   const handleRefresh = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['checklist-templates'] });
+    await queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
     setRowSelection({});
     if (window.navigator.vibrate) window.navigator.vibrate(10);
   };
@@ -180,15 +179,13 @@ export default function ChecklistList() {
   const items = data?.data || [];
   const isFiltered = params.search || activeFiltersCount > 0;
 
-
-
   return (
     <PageContainer>
       <ResponsivePageHeader
         title="Danh sách Checklist Bảo dưỡng"
         subtitle="THƯ VIỆN CHECKLIST"
         mobileActions={
-          <MobileButton size="sm" onClick={() => navigate('/checklists/new')}>
+          <MobileButton size="sm" onClick={() => navigate("/checklists/new")}>
             <Plus className="h-5 w-5 mr-1.5" />
             Thêm
           </MobileButton>
@@ -208,7 +205,7 @@ export default function ChecklistList() {
               <Download className="h-4 w-4" />
               Xuất
             </Button>
-            <Button onClick={() => navigate('/checklists/new')} className="action-btn-primary">
+            <Button onClick={() => navigate("/checklists/new")} className="action-btn-primary">
               <Plus className="h-4 w-4" />
               Tạo checklist
             </Button>
@@ -248,8 +245,8 @@ export default function ChecklistList() {
             title="Chưa có checklist nào"
             description="Bắt đầu bằng cách tạo checklist bảo dưỡng đầu tiên của bạn"
             action={{
-              label: 'Tạo checklist',
-              onClick: () => navigate('/checklists/new'),
+              label: "Tạo checklist",
+              onClick: () => navigate("/checklists/new"),
               icon: <Plus className="h-4 w-4" />,
             }}
           />
@@ -262,39 +259,45 @@ export default function ChecklistList() {
             searchPlaceholder="Tìm checklist..."
             sections={[
               {
-                id: 'cycle',
-                label: 'Chu kỳ',
-                activeCount: (columnFilters.find(f => f.id === 'cycle')?.value as string[] || []).length,
+                id: "cycle",
+                label: "Chu kỳ",
+                activeCount: (
+                  (columnFilters.find((f) => f.id === "cycle")?.value as string[]) || []
+                ).length,
                 content: (
                   <ChipFilter
                     options={CYCLE_OPTIONS}
-                    selected={(columnFilters.find(f => f.id === 'cycle')?.value as string[]) || []}
-                    onToggle={(val) => toggleColumnFilter('cycle', val)}
+                    selected={
+                      (columnFilters.find((f) => f.id === "cycle")?.value as string[]) || []
+                    }
+                    onToggle={(val) => toggleColumnFilter("cycle", val)}
                   />
-                )
+                ),
               },
               {
-                id: 'status',
-                label: 'Trạng thái',
-                activeCount: (columnFilters.find(f => f.id === 'status')?.value as string[] || []).length,
+                id: "status",
+                label: "Trạng thái",
+                activeCount: (
+                  (columnFilters.find((f) => f.id === "status")?.value as string[]) || []
+                ).length,
                 content: (
                   <ChipFilter
                     options={STATUS_OPTIONS}
-                    selected={(columnFilters.find(f => f.id === 'status')?.value as string[]) || []}
-                    onToggle={(val) => toggleColumnFilter('status', val)}
+                    selected={
+                      (columnFilters.find((f) => f.id === "status")?.value as string[]) || []
+                    }
+                    onToggle={(val) => toggleColumnFilter("status", val)}
                   />
-                )
+                ),
               },
             ]}
             activeFiltersCount={activeFiltersCount}
             onClearAll={resetFilters}
             activeFilterTags={null}
-
             desktopFilters={null}
           />
         }
         desktopFilters={null}
-
         mobileContent={
           <ResponsiveTable<ChecklistTemplate>
             columns={columns}
@@ -304,18 +307,18 @@ export default function ChecklistList() {
             pageCount={data?.meta?.totalPages}
             currentPage={params.page}
             showPagination={true}
-            onPageChange={(page) => setPagination(prev => ({ ...prev, pageIndex: page - 1 }))}
+            onPageChange={(page) => setPagination((prev) => ({ ...prev, pageIndex: page - 1 }))}
             selectedIds={selectedIds}
             onSelectionChange={(ids) => {
               const nextSelection: RowSelectionState = {};
-              ids.forEach(id => nextSelection[id] = true);
+              ids.forEach((id) => (nextSelection[id] = true));
               setRowSelection(nextSelection);
             }}
             renderMobileCard={(t, cols, isSelected, toggleSelection) => {
-              const codeCol = cols.find(c => c.key === 'code');
-              const statusCol = cols.find(c => c.key === 'status');
-              const cycleCol = cols.find(c => c.key === 'cycle');
-              const versionCol = cols.find(c => c.key === 'version');
+              const codeCol = cols.find((c) => c.key === "code");
+              const statusCol = cols.find((c) => c.key === "status");
+              const cycleCol = cols.find((c) => c.key === "cycle");
+              const versionCol = cols.find((c) => c.key === "version");
 
               return (
                 <MobileCard
@@ -324,49 +327,51 @@ export default function ChecklistList() {
                   status={statusCol?.render(t)}
                   image={getImageUrl(t.equipment?.image ?? undefined)}
                   data={[
-                    { label: 'Thiết bị', value: t.equipment?.name },
-                    { label: 'Chu kỳ', value: cycleCol?.render(t) },
-                    { label: 'Phiên bản', value: versionCol?.render(t) },
-                    { label: 'Bộ phận', value: t.department }
+                    { label: "Thiết bị", value: t.equipment?.name },
+                    { label: "Chu kỳ", value: cycleCol?.render(t) },
+                    { label: "Phiên bản", value: versionCol?.render(t) },
+                    { label: "Bộ phận", value: t.department },
                   ]}
                   footerActions={
-                    <MobileCardActions actions={[
-                      {
-                        key: 'view',
-                        label: 'Xem chi tiết',
-                        variant: 'primary',
-                        icon: <Eye className="h-4 w-4" />,
-                        onClick: () => navigate(`/checklists/${t.id}`)
-                      },
-                      {
-                        key: 'edit',
-                        label: 'Chỉnh sửa',
-                        variant: 'warning',
-                        icon: <Pencil className="h-4 w-4" />,
-                        onClick: () => navigate(`/checklists/${t.id}/edit`)
-                      },
-                      {
-                        key: 'copy',
-                        label: 'Nhân bản',
-                        variant: 'default',
-                        icon: <Copy className="h-4 w-4" />,
-                        onClick: () => duplicate.mutate(t.id)
-                      },
-                      {
-                        key: 'deactivate',
-                        label: t.status === ChecklistStatus.ACTIVE ? 'Tạm ngưng' : 'Kích hoạt',
-                        variant: 'secondary',
-                        icon: <Power className="h-4 w-4" />,
-                        onClick: () => deactivate.mutate(t.id)
-                      },
-                      {
-                        key: 'delete',
-                        label: 'Xóa',
-                        variant: 'destructive',
-                        icon: <Trash2 className="h-4 w-4" />,
-                        onClick: () => setDeletingTemplate(t)
-                      }
-                    ]} />
+                    <MobileCardActions
+                      actions={[
+                        {
+                          key: "view",
+                          label: "Xem chi tiết",
+                          variant: "primary",
+                          icon: <Eye className="h-4 w-4" />,
+                          onClick: () => navigate(`/checklists/${t.id}`),
+                        },
+                        {
+                          key: "edit",
+                          label: "Chỉnh sửa",
+                          variant: "warning",
+                          icon: <Pencil className="h-4 w-4" />,
+                          onClick: () => navigate(`/checklists/${t.id}/edit`),
+                        },
+                        {
+                          key: "copy",
+                          label: "Nhân bản",
+                          variant: "default",
+                          icon: <Copy className="h-4 w-4" />,
+                          onClick: () => duplicate.mutate(t.id),
+                        },
+                        {
+                          key: "deactivate",
+                          label: t.status === ChecklistStatus.ACTIVE ? "Tạm ngưng" : "Kích hoạt",
+                          variant: "secondary",
+                          icon: <Power className="h-4 w-4" />,
+                          onClick: () => deactivate.mutate(t.id),
+                        },
+                        {
+                          key: "delete",
+                          label: "Xóa",
+                          variant: "destructive",
+                          icon: <Trash2 className="h-4 w-4" />,
+                          onClick: () => setDeletingTemplate(t),
+                        },
+                      ]}
+                    />
                   }
                   onClick={() => navigate(`/checklists/${t.id}`)}
                   isSelected={isSelected}
@@ -429,11 +434,11 @@ export default function ChecklistList() {
                 setDeletingTemplate(null);
                 setRowSelection({});
                 setIsBulkDeleting(false);
-              }
+              },
             });
           } else if (deletingTemplate) {
             deleteTemplate.mutate(deletingTemplate.id, {
-              onSuccess: () => setDeletingTemplate(null)
+              onSuccess: () => setDeletingTemplate(null),
             });
           }
         }}

@@ -4,10 +4,10 @@ import {
   ConflictException,
   BadRequestException,
   Logger,
-} from '@nestjs/common';
-import { PrismaService } from '@/database/prisma.service';
-import { CreateRoleDto, PermissionDto } from './dto/create-role.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
+} from "@nestjs/common";
+import { PrismaService } from "@/database/prisma.service";
+import { CreateRoleDto, PermissionDto } from "./dto/create-role.dto";
+import { UpdateRoleDto } from "./dto/update-role.dto";
 
 /**
  * RolesService
@@ -31,10 +31,10 @@ export class RolesService {
         _count: { select: { users: true } },
         permissions: {
           include: { module: true },
-          orderBy: { module: { sortOrder: 'asc' } },
+          orderBy: { module: { sortOrder: "asc" } },
         },
       },
-      orderBy: [{ isSystem: 'desc' }, { createdAt: 'asc' }],
+      orderBy: [{ isSystem: "desc" }, { createdAt: "asc" }],
     });
 
     return roles.map(this.transformRole);
@@ -48,7 +48,7 @@ export class RolesService {
         _count: { select: { users: true } },
         permissions: {
           include: { module: true },
-          orderBy: { module: { sortOrder: 'asc' } },
+          orderBy: { module: { sortOrder: "asc" } },
         },
       },
     });
@@ -61,7 +61,7 @@ export class RolesService {
   async getModules() {
     return this.prisma.client.permissionModule.findMany({
       include: { _count: { select: { permissions: true } } },
-      orderBy: { sortOrder: 'asc' },
+      orderBy: { sortOrder: "asc" },
     });
   }
 
@@ -147,7 +147,7 @@ export class RolesService {
       },
       include: {
         _count: { select: { users: true } },
-        permissions: { include: { module: true }, orderBy: { module: { sortOrder: 'asc' } } },
+        permissions: { include: { module: true }, orderBy: { module: { sortOrder: "asc" } } },
       },
     });
 
@@ -170,7 +170,7 @@ export class RolesService {
       if (conflict) throw new ConflictException(`Vai trò "${dto.name}" đã tồn tại`);
 
       if (existing.isSystem) {
-        throw new BadRequestException('Không thể đổi tên vai trò hệ thống');
+        throw new BadRequestException("Không thể đổi tên vai trò hệ thống");
       }
     }
 
@@ -201,7 +201,7 @@ export class RolesService {
       data,
       include: {
         _count: { select: { users: true } },
-        permissions: { include: { module: true }, orderBy: { module: { sortOrder: 'asc' } } },
+        permissions: { include: { module: true }, orderBy: { module: { sortOrder: "asc" } } },
       },
     });
 
@@ -212,11 +212,11 @@ export class RolesService {
   /** Delete a role (system roles cannot be deleted) */
   async remove(id: string) {
     const role = await this.findOne(id);
-    if (role.isSystem) throw new BadRequestException('Không thể xóa vai trò hệ thống');
+    if (role.isSystem) throw new BadRequestException("Không thể xóa vai trò hệ thống");
 
     await this.prisma.client.role.delete({ where: { id } });
     this.logger.log(`Deleted role: ${role.name}`);
-    return { message: 'Xóa vai trò thành công' };
+    return { message: "Xóa vai trò thành công" };
   }
 
   /**
@@ -261,7 +261,7 @@ export class RolesService {
         lastLoginAt: true,
         factoryIds: true,
       },
-      orderBy: { fullName: 'asc' },
+      orderBy: { fullName: "asc" },
     });
   }
 

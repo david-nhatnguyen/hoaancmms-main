@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { equipmentsApi } from '@/api/endpoints/equipments.api';
-import { Equipment } from '@/api/types/equipment.types';
+import { useState, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { equipmentsApi } from "@/api/endpoints/equipments.api";
+import { Equipment } from "@/api/types/equipment.types";
 
 /**
  * Hook to manage equipment detail state and logic.
@@ -13,7 +13,7 @@ export const useEquipmentDetail = (overrideCode?: string) => {
   const { code: paramCode } = useParams<{ code: string }>();
   const code = overrideCode || paramCode;
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('info');
+  const [activeTab, setActiveTab] = useState("info");
 
   // Fetch equipment from API using React Query
   const {
@@ -22,7 +22,7 @@ export const useEquipmentDetail = (overrideCode?: string) => {
     error,
     refetch,
   } = useQuery<any, Error, Equipment>({
-    queryKey: ['equipment', code],
+    queryKey: ["equipment", code],
     queryFn: () => equipmentsApi.getByCode(code!),
     select: (response) => response.data,
     enabled: !!code,
@@ -32,15 +32,18 @@ export const useEquipmentDetail = (overrideCode?: string) => {
 
   // Handlers
   const handleGoBack = useCallback(() => {
-    navigate('/equipments');
+    navigate("/equipments");
   }, [navigate]);
 
-  const handleEdit = useCallback((editCode: string) => {
-    navigate(`/equipments/${editCode}/edit`);
-  }, [navigate]);
+  const handleEdit = useCallback(
+    (editCode: string) => {
+      navigate(`/equipments/${editCode}/edit`);
+    },
+    [navigate],
+  );
 
   const handleCreateWorkOrder = useCallback((id: string) => {
-    toast.info('Tính năng tạo phiếu bảo trì đang được phát triển');
+    toast.info("Tính năng tạo phiếu bảo trì đang được phát triển");
     // navigate(`/work-orders/new?equipmentId=${id}`);
   }, []);
 

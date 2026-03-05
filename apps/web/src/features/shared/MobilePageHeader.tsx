@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { ReactNode } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MobilePageHeaderProps {
   subtitle?: string;
@@ -12,7 +12,7 @@ export function MobilePageHeader({
   subtitle,
   title,
   actions,
-  mobileActions
+  mobileActions,
 }: MobilePageHeaderProps) {
   const isMobile = useIsMobile();
 
@@ -34,16 +34,10 @@ export function MobilePageHeader({
 
   return (
     <div className="mb-6">
-      {subtitle && (
-        <p className="page-subtitle">{subtitle}</p>
-      )}
+      {subtitle && <p className="page-subtitle">{subtitle}</p>}
       <div className="flex items-center justify-between">
         <h1 className="page-title">{title}</h1>
-        {actions && (
-          <div className="flex items-center gap-2">
-            {actions}
-          </div>
-        )}
+        {actions && <div className="flex items-center gap-2">{actions}</div>}
       </div>
     </div>
   );

@@ -1,11 +1,11 @@
 // ...imports...
-import { PageContainer } from '@/components/shared/PageContainer';
-import { Form } from '@/components/ui/form';
+import { PageContainer } from "@/components/shared/PageContainer";
+import { Form } from "@/components/ui/form";
 
-import { useChecklistForm } from '@/features/checklists/hooks/useChecklistForm';
-import { ChecklistHeader } from '@/features/checklists/components/ChecklistHeader';
-import { ChecklistGeneralInfo } from '@/features/checklists/components/ChecklistGeneralInfo';
-import { ChecklistItemsTable } from '@/features/checklists/components/ChecklistItemsTable';
+import { useChecklistForm } from "@/features/checklists/hooks/useChecklistForm";
+import { ChecklistHeader } from "@/features/checklists/components/ChecklistHeader";
+import { ChecklistGeneralInfo } from "@/features/checklists/components/ChecklistGeneralInfo";
+import { ChecklistItemsTable } from "@/features/checklists/components/ChecklistItemsTable";
 
 export default function ChecklistForm() {
   const {
@@ -19,7 +19,7 @@ export default function ChecklistForm() {
     isCopying,
     isLoading,
     isSubmitting,
-    isReady
+    isReady,
   } = useChecklistForm();
 
   // Handle loading state
@@ -36,7 +36,6 @@ export default function ChecklistForm() {
       <div className="max-w-7xl mx-auto pb-20">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-
             {/* Header Section */}
             <ChecklistHeader
               isEditing={isEditing}
@@ -61,11 +60,9 @@ export default function ChecklistForm() {
                 move={move}
               />
             </div>
-
           </form>
         </Form>
       </div>
     </PageContainer>
   );
 }
-

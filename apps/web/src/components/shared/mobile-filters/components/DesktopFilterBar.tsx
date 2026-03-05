@@ -1,6 +1,5 @@
-
-import { ReactNode } from 'react';
-import { Button } from '@/components/ui/button';
+import { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 
 export interface DesktopFilterBarProps {
   desktopFilters?: ReactNode;
@@ -13,14 +12,16 @@ export function DesktopFilterBar({
   desktopFilters,
   activeFilterTags,
   activeFiltersCount,
-  onClearAll
+  onClearAll,
 }: DesktopFilterBarProps) {
   return (
     <div className="space-y-3 mb-4">
       {desktopFilters}
       {activeFilterTags && activeFiltersCount > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Đang lọc:</span>
+          <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+            Đang lọc:
+          </span>
           {activeFilterTags}
           <Button
             variant="ghost"

@@ -1,21 +1,21 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { FactoriesController } from './factories.controller';
-import { FactoriesService } from './factories.service';
-import { FactoryStatus } from '@prisma/generated/prisma';
-import { FactoryQueryDto } from './dto/factory-query.dto';
-import { CreateFactoryDto } from './dto/create-factory.dto';
-import { UpdateFactoryDto } from './dto/update-factory.dto';
+import { Test, TestingModule } from "@nestjs/testing";
+import { FactoriesController } from "./factories.controller";
+import { FactoriesService } from "./factories.service";
+import { FactoryStatus } from "@prisma/generated/prisma";
+import { FactoryQueryDto } from "./dto/factory-query.dto";
+import { CreateFactoryDto } from "./dto/create-factory.dto";
+import { UpdateFactoryDto } from "./dto/update-factory.dto";
 
-describe('FactoriesController', () => {
+describe("FactoriesController", () => {
   let controller: FactoriesController;
   let service: FactoriesService;
 
   const mockFactory = {
-    id: '123',
-    code: 'F01',
-    name: 'Factory 1',
-    location: 'Location 1',
-    status: 'active',
+    id: "123",
+    code: "F01",
+    name: "Factory 1",
+    location: "Location 1",
+    status: "active",
     equipmentCount: 5,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -29,7 +29,7 @@ describe('FactoriesController', () => {
     findOne: jest.fn().mockResolvedValue(mockFactory),
     create: jest.fn().mockResolvedValue(mockFactory),
     update: jest.fn().mockResolvedValue(mockFactory),
-    remove: jest.fn().mockResolvedValue({ message: 'Success' }),
+    remove: jest.fn().mockResolvedValue({ message: "Success" }),
     getStats: jest.fn().mockResolvedValue({
       totalFactories: 1,
       activeFactories: 1,
@@ -50,7 +50,7 @@ describe('FactoriesController', () => {
     mockFactoriesService.findOne.mockResolvedValue(mockFactory);
     mockFactoriesService.create.mockResolvedValue(mockFactory);
     mockFactoriesService.update.mockResolvedValue(mockFactory);
-    mockFactoriesService.remove.mockResolvedValue({ message: 'Success' });
+    mockFactoriesService.remove.mockResolvedValue({ message: "Success" });
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [FactoriesController],
@@ -66,12 +66,12 @@ describe('FactoriesController', () => {
     service = module.get<FactoriesService>(FactoriesService);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
-  describe('getStats', () => {
-    it('should return factory stats', async () => {
+  describe("getStats", () => {
+    it("should return factory stats", async () => {
       const result = await controller.getStats();
       expect(result).toEqual({
         totalFactories: 1,
@@ -82,8 +82,8 @@ describe('FactoriesController', () => {
     });
   });
 
-  describe('findAll', () => {
-    it('should return a list of factories', async () => {
+  describe("findAll", () => {
+    it("should return a list of factories", async () => {
       const query = new FactoryQueryDto();
       const result = await controller.findAll(query);
       expect(result.data).toEqual([mockFactory]);
@@ -91,20 +91,20 @@ describe('FactoriesController', () => {
     });
   });
 
-  describe('findOne', () => {
-    it('should return a single factory', async () => {
-      const result = await controller.findOne('123');
+  describe("findOne", () => {
+    it("should return a single factory", async () => {
+      const result = await controller.findOne("123");
       expect(result).toEqual(mockFactory);
-      expect(service.findOne).toHaveBeenCalledWith('123');
+      expect(service.findOne).toHaveBeenCalledWith("123");
     });
   });
 
-  describe('create', () => {
-    it('should create a new factory', async () => {
+  describe("create", () => {
+    it("should create a new factory", async () => {
       const dto: CreateFactoryDto = {
-        code: 'F01',
-        name: 'Factory 1',
-        location: 'Location 1',
+        code: "F01",
+        name: "Factory 1",
+        location: "Location 1",
         status: FactoryStatus.ACTIVE,
       };
       const result = await controller.create(dto);
@@ -113,20 +113,20 @@ describe('FactoriesController', () => {
     });
   });
 
-  describe('update', () => {
-    it('should update a factory', async () => {
-      const dto: UpdateFactoryDto = { name: 'Updated Name' };
-      const result = await controller.update('123', dto);
+  describe("update", () => {
+    it("should update a factory", async () => {
+      const dto: UpdateFactoryDto = { name: "Updated Name" };
+      const result = await controller.update("123", dto);
       expect(result).toEqual(mockFactory);
-      expect(service.update).toHaveBeenCalledWith('123', dto);
+      expect(service.update).toHaveBeenCalledWith("123", dto);
     });
   });
 
-  describe('remove', () => {
-    it('should remove a factory', async () => {
-      const result = await controller.remove('123');
-      expect(result).toEqual({ message: 'Success' });
-      expect(service.remove).toHaveBeenCalledWith('123');
+  describe("remove", () => {
+    it("should remove a factory", async () => {
+      const result = await controller.remove("123");
+      expect(result).toEqual({ message: "Success" });
+      expect(service.remove).toHaveBeenCalledWith("123");
     });
   });
 });

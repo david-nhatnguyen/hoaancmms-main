@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { checklistTemplatesApi } from '../api/checklist-templates.api';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { checklistTemplatesApi } from "../api/checklist-templates.api";
 
 /**
  * Hook for template actions: activate, deactivate, duplicate, delete
@@ -12,16 +12,14 @@ export const useTemplateActions = () => {
     mutationFn: (id: string) => checklistTemplatesApi.activate(id),
     onSuccess: (response) => {
       const template = response.data;
-      queryClient.invalidateQueries({ queryKey: ['checklist-templates'] });
+      queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
       queryClient.invalidateQueries({
-        queryKey: ['checklist-template', template.id],
+        queryKey: ["checklist-template", template.id],
       });
       toast.success(`Đã kích hoạt checklist: ${template.code}`);
     },
     onError: (error: any) => {
-      toast.error(
-        error?.response?.data?.message || 'Không thể kích hoạt checklist'
-      );
+      toast.error(error?.response?.data?.message || "Không thể kích hoạt checklist");
     },
   });
 
@@ -29,16 +27,14 @@ export const useTemplateActions = () => {
     mutationFn: (id: string) => checklistTemplatesApi.deactivate(id),
     onSuccess: (response) => {
       const template = response.data;
-      queryClient.invalidateQueries({ queryKey: ['checklist-templates'] });
+      queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
       queryClient.invalidateQueries({
-        queryKey: ['checklist-template', template.id],
+        queryKey: ["checklist-template", template.id],
       });
       toast.success(`Đã ngừng sử dụng checklist: ${template.code}`);
     },
     onError: (error: any) => {
-      toast.error(
-        error?.response?.data?.message || 'Không thể ngừng sử dụng checklist'
-      );
+      toast.error(error?.response?.data?.message || "Không thể ngừng sử dụng checklist");
     },
   });
 
@@ -46,28 +42,24 @@ export const useTemplateActions = () => {
     mutationFn: (id: string) => checklistTemplatesApi.duplicate(id),
     onSuccess: (response) => {
       const newTemplate = response.data;
-      queryClient.invalidateQueries({ queryKey: ['checklist-templates'] });
-      toast.success('Đã sao chép checklist', {
+      queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
+      toast.success("Đã sao chép checklist", {
         description: `Mã mới: ${newTemplate.code}`,
       });
     },
     onError: (error: any) => {
-      toast.error(
-        error?.response?.data?.message || 'Không thể sao chép checklist'
-      );
+      toast.error(error?.response?.data?.message || "Không thể sao chép checklist");
     },
   });
 
   const deleteTemplate = useMutation({
     mutationFn: (id: string) => checklistTemplatesApi.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['checklist-templates'] });
-      toast.success('Đã xóa checklist thành công');
+      queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
+      toast.success("Đã xóa checklist thành công");
     },
     onError: (error: any) => {
-      toast.error(
-        error?.response?.data?.message || 'Không thể xóa checklist'
-      );
+      toast.error(error?.response?.data?.message || "Không thể xóa checklist");
     },
   });
 

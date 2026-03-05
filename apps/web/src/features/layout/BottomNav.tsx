@@ -1,12 +1,6 @@
-import { NavLink, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Cpu, 
-  FileText, 
-  AlertTriangle, 
-  Menu 
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { NavLink, useLocation } from "react-router-dom";
+import { LayoutDashboard, Cpu, FileText, AlertTriangle, Menu } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface NavItem {
   label: string;
@@ -20,29 +14,29 @@ const INCIDENT_COUNT = 3;
 
 const navItems: NavItem[] = [
   {
-    label: 'Dashboard',
-    path: '/',
+    label: "Dashboard",
+    path: "/",
     icon: LayoutDashboard,
-    matchPaths: ['/'],
+    matchPaths: ["/"],
   },
   {
-    label: 'Thiết bị',
-    path: '/equipments',
+    label: "Thiết bị",
+    path: "/equipments",
     icon: Cpu,
-    matchPaths: ['/equipments', '/factories'],
+    matchPaths: ["/equipments", "/factories"],
   },
   {
-    label: 'Work Order',
-    path: '/work-orders',
+    label: "Work Order",
+    path: "/work-orders",
     icon: FileText,
-    matchPaths: ['/work-orders', '/pm-plans', '/checklists'],
+    matchPaths: ["/work-orders", "/pm-plans", "/checklists"],
   },
   {
-    label: 'Sự cố',
-    path: '/corrective-maintenance',
+    label: "Sự cố",
+    path: "/corrective-maintenance",
     icon: AlertTriangle,
     badge: INCIDENT_COUNT,
-    matchPaths: ['/corrective-maintenance'],
+    matchPaths: ["/corrective-maintenance"],
   },
 ];
 
@@ -55,8 +49,8 @@ export function BottomNav({ onMoreClick }: BottomNavProps) {
 
   const isActive = (item: NavItem) => {
     if (item.matchPaths) {
-      return item.matchPaths.some(p => 
-        p === '/' ? location.pathname === '/' : location.pathname.startsWith(p)
+      return item.matchPaths.some((p) =>
+        p === "/" ? location.pathname === "/" : location.pathname.startsWith(p),
       );
     }
     return location.pathname === item.path;
@@ -73,26 +67,23 @@ export function BottomNav({ onMoreClick }: BottomNavProps) {
               to={item.path}
               className={cn(
                 "flex flex-col items-center justify-center flex-1 h-full py-1 px-2 transition-colors relative",
-                active 
-                  ? "text-primary" 
-                  : "text-muted-foreground"
+                active ? "text-primary" : "text-muted-foreground",
               )}
             >
               <div className="relative">
-                <item.icon className={cn(
-                  "h-5 w-5 transition-transform",
-                  active && "scale-110"
-                )} />
+                <item.icon className={cn("h-5 w-5 transition-transform", active && "scale-110")} />
                 {item.badge && item.badge > 0 && (
                   <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 flex items-center justify-center bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full">
-                    {item.badge > 99 ? '99+' : item.badge}
+                    {item.badge > 99 ? "99+" : item.badge}
                   </span>
                 )}
               </div>
-              <span className={cn(
-                "text-[10px] mt-1 font-medium transition-all",
-                active && "text-primary"
-              )}>
+              <span
+                className={cn(
+                  "text-[10px] mt-1 font-medium transition-all",
+                  active && "text-primary",
+                )}
+              >
                 {item.label}
               </span>
               {active && (
@@ -101,7 +92,7 @@ export function BottomNav({ onMoreClick }: BottomNavProps) {
             </NavLink>
           );
         })}
-        
+
         {/* More menu button */}
         <button
           onClick={onMoreClick}

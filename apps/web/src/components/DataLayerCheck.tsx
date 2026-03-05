@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { userService } from '@/services/user.service';
-import { User } from '@/api/mock/systemData';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useState } from "react";
+import { userService } from "@/services/user.service";
+import { User } from "@/api/mock/systemData";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function DataLayerCheck() {
   const [users, setUsers] = useState<User[]>([]);
@@ -33,8 +33,10 @@ export function DataLayerCheck() {
           Loaded {users.length} users from <code>userService</code>
         </p>
         <ul className="list-disc pl-4 text-sm">
-          {users.slice(0, 3).map(u => (
-            <li key={u.id}>{u.fullName} ({u.role})</li>
+          {users.slice(0, 3).map((u) => (
+            <li key={u.id}>
+              {u.fullName} ({u.role})
+            </li>
           ))}
         </ul>
       </CardContent>

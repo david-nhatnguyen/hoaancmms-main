@@ -1,6 +1,6 @@
-import { Search, X } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { Search, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 interface SearchBarProps {
   value: string;
@@ -12,23 +12,23 @@ interface SearchBarProps {
 
 /**
  * Search bar component with sticky option for mobile
- * 
+ *
  * Features:
  * - Search icon
  * - Clear button (when has value)
  * - Sticky positioning option
  * - Mobile-optimized
- * 
+ *
  * @param value - Current search value
  * @param onChange - Change handler
  * @param placeholder - Placeholder text
  * @param sticky - Whether to stick to top on scroll
  * @param className - Additional CSS classes
- * 
+ *
  * @example
  * ```tsx
  * const [search, setSearch] = useState('');
- * 
+ *
  * <SearchBar
  *   value={search}
  *   onChange={setSearch}
@@ -40,17 +40,17 @@ interface SearchBarProps {
 export function SearchBar({
   value,
   onChange,
-  placeholder = 'Tìm kiếm...',
+  placeholder = "Tìm kiếm...",
   sticky = false,
   className,
 }: SearchBarProps) {
   return (
     <div
       className={cn(
-        'relative mb-4',
+        "relative mb-4",
         sticky &&
-          'sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2 -mx-4 px-4',
-        className
+          "sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2 -mx-4 px-4",
+        className,
       )}
     >
       {/* Search Icon */}
@@ -69,7 +69,7 @@ export function SearchBar({
       {/* Clear Button */}
       {value && (
         <button
-          onClick={() => onChange('')}
+          onClick={() => onChange("")}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Xóa tìm kiếm"
         >

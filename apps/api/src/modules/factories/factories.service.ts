@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException, ConflictException, Logger } from '@nestjs/common';
-import { PrismaService } from '@/database/prisma.service';
-import { CreateFactoryDto } from './dto/create-factory.dto';
-import { UpdateFactoryDto } from './dto/update-factory.dto';
-import { FactoryQueryDto } from './dto/factory-query.dto';
-import { FactoryStatus } from '@prisma/generated/prisma';
+import { Injectable, NotFoundException, ConflictException, Logger } from "@nestjs/common";
+import { PrismaService } from "@/database/prisma.service";
+import { CreateFactoryDto } from "./dto/create-factory.dto";
+import { UpdateFactoryDto } from "./dto/update-factory.dto";
+import { FactoryQueryDto } from "./dto/factory-query.dto";
+import { FactoryStatus } from "@prisma/generated/prisma";
 
 /**
  * Factories Service
@@ -61,9 +61,9 @@ export class FactoriesService {
 
     if (search) {
       where.OR = [
-        { code: { contains: search, mode: 'insensitive' } },
-        { name: { contains: search, mode: 'insensitive' } },
-        { location: { contains: search, mode: 'insensitive' } }, // Added location search as per requirement
+        { code: { contains: search, mode: "insensitive" } },
+        { name: { contains: search, mode: "insensitive" } },
+        { location: { contains: search, mode: "insensitive" } }, // Added location search as per requirement
       ];
     }
 
@@ -217,7 +217,7 @@ export class FactoriesService {
     });
 
     this.logger.log(`Deleted factory: ${factory.code} - ${factory.name}`);
-    return { message: 'Xóa nhà máy thành công' };
+    return { message: "Xóa nhà máy thành công" };
   }
 
   /**

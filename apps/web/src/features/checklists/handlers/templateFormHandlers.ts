@@ -2,10 +2,9 @@ import {
   type CreateTemplateDto,
   type CreateTemplateItemDto,
   type Equipment,
-
   ChecklistCycle,
   ChecklistStatus,
-} from '../types/checklist.types';
+} from "../types/checklist.types";
 
 /**
  * Form data interface matching new schema
@@ -13,18 +12,14 @@ import {
 export interface TemplateFormData {
   name: string;
   description?: string;
-  
+
   // NEW: Equipment (REQUIRED)
   equipmentId: string;
   equipment?: Equipment | null;
-  
 
-  
   // NEW: Department (OPTIONAL)
   department?: string;
-  
 
-  
   cycle: ChecklistCycle;
   status?: ChecklistStatus;
   notes?: string;
@@ -36,40 +31,38 @@ export interface ValidationError {
   message: string;
 }
 
-export const validateTemplateForm = (
-  data: TemplateFormData
-): ValidationError[] => {
+export const validateTemplateForm = (data: TemplateFormData): ValidationError[] => {
   const errors: ValidationError[] = [];
 
   // Name is required
   if (!data.name || data.name.trim().length === 0) {
     errors.push({
-      field: 'name',
-      message: 'Tên checklist không được để trống',
+      field: "name",
+      message: "Tên checklist không được để trống",
     });
   }
 
   // Equipment is REQUIRED
   if (!data.equipmentId || data.equipmentId.trim().length === 0) {
     errors.push({
-      field: 'equipmentId',
-      message: 'Vui lòng chọn thiết bị',
+      field: "equipmentId",
+      message: "Vui lòng chọn thiết bị",
     });
   }
 
   // Cycle is required
   if (!data.cycle) {
     errors.push({
-      field: 'cycle',
-      message: 'Chu kỳ không được để trống',
+      field: "cycle",
+      message: "Chu kỳ không được để trống",
     });
   }
 
   // Items validation
   if (!data.items || data.items.length === 0) {
     errors.push({
-      field: 'items',
-      message: 'Checklist phải có ít nhất 1 hạng mục',
+      field: "items",
+      message: "Checklist phải có ít nhất 1 hạng mục",
     });
   } else {
     // Validate each item
@@ -89,9 +82,7 @@ export const validateTemplateForm = (
 /**
  * Transform form data to DTO for API
  */
-export const transformFormToDto = (
-  data: TemplateFormData
-): CreateTemplateDto => {
+export const transformFormToDto = (data: TemplateFormData): CreateTemplateDto => {
   return {
     name: data.name.trim(),
     description: data.description?.trim() || undefined,
@@ -117,9 +108,7 @@ export const transformFormToDto = (
 /**
  * Calculate item order when adding/removing items
  */
-export const recalculateItemOrder = (
-  items: CreateTemplateItemDto[]
-): CreateTemplateItemDto[] => {
+export const recalculateItemOrder = (items: CreateTemplateItemDto[]): CreateTemplateItemDto[] => {
   return items.map((item, index) => ({
     ...item,
     order: index + 1,
@@ -129,17 +118,15 @@ export const recalculateItemOrder = (
 /**
  * Create an empty item with the next order number
  */
-export const createEmptyItem = (
-  currentItems: CreateTemplateItemDto[]
-): CreateTemplateItemDto => {
+export const createEmptyItem = (currentItems: CreateTemplateItemDto[]): CreateTemplateItemDto => {
   const nextOrder = currentItems.length + 1;
   return {
     order: nextOrder,
-    maintenanceTask: '',
-    judgmentStandard: '',
-    inspectionMethod: '',
-    maintenanceContent: '',
-    expectedResult: '',
+    maintenanceTask: "",
+    judgmentStandard: "",
+    inspectionMethod: "",
+    maintenanceContent: "",
+    expectedResult: "",
     isRequired: false,
     requiresImage: false,
   };
@@ -150,7 +137,7 @@ export const createEmptyItem = (
  */
 export const moveItemUp = (
   items: CreateTemplateItemDto[],
-  index: number
+  index: number,
 ): CreateTemplateItemDto[] => {
   if (index === 0) return items; // Already at top
   const newItems = [...items];
@@ -163,7 +150,7 @@ export const moveItemUp = (
  */
 export const moveItemDown = (
   items: CreateTemplateItemDto[],
-  index: number
+  index: number,
 ): CreateTemplateItemDto[] => {
   if (index === items.length - 1) return items; // Already at bottom
   const newItems = [...items];
@@ -176,7 +163,7 @@ export const moveItemDown = (
  */
 export const removeItem = (
   items: CreateTemplateItemDto[],
-  index: number
+  index: number,
 ): CreateTemplateItemDto[] => {
   const newItems = items.filter((_, i) => i !== index);
   return recalculateItemOrder(newItems);

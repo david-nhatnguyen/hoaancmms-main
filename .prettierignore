@@ -1,0 +1,22 @@
+# Ignore artifacts
+node_modules
+dist
+build
+coverage
+playwright-report
+test-results
+.next
+.turbo
+apps/api/dist
+apps/web/dist
+apps/web/build
+
+# Ignore other files
+*.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Ignore env files
+.env*
+!.env.example

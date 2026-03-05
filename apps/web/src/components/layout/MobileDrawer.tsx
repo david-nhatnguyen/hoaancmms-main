@@ -1,13 +1,8 @@
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle
-} from '@/components/ui/sheet';
-import { Settings } from 'lucide-react';
-import { NavLink, useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { NavigationContent } from './navigation/NavigationContent';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Settings } from "lucide-react";
+import { NavLink, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { NavigationContent } from "./navigation/NavigationContent";
 
 interface MobileDrawerProps {
   open: boolean;
@@ -33,8 +28,12 @@ export function MobileDrawer({ open, onOpenChange }: MobileDrawerProps) {
               <span className="text-primary-foreground font-black text-xs">CM</span>
             </div>
             <div className="flex flex-col">
-              <SheetTitle className="font-bold text-sidebar-accent-foreground text-sm tracking-tight">CMMS PRO</SheetTitle>
-              <span className="text-[10px] text-primary font-bold uppercase tracking-widest">Asset Management</span>
+              <SheetTitle className="font-bold text-sidebar-accent-foreground text-sm tracking-tight">
+                CMMS PRO
+              </SheetTitle>
+              <span className="text-[10px] text-primary font-bold uppercase tracking-widest">
+                Asset Management
+              </span>
             </div>
           </div>
         </SheetHeader>
@@ -49,9 +48,9 @@ export function MobileDrawer({ open, onOpenChange }: MobileDrawerProps) {
             onClick={handleNavigate}
             className={cn(
               "flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 active:scale-95 outline-none",
-              location.pathname === '/system/settings'
+              location.pathname === "/system/settings"
                 ? "bg-primary text-primary-foreground font-medium shadow-md shadow-primary/20"
-                : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
             )}
           >
             <Settings className="h-5 w-5" />

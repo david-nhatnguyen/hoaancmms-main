@@ -1,35 +1,24 @@
-import { useState, useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import {
-  ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
-  Calendar,
-  AlertTriangle
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { useState, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft, ChevronLeft, ChevronRight, Calendar, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   pmPlans,
   getDaysInMonth,
   getFirstDayOfMonth,
   PMPlanItem,
-  PM_ITEM_STATUS_LABELS
-} from '@/data/pmPlanData';
-import { cn } from '@/lib/utils';
+  PM_ITEM_STATUS_LABELS,
+} from "@/data/pmPlanData";
+import { cn } from "@/lib/utils";
 
-const WEEKDAYS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+const WEEKDAYS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 
 export default function PMPlanCalendar() {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const plan = pmPlans.find(p => p.id === id);
+  const plan = pmPlans.find((p) => p.id === id);
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
@@ -38,7 +27,7 @@ export default function PMPlanCalendar() {
   const itemsByDate = useMemo(() => {
     if (!plan) return {};
     const grouped: Record<string, PMPlanItem[]> = {};
-    plan.items.forEach(item => {
+    plan.items.forEach((item) => {
       if (item.plannedDate) {
         const date = item.plannedDate;
         if (!grouped[date]) grouped[date] = [];
@@ -53,7 +42,7 @@ export default function PMPlanCalendar() {
     return (
       <div className="p-6 text-center">
         <p className="text-muted-foreground">Không tìm thấy kế hoạch</p>
-        <Button variant="link" onClick={() => navigate('/pm-plans')}>
+        <Button variant="link" onClick={() => navigate("/pm-plans")}>
           Quay lại danh sách
         </Button>
       </div>
@@ -64,7 +53,7 @@ export default function PMPlanCalendar() {
   const firstDayOfMonth = getFirstDayOfMonth(plan.month, plan.year);
 
   // Unscheduled items
-  const unscheduledItems = plan.items.filter(i => !i.plannedDate);
+  const unscheduledItems = plan.items.filter((i) => !i.plannedDate);
 
   // Check overload (more than 3 items per day)
   const isOverloaded = (date: string) => {
@@ -72,7 +61,7 @@ export default function PMPlanCalendar() {
   };
 
   const handleDateClick = (day: number) => {
-    const dateStr = `${plan.year}-${String(plan.month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const dateStr = `${plan.year}-${String(plan.month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     setSelectedDate(dateStr);
     setShowDetailDialog(true);
   };
@@ -123,7 +112,7 @@ export default function PMPlanCalendar() {
               {unscheduledItems.length} thiết bị chưa được lên lịch
             </p>
             <p className="text-sm text-muted-foreground">
-              {unscheduledItems.map(i => i.equipmentCode).join(', ')}
+              {unscheduledItems.map((i) => i.equipmentCode).join(", ")}
             </p>
           </div>
         </div>
@@ -138,7 +127,7 @@ export default function PMPlanCalendar() {
               key={day}
               className={cn(
                 "py-3 text-center text-sm font-medium text-muted-foreground",
-                idx === 0 && "text-destructive/70"
+                idx === 0 && "text-destructive/70",
               )}
             >
               {day}
@@ -150,10 +139,15 @@ export default function PMPlanCalendar() {
         <div className="grid grid-cols-7">
           {calendarDays.map((day, idx) => {
             if (day === null) {
-              return <div key={`empty-${idx}`} className="min-h-[120px] border-b border-r border-border/30 bg-secondary/20" />;
+              return (
+                <div
+                  key={`empty-${idx}`}
+                  className="min-h-[120px] border-b border-r border-border/30 bg-secondary/20"
+                />
+              );
             }
 
-            const dateStr = `${plan.year}-${String(plan.month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dateStr = `${plan.year}-${String(plan.month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
             const dayItems = itemsByDate[dateStr] || [];
             const overloaded = isOverloaded(dateStr);
             const isWeekend = (firstDayOfMonth + day - 1) % 7 === 0;
@@ -165,30 +159,25 @@ export default function PMPlanCalendar() {
                 className={cn(
                   "min-h-[120px] p-2 border-b border-r border-border/30 cursor-pointer transition-colors hover:bg-secondary/30",
                   isWeekend && "bg-secondary/10",
-                  overloaded && "bg-destructive/5"
+                  overloaded && "bg-destructive/5",
                 )}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className={cn(
-                    "text-sm font-medium",
-                    isWeekend && "text-destructive/70"
-                  )}>
+                  <span className={cn("text-sm font-medium", isWeekend && "text-destructive/70")}>
                     {day}
                   </span>
-                  {overloaded && (
-                    <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
-                  )}
+                  {overloaded && <AlertTriangle className="h-3.5 w-3.5 text-destructive" />}
                 </div>
 
                 <div className="space-y-1">
-                  {dayItems.slice(0, 3).map(item => (
+                  {dayItems.slice(0, 3).map((item) => (
                     <div
                       key={item.id}
                       className={cn(
                         "px-2 py-1 rounded text-xs truncate",
-                        item.status === 'work-order-created'
+                        item.status === "work-order-created"
                           ? "bg-status-active/20 text-[hsl(var(--status-active))]"
-                          : "bg-primary/20 text-primary"
+                          : "bg-primary/20 text-primary",
                       )}
                     >
                       {item.equipmentCode}
@@ -228,17 +217,16 @@ export default function PMPlanCalendar() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-primary" />
-              Công việc ngày {selectedDate ? new Date(selectedDate).toLocaleDateString('vi-VN') : ''}
+              Công việc ngày{" "}
+              {selectedDate ? new Date(selectedDate).toLocaleDateString("vi-VN") : ""}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-3">
             {selectedDateItems.length === 0 ? (
-              <p className="text-center py-6 text-muted-foreground">
-                Không có công việc bảo dưỡng
-              </p>
+              <p className="text-center py-6 text-muted-foreground">Không có công việc bảo dưỡng</p>
             ) : (
-              selectedDateItems.map(item => (
+              selectedDateItems.map((item) => (
                 <div
                   key={item.id}
                   className="p-4 bg-secondary/30 rounded-lg border border-border/50"
@@ -246,19 +234,19 @@ export default function PMPlanCalendar() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="font-medium">
-                        <span className="text-primary font-mono">{item.equipmentCode}</span>
-                        {' '}- {item.equipmentName}
+                        <span className="text-primary font-mono">{item.equipmentCode}</span> -{" "}
+                        {item.equipmentName}
                       </p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {item.machineType}
-                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">{item.machineType}</p>
                     </div>
-                    <span className={cn(
-                      "status-badge text-xs",
-                      item.status === 'work-order-created'
-                        ? "bg-status-active/20 text-[hsl(var(--status-active))]"
-                        : "bg-primary/20 text-primary"
-                    )}>
+                    <span
+                      className={cn(
+                        "status-badge text-xs",
+                        item.status === "work-order-created"
+                          ? "bg-status-active/20 text-[hsl(var(--status-active))]"
+                          : "bg-primary/20 text-primary",
+                      )}
+                    >
                       {PM_ITEM_STATUS_LABELS[item.status]}
                     </span>
                   </div>
@@ -266,11 +254,11 @@ export default function PMPlanCalendar() {
                   <div className="mt-3 pt-3 border-t border-border/50 grid grid-cols-2 gap-2 text-sm">
                     <div>
                       <span className="text-muted-foreground">Checklist:</span>
-                      <p className="font-medium">{item.checklistName || '-'}</p>
+                      <p className="font-medium">{item.checklistName || "-"}</p>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Người phụ trách:</span>
-                      <p className="font-medium">{item.assignee || '-'}</p>
+                      <p className="font-medium">{item.assignee || "-"}</p>
                     </div>
                   </div>
                 </div>

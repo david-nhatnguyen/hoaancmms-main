@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 export interface ChipOption {
   value: string;
@@ -12,11 +12,7 @@ interface ChipFilterProps {
   onToggle: (value: string) => void;
 }
 
-export function ChipFilter({
-  options,
-  selected,
-  onToggle
-}: ChipFilterProps) {
+export function ChipFilter({ options, selected, onToggle }: ChipFilterProps) {
   return (
     <div className="flex items-center gap-1.5 flex-wrap">
       {options.map((option) => (
@@ -27,7 +23,7 @@ export function ChipFilter({
             "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border",
             selected.includes(option.value)
               ? cn(option.color || "bg-primary", "text-white border-transparent shadow-sm")
-              : "bg-secondary/50 text-muted-foreground border-border/50 hover:bg-secondary hover:text-foreground"
+              : "bg-secondary/50 text-muted-foreground border-border/50 hover:bg-secondary hover:text-foreground",
           )}
         >
           {option.label}

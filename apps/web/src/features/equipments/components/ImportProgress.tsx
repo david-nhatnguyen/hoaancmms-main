@@ -4,8 +4,8 @@
  * Combines the shared useImportProgress hook with the shared ImportProgress
  * component, pre-configured for the equipment entity.
  */
-import { ImportProgress, useImportProgress } from '@/components/shared/import';
-import { equipmentsApi } from '@/api/endpoints/equipments.api';
+import { ImportProgress, useImportProgress } from "@/components/shared/import";
+import { equipmentsApi } from "@/api/endpoints/equipments.api";
 
 interface EquipmentImportProgressProps {
   jobId: string;
@@ -21,10 +21,10 @@ export function EquipmentImportProgress({
   const { progress, history } = useImportProgress({
     jobId,
     getStatus: (id) => equipmentsApi.getImportStatus(id) as any,
-    invalidateKeys: ['equipments', 'equipment-stats'],
-    storagePrefix: 'equipment_import',
+    invalidateKeys: ["equipments", "equipment-stats"],
+    storagePrefix: "equipment_import",
     messages: {
-      success: 'Import thiết bị thành công!',
+      success: "Import thiết bị thành công!",
       warning: (n) => `Hoàn tất: ${n} thiết bị lỗi`,
     },
   });

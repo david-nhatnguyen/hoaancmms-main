@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react';
-import { FileText, FileImage, Download, Trash2, UploadCloud, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useState, useRef } from "react";
+import { FileText, FileImage, Download, Trash2, UploadCloud, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,24 +12,27 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useUploadDocument, useDeleteDocument } from '@/features/equipments/hooks/use-equipment-documents';
-import { Equipment, EquipmentDocument } from '@/api/types/equipment.types';
-import { env } from '@/config/env';
-import { toast } from 'sonner';
+import {
+  useUploadDocument,
+  useDeleteDocument,
+} from "@/features/equipments/hooks/use-equipment-documents";
+import { Equipment, EquipmentDocument } from "@/api/types/equipment.types";
+import { env } from "@/config/env";
+import { toast } from "sonner";
 
 interface EquipmentDocumentsTabProps {
   equipment: Equipment;
 }
 
 const getFileIcon = (type?: string) => {
-  if (type?.includes('image')) return FileImage;
-  if (type?.includes('pdf')) return FileText; // Could distinguish PDF
+  if (type?.includes("image")) return FileImage;
+  if (type?.includes("pdf")) return FileText; // Could distinguish PDF
   return FileText;
 };
 
 const formatFileSize = (bytes?: number) => {
-  if (!bytes) return 'Unknown size';
-  const units = ['B', 'KB', 'MB', 'GB'];
+  if (!bytes) return "Unknown size";
+  const units = ["B", "KB", "MB", "GB"];
   let size = bytes;
   let unitIndex = 0;
   while (size >= 1024 && unitIndex < units.length - 1) {
@@ -52,13 +55,13 @@ export const EquipmentDocumentsTab = ({ equipment }: EquipmentDocumentsTabProps)
 
     // Validate size (e.g. 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      toast.error('File quá lớn (tối đa 10MB)');
+      toast.error("File quá lớn (tối đa 10MB)");
       return;
     }
 
     uploadMutation.mutate({ id: equipment.id, file });
     // Reset input
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleDelete = () => {
@@ -66,17 +69,17 @@ export const EquipmentDocumentsTab = ({ equipment }: EquipmentDocumentsTabProps)
       deleteMutation.mutate(
         { docId: deleteId, equipmentId: equipment.id }, // Need to pass equipmentId for invalidation context
         {
-          onSuccess: () => setDeleteId(null)
-        }
+          onSuccess: () => setDeleteId(null),
+        },
       );
     }
   };
 
   const getAssetUrl = (path: string) => {
-    if (path.startsWith('http')) return path;
-    const cleanPath = path.startsWith('/api/') ? path.replace('/api', '') : path;
-    const baseUrl = env.API_URL.endsWith('/') ? env.API_URL.slice(0, -1) : env.API_URL;
-    return `${baseUrl}${cleanPath.startsWith('/') ? '' : '/'}${cleanPath}`;
+    if (path.startsWith("http")) return path;
+    const cleanPath = path.startsWith("/api/") ? path.replace("/api", "") : path;
+    const baseUrl = env.API_URL.endsWith("/") ? env.API_URL.slice(0, -1) : env.API_URL;
+    return `${baseUrl}${cleanPath.startsWith("/") ? "" : "/"}${cleanPath}`;
   };
 
   const documents = equipment.documents || [];
@@ -120,7 +123,9 @@ export const EquipmentDocumentsTab = ({ equipment }: EquipmentDocumentsTabProps)
                 <FileText className="h-6 w-6 text-muted-foreground" />
               </div>
               <h3 className="text-sm font-medium text-foreground">Chưa có tài liệu nào</h3>
-              <p className="text-xs text-muted-foreground mt-1 mb-4">Tải lên các tài liệu liên quan đến thiết bị này</p>
+              <p className="text-xs text-muted-foreground mt-1 mb-4">
+                Tải lên các tài liệu liên quan đến thiết bị này
+              </p>
               <Button
                 variant="outline"
                 size="sm"
@@ -198,7 +203,7 @@ export const EquipmentDocumentsTab = ({ equipment }: EquipmentDocumentsTabProps)
               className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending ? 'Đang xóa...' : 'Xóa tài liệu'}
+              {deleteMutation.isPending ? "Đang xóa..." : "Xóa tài liệu"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

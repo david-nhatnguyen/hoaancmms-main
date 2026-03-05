@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { checklistTemplatesApi } from '@/features/checklists/api/checklist-templates.api';
-import { toast } from 'sonner';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { checklistTemplatesApi } from "@/features/checklists/api/checklist-templates.api";
+import { toast } from "sonner";
 
 export interface ChecklistImportHistory {
   id: string;
@@ -10,7 +10,7 @@ export interface ChecklistImportHistory {
   processedRecords: number;
   successCount: number;
   failedCount: number;
-  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+  status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
   errorFileUrl?: string;
   createdAt?: string;
 }
@@ -34,21 +34,21 @@ export function useChecklistImportProgress({ jobId }: UseChecklistImportProgress
         const data = (res as any)?.data || res;
         setHistory(data);
 
-        if (data.status === 'COMPLETED' || data.status === 'FAILED') {
+        if (data.status === "COMPLETED" || data.status === "FAILED") {
           setProgress(100);
           if (pollingRef.current) clearInterval(pollingRef.current);
-          queryClient.invalidateQueries({ queryKey: ['checklist-templates'] });
+          queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
 
-          if (data.status === 'COMPLETED') {
+          if (data.status === "COMPLETED") {
             if (data.failedCount > 0) {
               toast.warning(`Hoàn tất: ${data.failedCount} lỗi`);
             } else {
-              toast.success('Import checklist thành công!');
+              toast.success("Import checklist thành công!");
             }
           }
         }
       } catch (err) {
-        console.error('Checklist import polling error:', err);
+        console.error("Checklist import polling error:", err);
       }
     };
 
@@ -60,8 +60,8 @@ export function useChecklistImportProgress({ jobId }: UseChecklistImportProgress
     if (!jobId) return;
 
     // Recover metrics for refresh persistence
-    const savedDuration = Number(localStorage.getItem('checklist_import_duration') || 10000);
-    const savedStart = Number(localStorage.getItem('checklist_import_start_time') || Date.now());
+    const savedDuration = Number(localStorage.getItem("checklist_import_duration") || 10000);
+    const savedStart = Number(localStorage.getItem("checklist_import_start_time") || Date.now());
     const now = Date.now();
     const elapsedTime = now - savedStart;
     const remainingWait = Math.max(0, savedDuration - elapsedTime);
@@ -76,7 +76,7 @@ export function useChecklistImportProgress({ jobId }: UseChecklistImportProgress
 
       const currentStep = Math.min(
         totalSimulationSteps,
-        Math.floor(currentElapsed / (savedDuration / totalSimulationSteps))
+        Math.floor(currentElapsed / (savedDuration / totalSimulationSteps)),
       );
       const calculatedProgress = Math.min(90, currentStep * incrementPerStep);
       setProgress(calculatedProgress);

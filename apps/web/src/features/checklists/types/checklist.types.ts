@@ -1,26 +1,26 @@
 // TypeScript types matching the backend API schema
 
 export enum ChecklistCycle {
-  DAILY = 'DAILY',
-  WEEKLY = 'WEEKLY',
-  MONTHLY = 'MONTHLY',
-  QUARTERLY = 'QUARTERLY',
-  SEMI_ANNUALLY = 'SEMI_ANNUALLY',
-  YEARLY = 'YEARLY',
+  DAILY = "DAILY",
+  WEEKLY = "WEEKLY",
+  MONTHLY = "MONTHLY",
+  QUARTERLY = "QUARTERLY",
+  SEMI_ANNUALLY = "SEMI_ANNUALLY",
+  YEARLY = "YEARLY",
 }
 
 export enum ChecklistStatus {
-  DRAFT = 'DRAFT',
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
+  DRAFT = "DRAFT",
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
 }
 
 export enum ChecklistExecutionStatus {
-  NOT_STARTED = 'NOT_STARTED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  SKIPPED = 'SKIPPED',
-  FAILED = 'FAILED',
+  NOT_STARTED = "NOT_STARTED",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  SKIPPED = "SKIPPED",
+  FAILED = "FAILED",
 }
 
 // Equipment (simplified for templates)
@@ -39,8 +39,6 @@ export interface Equipment {
   image?: string | null;
   modelYear?: number | null;
 }
-
-
 
 // Template Item
 export interface ChecklistTemplateItem {
@@ -74,12 +72,8 @@ export interface ChecklistTemplate {
   equipmentId: string;
   equipment?: Equipment;
 
-
-
   // Department (OPTIONAL)
   department?: string | null;
-
-
 
   // Scheduling
   cycle: ChecklistCycle;
@@ -136,7 +130,7 @@ export interface QueryTemplateParams {
 
   search?: string;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
   page?: number;
   limit?: number;
 }
@@ -162,19 +156,19 @@ export type ChecklistTemplateResponse = ApiResponse<ChecklistTemplate>;
 
 // Cycle labels for UI
 export const CYCLE_LABELS: Record<ChecklistCycle, string> = {
-  [ChecklistCycle.DAILY]: 'Ngày',
-  [ChecklistCycle.WEEKLY]: 'Tuần',
-  [ChecklistCycle.MONTHLY]: 'Tháng',
-  [ChecklistCycle.QUARTERLY]: 'Quý',
-  [ChecklistCycle.SEMI_ANNUALLY]: '6 tháng',
-  [ChecklistCycle.YEARLY]: 'Năm',
+  [ChecklistCycle.DAILY]: "Ngày",
+  [ChecklistCycle.WEEKLY]: "Tuần",
+  [ChecklistCycle.MONTHLY]: "Tháng",
+  [ChecklistCycle.QUARTERLY]: "Quý",
+  [ChecklistCycle.SEMI_ANNUALLY]: "6 tháng",
+  [ChecklistCycle.YEARLY]: "Năm",
 };
 
 // Status labels for UI
 export const STATUS_LABELS: Record<ChecklistStatus, string> = {
-  [ChecklistStatus.DRAFT]: 'Nháp',
-  [ChecklistStatus.ACTIVE]: 'Áp dụng',
-  [ChecklistStatus.INACTIVE]: 'Ngừng sử dụng',
+  [ChecklistStatus.DRAFT]: "Nháp",
+  [ChecklistStatus.ACTIVE]: "Áp dụng",
+  [ChecklistStatus.INACTIVE]: "Ngừng sử dụng",
 };
 
 // Helper to convert old mock data format to new format (for migration)

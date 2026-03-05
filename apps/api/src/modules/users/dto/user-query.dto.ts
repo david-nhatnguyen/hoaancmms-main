@@ -1,6 +1,6 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsInt, Min } from 'class-validator';
-import { Type } from 'class-transformer';
+import { ApiPropertyOptional } from "@nestjs/swagger";
+import { IsOptional, IsString, IsInt, Min } from "class-validator";
+import { Type } from "class-transformer";
 
 export class UserQueryDto {
   @ApiPropertyOptional({ default: 1 })
@@ -22,17 +22,17 @@ export class UserQueryDto {
   @IsOptional()
   search?: string;
 
-  @ApiPropertyOptional({ enum: ['ACTIVE', 'LOCKED'] })
+  @ApiPropertyOptional({ enum: ["ACTIVE", "LOCKED"] })
   @IsString()
   @IsOptional()
   status?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by role ID' })
+  @ApiPropertyOptional({ description: "Filter by role ID" })
   @IsString()
   @IsOptional()
   roleId?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by factory ID' })
+  @ApiPropertyOptional({ description: "Filter by factory ID" })
   @IsString()
   @IsOptional()
   factoryId?: string;

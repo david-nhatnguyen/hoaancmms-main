@@ -17,7 +17,7 @@ export const mapRowSelectionToIds = (rowSelection: RowSelectionState): string[] 
 export const updateColumnFilters = (
   currentFilters: ColumnFiltersState,
   id: string,
-  value: any
+  value: any,
 ): ColumnFiltersState => {
   const filtered = currentFilters.filter((f) => f.id !== id);
   if (value === undefined || value === null || (Array.isArray(value) && value.length === 0)) {
@@ -50,7 +50,7 @@ export const isFilterActive = (filters: ColumnFiltersState, id: string): boolean
  */
 export const getActiveFiltersCount = (
   filters: ColumnFiltersState,
-  searchQuery?: string
+  searchQuery?: string,
 ): number => {
   let count = filters.length;
   if (searchQuery && searchQuery.trim() !== "") {
