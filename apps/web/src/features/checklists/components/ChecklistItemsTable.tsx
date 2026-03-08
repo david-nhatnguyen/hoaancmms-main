@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoveUp, MoveDown, Trash2, Plus, ListTodo } from "lucide-react";
@@ -30,216 +31,219 @@ export function ChecklistItemsTable({
 }: ChecklistItemsTableProps) {
   const { isMobile, handleRemove } = useChecklistItemsTable(form, remove, move, fields);
 
-  const columns: (ColumnDef<ChecklistFormValues["items"][0]> & { truncate?: boolean })[] = [
-    {
-      accessorKey: "index",
-      header: () => <div className="text-center text-xs tracking-wider w-8">#</div>,
-      cell: ({ row }) => (
-        <div className="text-center text-muted-foreground w-8">{row.index + 1}</div>
-      ),
-      size: 40,
-      truncate: false,
-    },
-    {
-      accessorKey: "maintenanceTask",
-      header: () => (
-        <div className="min-w-[140px] text-xs tracking-wider">
-          Hạng mục bảo dưỡng <span className="text-destructive">*</span>
-        </div>
-      ),
-      cell: ({ row }) => (
-        <FormField
-          control={form.control}
-          name={`items.${row.index}.maintenanceTask`}
-          render={({ field }) => (
-            <FormItem className="space-y-0">
-              <FormControl>
-                <Textarea
-                  placeholder="Hạng mục"
-                  {...field}
-                  className={cn(
-                    "min-h-[60px] resize-none text-sm",
-                    form.formState.errors.items?.[row.index]?.maintenanceTask &&
-                      "border-destructive focus-visible:ring-destructive",
-                  )}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-      ),
-      size: 200,
-    },
-    {
-      accessorKey: "judgmentStandard",
-      header: () => <div className="text-xs tracking-wider">Tiêu chuẩn phán định</div>,
-      cell: ({ row }) => (
-        <FormField
-          control={form.control}
-          name={`items.${row.index}.judgmentStandard`}
-          render={({ field }) => (
-            <FormItem className="space-y-0">
-              <FormControl>
-                <Textarea
-                  placeholder="Tiêu chuẩn"
-                  {...field}
-                  className="min-h-[60px] resize-none text-sm"
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-      ),
-      size: 150,
-    },
-    {
-      accessorKey: "inspectionMethod",
-      header: () => <div className="text-xs tracking-wider">Phương pháp kiểm tra</div>,
-      cell: ({ row }) => (
-        <FormField
-          control={form.control}
-          name={`items.${row.index}.inspectionMethod`}
-          render={({ field }) => (
-            <FormItem className="space-y-0">
-              <FormControl>
-                <Textarea
-                  placeholder="Phương pháp"
-                  {...field}
-                  className="min-h-[60px] resize-none text-sm"
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-      ),
-      size: 150,
-    },
-    {
-      accessorKey: "maintenanceContent",
-      header: () => <div className="text-xs tracking-wider">Nội dung chi tiết bảo dưỡng</div>,
-      cell: ({ row }) => (
-        <FormField
-          control={form.control}
-          name={`items.${row.index}.maintenanceContent`}
-          render={({ field }) => (
-            <FormItem className="space-y-0">
-              <FormControl>
-                <Textarea
-                  placeholder="Nội dung chi tiết bảo dưỡng"
-                  {...field}
-                  className="min-h-[60px] resize-none text-sm"
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-      ),
-      size: 150,
-    },
-    {
-      accessorKey: "expectedResult",
-      header: () => <div className="text-xs tracking-wider">Kết quả mong đợi</div>,
-      cell: ({ row }) => (
-        <FormField
-          control={form.control}
-          name={`items.${row.index}.expectedResult`}
-          render={({ field }) => (
-            <FormItem className="space-y-0">
-              <FormControl>
-                <Textarea
-                  placeholder="Kết quả mong đợi"
-                  {...field}
-                  className="min-h-[60px] resize-none text-sm"
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-      ),
-      size: 150,
-    },
-    // Flags Grouped
-    {
-      id: "flags",
-      header: () => <div className="text-center text-xs tracking-wider w-[100px]">Cấu hình</div>,
-      cell: ({ row }) => (
-        <div className="flex flex-col gap-2 py-1">
+  const columns = useMemo<(ColumnDef<ChecklistFormValues["items"][0]> & { truncate?: boolean })[]>(
+    () => [
+      {
+        accessorKey: "index",
+        header: () => <div className="text-center text-xs tracking-wider w-8">#</div>,
+        cell: ({ row }) => (
+          <div className="text-center text-muted-foreground w-8">{row.index + 1}</div>
+        ),
+        size: 40,
+        truncate: false,
+      },
+      {
+        accessorKey: "maintenanceTask",
+        header: () => (
+          <div className="min-w-[140px] text-xs tracking-wider">
+            Hạng mục bảo dưỡng <span className="text-destructive">*</span>
+          </div>
+        ),
+        cell: ({ row }) => (
           <FormField
             control={form.control}
-            name={`items.${row.index}.isRequired`}
+            name={`items.${row.index}.maintenanceTask`}
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+              <FormItem className="space-y-0">
                 <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  <Textarea
+                    placeholder="Hạng mục"
+                    {...field}
+                    className={cn(
+                      "min-h-[60px] resize-none text-sm",
+                      form.formState.errors.items?.[row.index]?.maintenanceTask &&
+                        "border-destructive focus-visible:ring-destructive",
+                    )}
+                  />
                 </FormControl>
-                <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">
-                  Bắt buộc
-                </div>
               </FormItem>
             )}
           />
+        ),
+        size: 200,
+      },
+      {
+        accessorKey: "judgmentStandard",
+        header: () => <div className="text-xs tracking-wider">Tiêu chuẩn phán định</div>,
+        cell: ({ row }) => (
           <FormField
             control={form.control}
-            name={`items.${row.index}.requiresImage`}
+            name={`items.${row.index}.judgmentStandard`}
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+              <FormItem className="space-y-0">
                 <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  <Textarea
+                    placeholder="Tiêu chuẩn"
+                    {...field}
+                    className="min-h-[60px] resize-none text-sm"
+                  />
                 </FormControl>
-                <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">
-                  Yêu cầu ảnh
-                </div>
               </FormItem>
             )}
           />
-        </div>
-      ),
-      size: 120,
-    },
-    {
-      id: "actions",
-      header: () => <div className="text-right text-xs tracking-wider w-24">Thao tác</div>,
-      cell: ({ row }) => (
-        <div className="flex flex-col items-center justify-center gap-1">
-          <div className="flex gap-1">
+        ),
+        size: 150,
+      },
+      {
+        accessorKey: "inspectionMethod",
+        header: () => <div className="text-xs tracking-wider">Phương pháp kiểm tra</div>,
+        cell: ({ row }) => (
+          <FormField
+            control={form.control}
+            name={`items.${row.index}.inspectionMethod`}
+            render={({ field }) => (
+              <FormItem className="space-y-0">
+                <FormControl>
+                  <Textarea
+                    placeholder="Phương pháp"
+                    {...field}
+                    className="min-h-[60px] resize-none text-sm"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        ),
+        size: 150,
+      },
+      {
+        accessorKey: "maintenanceContent",
+        header: () => <div className="text-xs tracking-wider">Nội dung chi tiết bảo dưỡng</div>,
+        cell: ({ row }) => (
+          <FormField
+            control={form.control}
+            name={`items.${row.index}.maintenanceContent`}
+            render={({ field }) => (
+              <FormItem className="space-y-0">
+                <FormControl>
+                  <Textarea
+                    placeholder="Nội dung chi tiết bảo dưỡng"
+                    {...field}
+                    className="min-h-[60px] resize-none text-sm"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        ),
+        size: 150,
+      },
+      {
+        accessorKey: "expectedResult",
+        header: () => <div className="text-xs tracking-wider">Kết quả mong đợi</div>,
+        cell: ({ row }) => (
+          <FormField
+            control={form.control}
+            name={`items.${row.index}.expectedResult`}
+            render={({ field }) => (
+              <FormItem className="space-y-0">
+                <FormControl>
+                  <Textarea
+                    placeholder="Kết quả mong đợi"
+                    {...field}
+                    className="min-h-[60px] resize-none text-sm"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        ),
+        size: 150,
+      },
+      // Flags Grouped
+      {
+        id: "flags",
+        header: () => <div className="text-center text-xs tracking-wider w-[100px]">Cấu hình</div>,
+        cell: ({ row }) => (
+          <div className="flex flex-col gap-2 py-1">
+            <FormField
+              control={form.control}
+              name={`items.${row.index}.isRequired`}
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">
+                    Bắt buộc
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`items.${row.index}.requiresImage`}
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="text-[10px] whitespace-nowrap text-muted-foreground w-16">
+                    Yêu cầu ảnh
+                  </div>
+                </FormItem>
+              )}
+            />
+          </div>
+        ),
+        size: 120,
+      },
+      {
+        id: "actions",
+        header: () => <div className="text-right text-xs tracking-wider w-24">Thao tác</div>,
+        cell: ({ row }) => (
+          <div className="flex flex-col items-center justify-center gap-1">
+            <div className="flex gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-muted-foreground group-hover:text-foreground"
+                title="Di chuyển lên"
+                onClick={() => move(row.index, row.index - 1)}
+                disabled={row.index === 0}
+              >
+                <MoveUp className="h-3 w-3" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-muted-foreground group-hover:text-foreground"
+                title="Di chuyển xuống"
+                onClick={() => move(row.index, row.index + 1)}
+                disabled={row.index === fields.length - 1}
+              >
+                <MoveDown className="h-3 w-3" />
+              </Button>
+            </div>
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              className="h-6 w-6 text-muted-foreground group-hover:text-foreground"
-              title="Di chuyển lên"
-              onClick={() => move(row.index, row.index - 1)}
-              disabled={row.index === 0}
+              className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive mt-1"
+              title="Xóa hạng mục này"
+              onClick={() => handleRemove(row.index)}
             >
-              <MoveUp className="h-3 w-3" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 text-muted-foreground group-hover:text-foreground"
-              title="Di chuyển xuống"
-              onClick={() => move(row.index, row.index + 1)}
-              disabled={row.index === fields.length - 1}
-            >
-              <MoveDown className="h-3 w-3" />
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive mt-1"
-            title="Xóa hạng mục này"
-            onClick={() => handleRemove(row.index)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      ),
-      truncate: false,
-    },
-  ];
+        ),
+        truncate: false,
+      },
+    ],
+    [form, move, remove, fields.length],
+  );
 
   return (
     <Card className="border border-border/60 shadow-sm bg-card transition-all hover:shadow-md">
