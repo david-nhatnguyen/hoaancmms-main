@@ -36,7 +36,7 @@ export class RolesService {
       },
       orderBy: [{ isSystem: "desc" }, { createdAt: "asc" }],
     });
-
+    console.log("trigger test");
     return roles.map(this.transformRole);
   }
 
