@@ -169,7 +169,7 @@ export function useChecklistColumns({
         key: "cycle",
         tooltip: false,
         truncate: false,
-        header: () => <div className="text-center">Chu kỳ</div>,
+        header: "Chu kỳ",
         size: 100,
         cell: ({ row }) => {
           const cycle = row.getValue("cycle") as ChecklistCycle;
@@ -193,7 +193,7 @@ export function useChecklistColumns({
         key: "version",
         tooltip: false,
         truncate: false,
-        header: () => <div className="text-center">Phiên bản</div>,
+        header: "Phiên bản",
         size: 80,
         cell: ({ row }) => (
           <div className="text-center font-mono text-xs text-muted-foreground">
@@ -210,7 +210,7 @@ export function useChecklistColumns({
         key: "status",
         truncate: false,
         tooltip: false,
-        header: () => <div className="text-center">Trạng thái</div>,
+        header: "Trạng thái",
         size: 120,
         cell: ({ row }) => {
           const status = row.getValue("status") as ChecklistStatus;

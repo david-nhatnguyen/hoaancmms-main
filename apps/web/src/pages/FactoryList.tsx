@@ -202,14 +202,14 @@ export default function FactoryList() {
         }
         desktopActions={
           <>
-            <Button variant="outline" size="sm" className="action-btn-secondary">
+            {/* <Button variant="outline" size="sm" className="action-btn-secondary">
               <FileSpreadsheet className="h-4 w-4" />
               Import
             </Button>
             <Button variant="outline" size="sm" className="action-btn-secondary">
               <Download className="h-4 w-4" />
               Xuất
-            </Button>
+            </Button> */}
             <Button onClick={() => form.openDialog()} className="action-btn-primary">
               <Plus className="h-4 w-4" />
               Thêm Nhà máy
