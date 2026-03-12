@@ -122,7 +122,7 @@ export const EquipmentInfoCard = ({ equipment }: EquipmentInfoCardProps) => {
               <CardTitle className="text-lg">Ghi chú</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className={cn("pt-4", isMobile ? "p-4" : "p-6")}>
+          <CardContent className={cn("pt-2", isMobile ? "p-4" : "p-6 pt-1")}>
             <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
               {equipment.notes}
             </p>
